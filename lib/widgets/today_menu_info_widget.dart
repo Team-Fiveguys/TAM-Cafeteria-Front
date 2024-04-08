@@ -16,7 +16,7 @@ class TodayMenuInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 215,
+      height: 230,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
