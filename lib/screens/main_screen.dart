@@ -35,9 +35,12 @@ class MainScreen extends StatelessWidget {
               children: [
                 Container(
                   alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadiusDirectional.circular(36),
+                    color: Theme.of(context).canvasColor,
+                  ),
                   width: 350,
                   height: 56,
-                  color: Theme.of(context).primaryColor,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
                       vertical: 5,
@@ -57,7 +60,7 @@ class MainScreen extends StatelessWidget {
                         Text(
                           dateFormat.format(now),
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: Color(0xFFF0F0F0),
                             fontSize: 10,
                           ),
                         ),
@@ -88,9 +91,9 @@ class MainScreen extends StatelessWidget {
           ),
           Container(
             alignment: Alignment.center,
-            width: 350,
+            // width: 350,
             height: 56,
-            color: Theme.of(context).primaryColor,
+            color: Theme.of(context).canvasColor,
             child: const Padding(
               padding: EdgeInsets.symmetric(
                 vertical: 5,

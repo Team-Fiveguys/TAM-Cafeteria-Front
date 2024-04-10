@@ -14,10 +14,13 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-          primaryColor: const Color(0xFF3e3e3e),
-          primaryColorLight: const Color(0xFF97948f),
-          primaryColorDark: const Color(0xFF515151),
-          dividerColor: const Color(0xFFc6c6c6)),
+        primaryColor: const Color(0xFF3e3e3e),
+        primaryColorLight: const Color(0xFF97948f),
+        primaryColorDark: const Color(0xFF515151),
+        dividerColor: const Color(0xFFc6c6c6),
+        cardColor: const Color(0xFFFFDA7B),
+        canvasColor: const Color(0xFF002967),
+      ),
       home: Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
