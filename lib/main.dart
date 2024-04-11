@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:tam_cafeteria_front/screens/main_screen.dart';
+import 'package:tam_cafeteria_front/screens/login_screen.dart';
+
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 
 void main() {
@@ -24,7 +25,7 @@ class App extends StatelessWidget {
           child: AppBar(
             leading: Opacity(
               // 투명한 아이콘 버튼 추가
-              opacity: 0.0,
+              opacity: 0.7,
               child: IconButton(
                 icon: const Icon(Icons.menu),
                 onPressed: () {}, // 아무것도 하지 않음
@@ -65,7 +66,7 @@ class App extends StatelessWidget {
             ),
           ),
         ),
-        body: MainScreen(),
+        body: const LoginScreen(),
       ),
     );
   }
