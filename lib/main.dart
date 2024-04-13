@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/screens/main_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
 
 void main() {
   runApp(const App());
@@ -8,6 +9,8 @@ void main() {
 
 class App extends StatelessWidget {
   const App({super.key});
+
+  @override
 
   // This widget is the root of your application.
   @override
@@ -25,12 +28,12 @@ class App extends StatelessWidget {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: AppBar(
-            leading: Opacity(
+            leading: const Opacity(
               // 투명한 아이콘 버튼 추가
               opacity: 0.0,
               child: IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {}, // 아무것도 하지 않음
+                icon: Icon(Icons.menu),
+                onPressed: ApiService.test, // 아무것도 하지 않음
               ),
             ),
             actions: [
@@ -56,7 +59,7 @@ class App extends StatelessWidget {
                   child: SizedBox(
                     height: 50,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      padding: const EdgeInsets.symmetric(vertical: 0),
                       child: Image.asset(
                         'assets/images/app_bar_logo.png',
                         fit: BoxFit.contain,

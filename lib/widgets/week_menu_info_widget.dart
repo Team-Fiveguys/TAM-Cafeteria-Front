@@ -2,13 +2,62 @@ import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/models/cafeteria_model.dart';
 
 class WeekMenuInfo extends StatelessWidget {
-  const WeekMenuInfo({
+  WeekMenuInfo({
     super.key,
     required this.cafeteria,
   });
 
   final Cafeteria cafeteria;
 
+  final List<List<String>> menuList = [
+    [
+      "마제소바",
+      "도토리묵야채무침침침",
+      "타코야끼",
+      "락교",
+      "요구르트",
+      "아이스믹스커피",
+      "배추김치&추가밥",
+    ],
+    [
+      "마제소바",
+      "도토리묵야채무침",
+      "타코야끼",
+      "락교",
+      "요구르트",
+      "아이스믹스커피",
+      "배추김치&추가밥",
+    ],
+    [
+      "마제소바",
+      "도토리묵야채무침",
+      "타코야끼",
+      "락교",
+      "요구르트",
+      "아이스믹스커피",
+      "배추김치&추가밥",
+    ],
+    [
+      "마제소바",
+      "도토리묵야채무침",
+      "타코야끼",
+      "락교",
+      "요구르트",
+      "아이스믹스커피",
+      "배추김치&추가밥",
+    ],
+    [
+      "마제소바",
+      "도토리묵야채무침",
+      "타코야끼",
+      "락교",
+      "요구르트",
+      "아이스믹스커피",
+      "배추김치&추가밥",
+    ],
+    [],
+    [],
+  ];
   @override
   Widget build(BuildContext context) {
     int today = DateTime.now().weekday; // 1: 월요일, 2: 화요일, ..., 7: 일요일
@@ -63,7 +112,7 @@ class WeekMenuInfo extends StatelessWidget {
         const SizedBox(
           height: 20,
         ),
-        if (cafeteria.breakfastHour != null)
+        if (cafeteria.name == "학생회관")
           Column(
             children: [
               Container(
@@ -127,7 +176,10 @@ class WeekMenuInfo extends StatelessWidget {
                         vertical: 5,
                       ),
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(
@@ -142,7 +194,31 @@ class WeekMenuInfo extends StatelessWidget {
                             Text(
                               reorderedDays[index],
                               style: TextStyle(color: getTextColor(index)),
-                            ), // 요일을 표시합니다.
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            if (menuList[(today - 1 + index) % 7].isEmpty)
+                              const Center(
+                                child: Text(
+                                  "미운영",
+                                  style: TextStyle(
+                                    color: Color(0xFF5A5A5A),
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              )
+                            else
+                              // 메뉴 리스트가 비어 있지 않은 경우, 각 메뉴 항목을 순회합니다.
+                              for (var menu
+                                  in menuList[(today - 1 + index) % 7])
+                                Text(
+                                  "• $menu",
+                                  style: const TextStyle(
+                                    color: Color(0xFF5A5A5A),
+                                    fontSize: 8,
+                                  ),
+                                )
                           ],
                         ),
                       ),
@@ -218,7 +294,10 @@ class WeekMenuInfo extends StatelessWidget {
                       vertical: 5,
                     ),
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
@@ -233,7 +312,30 @@ class WeekMenuInfo extends StatelessWidget {
                           Text(
                             reorderedDays[index],
                             style: TextStyle(color: getTextColor(index)),
-                          ), // 요일을 표시합니다.
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          if (menuList[(today - 1 + index) % 7].isEmpty)
+                            const Center(
+                              child: Text(
+                                "미운영",
+                                style: TextStyle(
+                                  color: Color(0xFF5A5A5A),
+                                  fontSize: 10,
+                                ),
+                              ),
+                            )
+                          else
+                            // 메뉴 리스트가 비어 있지 않은 경우, 각 메뉴 항목을 순회합니다.
+                            for (var menu in menuList[(today - 1 + index) % 7])
+                              Text(
+                                "• $menu",
+                                style: const TextStyle(
+                                  color: Color(0xFF5A5A5A),
+                                  fontSize: 8,
+                                ),
+                              )
                         ],
                       ),
                     ),
