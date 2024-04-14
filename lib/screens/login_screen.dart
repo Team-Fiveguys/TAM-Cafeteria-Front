@@ -2,7 +2,9 @@
 //상화좌우 간격 수정해야됨
 //체크 색 정하고
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tam_cafeteria_front/screens/sign_up_screen.dart'; // SignUpScreen 파일 import
 
 class LoginScreen extends StatefulWidget {
@@ -36,10 +38,13 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: Stack(alignment: Alignment.topCenter, children: [
                 Positioned(
-                  top: 55,
+                  top: 5,
                   child: SizedBox(
                     width: 200,
-                    child: Image.asset('assets/images/app_bar_logo.png'),
+                    child: Image.asset(
+                      'assets/images/login_logo.png',
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
                 Column(
@@ -47,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(
-                      height: 10,
+                      height: 50,
                     ), // 아이디 입력창을 로고 위에 조금 올리기 위한 여백 추가
                     TextField(
                       decoration: InputDecoration(
@@ -101,11 +106,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        TextButton(
-                          onPressed: () {},
-                          child: const Text(
-                            '아이디 찾기',
-                            style: TextStyle(color: Colors.black),
+                        Flexible(
+                          child: TextButton(
+                            onPressed: () {},
+                            child: const Text(
+                              '아이디 찾기',
+                              style: TextStyle(color: Colors.black),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8.0),
@@ -158,10 +165,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          '아직 회원이 아니신가요?',
-                          style: TextStyle(
-                            fontSize: 16,
+                        const Flexible(
+                          child: Text(
+                            '아직 회원이 아니신가요?',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                         const SizedBox(
@@ -176,6 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             );
                           },
+                          // ignore: prefer_const_constructors
                           child: const Text(
                             '회원가입>',
                             style: TextStyle(

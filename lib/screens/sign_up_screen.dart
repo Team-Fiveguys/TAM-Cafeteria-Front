@@ -32,247 +32,251 @@ class _SignUpScreenState extends State<SignUpScreen> {
             color: Colors.grey, // 테두리 색상 지정
           ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: ListView(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 30,
-                right: 5,
-                left: 5,
-              ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: '닉네임',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // 모서리를 둥글게
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 30,
+                    right: 5,
+                    left: 5,
                   ),
-                  filled: true,
-                  fillColor: Colors.white,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: '닉네임',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10), // 모서리를 둥글게
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                right: 5,
-                left: 5,
-              ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: '이메일',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10), // 모서리를 둥글게
-                  ),
-                  filled: true,
-                  fillColor: Colors.white,
+                const SizedBox(
+                  height: 20,
                 ),
-              ),
-            ),
-            const SizedBox(height: 20.0),
-            Padding(
-              padding: const EdgeInsets.only(
-                right: 5,
-                left: 5,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      // 상단 Container: 하단 외곽선을 제외한 세 면에 외곽선을 적용합니다.
-                      border: Border(
-                        top: BorderSide(color: Colors.grey),
-                        left: BorderSide(color: Colors.grey),
-                        right: BorderSide(color: Colors.grey),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    right: 5,
+                    left: 5,
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: '이메일',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10), // 모서리를 둥글게
                       ),
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                      ),
-                      color: Colors.white,
-                    ),
-                    child: const TextField(
-                      decoration: InputDecoration(
-                        hintText: '비밀번호',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(12),
-                        filled: false,
-                      ),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
                   ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        left: BorderSide(color: Colors.grey),
-                        right: BorderSide(color: Colors.grey),
-                      ),
-                      color: Colors.white,
-                    ),
-                    child: const Divider(
-                      color: Colors.black,
-                      thickness: 0.8,
-                    ),
+                ),
+                const SizedBox(height: 20.0),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    right: 5,
+                    left: 5,
                   ),
-                  Container(
-                    decoration: const BoxDecoration(
-                      // 하단 Container: 상단 외곽선을 제외한 세 면에 외곽선을 적용합니다.
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey),
-                        left: BorderSide(color: Colors.grey),
-                        right: BorderSide(color: Colors.grey),
-                      ),
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(10),
-                        bottomRight: Radius.circular(10),
-                      ),
-                      color: Colors.white,
-                    ),
-                    child: const TextField(
-                      decoration: InputDecoration(
-                        hintText: '비밀번호 확인',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(12),
-                        filled: false,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 5,
-                right: 5,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(100, 70),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            10,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          // 상단 Container: 하단 외곽선을 제외한 세 면에 외곽선을 적용합니다.
+                          border: Border(
+                            top: BorderSide(color: Colors.grey),
+                            left: BorderSide(color: Colors.grey),
+                            right: BorderSide(color: Colors.grey),
+                          ),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            topRight: Radius.circular(10),
+                          ),
+                          color: Colors.white,
+                        ),
+                        child: const TextField(
+                          decoration: InputDecoration(
+                            hintText: '비밀번호',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(12),
+                            filled: false,
                           ),
                         ),
                       ),
-                      onPressed: () {},
-                      child: const Text(
-                        '남성',
-                        style: TextStyle(color: Colors.black),
+                      Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            left: BorderSide(color: Colors.grey),
+                            right: BorderSide(color: Colors.grey),
+                          ),
+                          color: Colors.white,
+                        ),
+                        child: const Divider(
+                          color: Colors.black,
+                          thickness: 0.8,
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(100, 70),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            10,
+                      Container(
+                        decoration: const BoxDecoration(
+                          // 하단 Container: 상단 외곽선을 제외한 세 면에 외곽선을 적용합니다.
+                          border: Border(
+                            bottom: BorderSide(color: Colors.grey),
+                            left: BorderSide(color: Colors.grey),
+                            right: BorderSide(color: Colors.grey),
+                          ),
+                          borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
+                          ),
+                          color: Colors.white,
+                        ),
+                        child: const TextField(
+                          decoration: InputDecoration(
+                            hintText: '비밀번호 확인',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(12),
+                            filled: false,
                           ),
                         ),
                       ),
-                      onPressed: () {},
-                      child: const Text(
-                        '여성',
-                        style: TextStyle(color: Colors.black),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 5,
+                    right: 5,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(100, 70),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                            ),
+                          ),
+                          onPressed: () {},
+                          child: const Text(
+                            '남성',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
                       ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(100, 70),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                10,
+                              ),
+                            ),
+                          ),
+                          onPressed: () {},
+                          child: const Text(
+                            '여성',
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(
+                  height: 30,
+                ),
+                Padding(
+                  padding: EdgeInsets.zero,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: Colors.grey, // 원하는 색상을 여기에 지정
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(0.0), // 필요에 따라 반경 조절
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Text('약관동의'),
+                        ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isChecked,
+                              onChanged: (bool? value) {
+                                // 체크박스 상태 변경
+                                setState(() {
+                                  _isChecked = value ?? false;
+                                });
+                              },
+                            ),
+                            const Text('개인정보 수집 동의'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isChecked,
+                              onChanged: (bool? value) {
+                                // 체크박스 상태 변경
+                                setState(() {
+                                  _isChecked = value ?? false;
+                                });
+                              },
+                            ),
+                            const Text('개인정보 수집 동의'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isChecked,
+                              onChanged: (bool? value) {
+                                // 체크박스 상태 변경
+                                setState(() {
+                                  _isChecked = value ?? false;
+                                });
+                              },
+                            ),
+                            const Text('개인정보 수집 동의'),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isChecked,
+                              onChanged: (bool? value) {
+                                // 체크박스 상태 변경
+                                setState(() {
+                                  _isChecked = value ?? false;
+                                });
+                              },
+                            ),
+                            const Text('개인정보 수집 동의'),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-            Padding(
-              padding: EdgeInsets.zero,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: Colors.grey, // 원하는 색상을 여기에 지정
-                    width: 1.0,
-                  ),
-                  borderRadius: BorderRadius.circular(0.0), // 필요에 따라 반경 조절
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Text('약관동의'),
-                    ),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _isChecked,
-                          onChanged: (bool? value) {
-                            // 체크박스 상태 변경
-                            setState(() {
-                              _isChecked = value ?? false;
-                            });
-                          },
-                        ),
-                        const Text('개인정보 수집 동의'),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _isChecked,
-                          onChanged: (bool? value) {
-                            // 체크박스 상태 변경
-                            setState(() {
-                              _isChecked = value ?? false;
-                            });
-                          },
-                        ),
-                        const Text('개인정보 수집 동의'),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _isChecked,
-                          onChanged: (bool? value) {
-                            // 체크박스 상태 변경
-                            setState(() {
-                              _isChecked = value ?? false;
-                            });
-                          },
-                        ),
-                        const Text('개인정보 수집 동의'),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _isChecked,
-                          onChanged: (bool? value) {
-                            // 체크박스 상태 변경
-                            setState(() {
-                              _isChecked = value ?? false;
-                            });
-                          },
-                        ),
-                        const Text('개인정보 수집 동의'),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              ],
             ),
           ],
         ),
