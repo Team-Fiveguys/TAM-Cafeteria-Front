@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:tam_cafeteria_front/screens/admin_screen.dart';
 import 'package:tam_cafeteria_front/screens/main_screen.dart';
 import 'package:tam_cafeteria_front/screens/my_page_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
@@ -17,14 +18,27 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  int _selectedIndex = 0; // 현재 선택된 탭의 인덱스
+  final bool isAdmin = true;
+
+  late int _selectedIndex; // 현재 선택된 탭의 인덱스
 
   final ScrollController _scrollController = ScrollController();
   bool _isVisible = true;
 
+  late final List<Widget> _widgetOptions;
+
   @override
   void initState() {
     super.initState();
+    _selectedIndex = isAdmin ? 2 : 0;
+    _widgetOptions = <Widget>[
+      MainScreen(),
+      const Text(
+        '검색',
+        style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
+      ),
+      isAdmin ? const AdminPage() : const MyPage(),
+    ];
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
@@ -51,16 +65,6 @@ class _AppState extends State<App> {
     _scrollController.dispose();
     super.dispose();
   }
-
-  // 탭에 따라 표시될 페이지를 결정하는 함수
-  static final List<Widget> _widgetOptions = <Widget>[
-    MainScreen(),
-    const Text(
-      '검색',
-      style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
-    ),
-    const MyPage(),
-  ];
 
   // 사용자가 탭을 선택했을 때 호출되는 함수
   void _onItemTapped(int index) {
@@ -90,18 +94,18 @@ class _AppState extends State<App> {
             children: [
               BottomNavigationBar(
                 backgroundColor: Colors.white,
-                items: const <BottomNavigationBarItem>[
-                  BottomNavigationBarItem(
+                items: <BottomNavigationBarItem>[
+                  const BottomNavigationBarItem(
                     icon: Icon(Icons.home),
                     label: '홈',
                   ),
-                  BottomNavigationBarItem(
+                  const BottomNavigationBarItem(
                     icon: Icon(Icons.search),
                     label: '검색',
                   ),
                   BottomNavigationBarItem(
-                    icon: Icon(Icons.person),
-                    label: '마이페이지',
+                    icon: const Icon(Icons.person),
+                    label: isAdmin ? '관리자페이지' : '마이페이지',
                   ),
                 ],
                 currentIndex: _selectedIndex, // 현재 선택된 탭의 인덱스
