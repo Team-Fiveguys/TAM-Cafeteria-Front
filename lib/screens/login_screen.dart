@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tam_cafeteria_front/screens/sign_up_screen.dart'; // SignUpScreen 파일 import
 
+//아직회원이 아니신가요? 회원가입> 안 붙음
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -118,6 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 10.0),
+                        Image.asset('assets/images/dot_line.png'),
                         Container(
                           alignment: Alignment.topRight,
                           child: SingleChildScrollView(
@@ -200,45 +202,44 @@ class _LoginScreenState extends State<LoginScreen> {
                             height: 30,
                           ),
                         ),
-                        Flexible(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Flexible(
-                                child: Text(
-                                  '아직 회원이 아니신가요?',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                  ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Flexible(
+                              fit: FlexFit.tight,
+                              child: Text(
+                                '아직 회원이 아니신가요?',
+                                style: TextStyle(
+                                  fontSize: 16,
                                 ),
                               ),
-                              const SizedBox(
-                                width: 30,
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SignUpScreen(),
-                                    ),
-                                  );
-                                },
-                                // ignore: prefer_const_constructors
-                                child: const Text(
-                                  '회원가입>',
-                                  style: TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 16,
-                                    decoration:
-                                        TextDecoration.underline, // 텍스트에 밑줄 추가
+                            ),
+                            const SizedBox(
+                              width: 30,
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SignUpScreen(),
                                   ),
+                                );
+                              },
+                              // ignore: prefer_const_constructors
+                              child: Text(
+                                '회원가입>',
+                                style: const TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 16,
+                                  decoration:
+                                      TextDecoration.underline, // 텍스트에 밑줄 추가
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+
                         const SizedBox(height: 16.0),
                       ],
                     ),
