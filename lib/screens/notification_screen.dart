@@ -9,6 +9,8 @@ class NotificationCenter extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: AppBar(
+          scrolledUnderElevation: 0,
+          backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -17,12 +19,9 @@ class NotificationCenter extends StatelessWidget {
                 // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
                 child: SizedBox(
                   height: 50,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: Image.asset(
-                      'assets/images/app_bar_logo.png',
-                      fit: BoxFit.contain,
-                    ),
+                  child: Image.asset(
+                    'assets/images/app_bar_logo.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),

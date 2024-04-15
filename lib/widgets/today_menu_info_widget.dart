@@ -269,7 +269,12 @@ class TodayMenuInfo extends StatelessWidget {
                                         CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Image.asset('assets/images/soldOut.png'),
+                                      SizedBox(
+                                        width: 30,
+                                        height: 30,
+                                        child: Image.asset(
+                                            'assets/images/soldOut.png'),
+                                      ),
                                       const Text('품절'),
                                     ],
                                   )
@@ -367,9 +372,13 @@ class TodayMenuInfo extends StatelessWidget {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Image.asset(
-                                    'assets/images/waitingBusy.png',
-                                    fit: BoxFit.contain,
+                                  SizedBox(
+                                    width: 67,
+                                    height: 36,
+                                    child: Image.asset(
+                                      'assets/images/veryBusy.png',
+                                      fit: BoxFit.contain,
+                                    ),
                                   ),
                                   const Text(
                                     '대기인원',

@@ -150,80 +150,98 @@ class WeekMenuInfo extends StatelessWidget {
               const SizedBox(
                 height: 20,
               ),
-              SizedBox(
-                height: 150, // ListView의 높이를 설정합니다.
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
-                  itemCount: reorderedDays.length, // 아이템의 개수를 설정합니다.
-                  itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 0, // spreadRadius를 줄입니다.
-                            blurRadius: 3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
-                            offset: const Offset(0, 0), // 그림자 위치 조정
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(
-                            15), // 여기에 borderRadius를 추가하여 그림자에도 적용됩니다.
-                        color: Colors.white, // 이 컨테이너의 배경색도 설정할 수 있습니다.
-                      ),
-                      width: 100,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 5,
-                        vertical: 5,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                ),
+                child: SizedBox(
+                  height: 177, // ListView의 높이를 설정합니다.
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
+                    itemCount: reorderedDays.length,
+                    separatorBuilder: (context, index) {
+                      return const SizedBox(
+                        width: 5,
+                      );
+                    },
+                    itemBuilder: (context, index) {
+                      return Container(
                         decoration: BoxDecoration(
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 0, // spreadRadius를 줄입니다.
+                              blurRadius: 3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
+                              offset: const Offset(0, 0), // 그림자 위치 조정
+                            ),
+                          ],
                           borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            width: 3,
-                            color: getBorderColor(index), // 인덱스에 따라 경계선 색상 결정
-                          ),
-                          color: Colors.white, // 안쪽 Container의 배경색
+                          color: Colors.white,
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              reorderedDays[index],
-                              style: TextStyle(color: getTextColor(index)),
+                        width: 130,
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 5,
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(
+                              width: 3,
+                              color: getBorderColor(index), // 인덱스에 따라 경계선 색상 결정
                             ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            if (menuList[(today - 1 + index) % 7].isEmpty)
-                              const Center(
-                                child: Text(
-                                  "미운영",
-                                  style: TextStyle(
-                                    color: Color(0xFF5A5A5A),
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              )
-                            else
-                              // 메뉴 리스트가 비어 있지 않은 경우, 각 메뉴 항목을 순회합니다.
-                              for (var menu
-                                  in menuList[(today - 1 + index) % 7])
-                                Text(
-                                  "• $menu",
-                                  style: const TextStyle(
-                                    color: Color(0xFF5A5A5A),
-                                    fontSize: 8,
+                            color: Colors.white, // 안쪽 Container의 배경색
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                reorderedDays[index],
+                                style: TextStyle(color: getTextColor(index)),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              if (menuList[(today - 1 + index) % 7].isEmpty)
+                                const Center(
+                                  child: Text(
+                                    "미운영",
+                                    style: TextStyle(
+                                      color: Color(0xFF5A5A5A),
+                                      fontSize: 15,
+                                    ),
                                   ),
                                 )
-                          ],
+                              else
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        for (var menu in menuList[
+                                            (today - 1 + index) % 7])
+                                          Text(
+                                            "• $menu",
+                                            style: const TextStyle(
+                                              color: Color(0xFF5A5A5A),
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
               const SizedBox(
@@ -268,79 +286,98 @@ class WeekMenuInfo extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            SizedBox(
-              height: 150, // ListView의 높이를 설정합니다.
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
-                itemCount: reorderedDays.length, // 아이템의 개수를 설정합니다.
-                itemBuilder: (context, index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 0, // spreadRadius를 줄입니다.
-                          blurRadius: 3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
-                          offset: const Offset(0, 0), // 그림자 위치 조정
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(
-                          15), // 여기에 borderRadius를 추가하여 그림자에도 적용됩니다.
-                      color: Colors.white, // 이 컨테이너의 배경색도 설정할 수 있습니다.
-                    ),
-                    width: 100,
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 5,
-                      vertical: 5,
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+              ),
+              child: SizedBox(
+                height: 177, // ListView의 높이를 설정합니다.
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
+                  itemCount: reorderedDays.length,
+                  separatorBuilder: (context, index) {
+                    return const SizedBox(
+                      width: 5,
+                    );
+                  },
+                  itemBuilder: (context, index) {
+                    return Container(
                       decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 0, // spreadRadius를 줄입니다.
+                            blurRadius: 3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
+                            offset: const Offset(0, 0), // 그림자 위치 조정
+                          ),
+                        ],
                         borderRadius: BorderRadius.circular(15),
-                        border: Border.all(
-                          width: 3,
-                          color: getBorderColor(index), // 인덱스에 따라 경계선 색상 결정
-                        ),
-                        color: Colors.white, // 안쪽 Container의 배경색
+                        color: Colors.white,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            reorderedDays[index],
-                            style: TextStyle(color: getTextColor(index)),
+                      width: 130,
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 5,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(
+                            width: 3,
+                            color: getBorderColor(index), // 인덱스에 따라 경계선 색상 결정
                           ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          if (menuList[(today - 1 + index) % 7].isEmpty)
-                            const Center(
-                              child: Text(
-                                "미운영",
-                                style: TextStyle(
-                                  color: Color(0xFF5A5A5A),
-                                  fontSize: 10,
-                                ),
-                              ),
-                            )
-                          else
-                            // 메뉴 리스트가 비어 있지 않은 경우, 각 메뉴 항목을 순회합니다.
-                            for (var menu in menuList[(today - 1 + index) % 7])
-                              Text(
-                                "• $menu",
-                                style: const TextStyle(
-                                  color: Color(0xFF5A5A5A),
-                                  fontSize: 8,
+                          color: Colors.white, // 안쪽 Container의 배경색
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              reorderedDays[index],
+                              style: TextStyle(color: getTextColor(index)),
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            if (menuList[(today - 1 + index) % 7].isEmpty)
+                              const Center(
+                                child: Text(
+                                  "미운영",
+                                  style: TextStyle(
+                                    color: Color(0xFF5A5A5A),
+                                    fontSize: 15,
+                                  ),
                                 ),
                               )
-                        ],
+                            else
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      for (var menu
+                                          in menuList[(today - 1 + index) % 7])
+                                        Text(
+                                          "• $menu",
+                                          style: const TextStyle(
+                                            color: Color(0xFF5A5A5A),
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
             const SizedBox(
