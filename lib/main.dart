@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/screens/login_screen.dart';
-
+import 'package:tam_cafeteria_front/screens/menu_suggestion_board_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 
 void main() {
@@ -66,7 +66,7 @@ class App extends StatelessWidget {
             ),
           ),
         ),
-        body: const LoginScreen(),
+        body: const MenuBoardScreen(),
       ),
     );
   }

@@ -65,6 +65,8 @@ flutter:
     - assets/images/naver_login_logo.png
     - assets/images/kakao_login_logo.png
     - assets/images/dot_line.png
+    - assets/images/hot_badge.png
+    - assets/images/write_board_icon.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
