@@ -2,7 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
+import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -12,12 +15,32 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
+  final DateTime now = DateTime.now();
+  final DateFormat dateFormat = DateFormat('yyyy / MM / dd');
+
   final String serverWaitingStatus = '여유';
   String? selectedItem = '명진당';
-  String? currentWaitingStatus = '여유';
+  String currentWaitingStatus = '선택 안함';
   int? currentWaitingTime = 5;
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
+
+  String? selectedCategory; // 선택된 카테고리를 저장할 변수
+  final TextEditingController menuNameController = TextEditingController();
+
+  final List<String> waitingStatusList = [
+    "여유",
+    "보통",
+    "혼잡",
+    "매우 \n혼잡",
+  ];
+
+  final List<String> waitingImageList = [
+    'assets/images/easy.png',
+    'assets/images/normal.png',
+    'assets/images/busy.png',
+    'assets/images/veryBusy.png',
+  ];
 
   void _showImagePicker() {
     showDialog(
@@ -72,12 +95,80 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  void postImage() async {}
+  void showMenuInput() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        // StatefulBuilder를 사용하여 AlertDialog 내부에서 상태 관리
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text("메뉴 입력"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    DropdownButton<String>(
+                      hint: const Text("카테고리 선택"),
+                      value: selectedCategory,
+                      dropdownColor: Colors.white,
+                      onChanged: (String? newValue) {
+                        // StatefulBuilder의 setState를 사용
+                        setState(() {
+                          selectedCategory = newValue;
+                        });
+                      },
+                      items: <String>['한식', '중식', '일식', '양식']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                    TextField(
+                      controller: menuNameController,
+                      decoration: const InputDecoration(
+                        hintText: "메뉴 명",
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    selectedCategory = null;
+                    menuNameController.clear();
+                  },
+                  child: const Text("취소"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // 여기에 메뉴 등록 로직 추가
+                    print(
+                        "$selectedCategory 카테고리, 메뉴명: ${menuNameController.text}");
+                    ApiService.postMenu(menuNameController.text);
+                    selectedCategory = null;
+                    menuNameController.clear();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("등록"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
+        //관리자 페이지
         Container(
           alignment: Alignment.center,
           // width: 350,
@@ -103,6 +194,7 @@ class _AdminPageState extends State<AdminPage> {
             ),
           ),
         ),
+        //명진당 (식당 선택 리스트)
         Container(
           decoration: const BoxDecoration(
             color: Colors.white,
@@ -127,6 +219,7 @@ class _AdminPageState extends State<AdminPage> {
               setState(() {
                 selectedItem = newValue; // 선택된 항목을 상태로 저장
               });
+              print('$selectedItem');
             },
             items: <String>[
               '명진당',
@@ -140,320 +233,411 @@ class _AdminPageState extends State<AdminPage> {
             }).toList(),
           ),
         ),
-        Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadiusDirectional.circular(36),
-            color: Theme.of(context).canvasColor,
-          ),
-          width: 350,
-          height: 56,
-          child: const Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 5,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              // crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  '대기열 관리',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Container(
-          child: Text(
-            "현재 : $currentWaitingStatus ($currentWaitingTime분)",
-            style: const TextStyle(
-              fontSize: 15,
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 30,
-        ),
+        //대기열 관리
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          padding: const EdgeInsets.symmetric(
+            vertical: 8.0,
+            horizontal: 30,
+          ),
+          child: Column(
             children: [
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        currentWaitingStatus = '여유';
-                      });
-                    },
-                    style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.black),
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
-                          (states) {
-                        Color borderColor = Colors.transparent; // 초기 테두리 색상
-                        if (currentWaitingStatus == '여유') {
-                          borderColor =
-                              Theme.of(context).cardColor; // 버튼이 눌렸을 때의 테두리 색상
-                        }
-                        return RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
-                              color: borderColor, width: 3), // 테두리 색상 적용
-                        );
-                      }),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadiusDirectional.circular(20),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3), // 그림자 위치 조정
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('여유'),
-                        const SizedBox(height: 30),
-                        SizedBox(
-                          width: 60,
-                          height: 40,
-                          child: Image.asset(
-                            'assets/images/easy.png',
-                            fit: BoxFit.contain,
+                  ],
+                ),
+                width: 360,
+                height: 220,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: 10,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        // crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                            '대기열 관리',
+                            style: TextStyle(
+                              color: Color(0xFF282828),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Text('현재 상태 - $currentWaitingStatus')
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Row(
+                        children: [
+                          for (var i = 0; i < 4; i++)
+                            WaitingIndicator(
+                              imageUrl: waitingImageList[i],
+                              waitingStatus: waitingStatusList[i],
+                              currentStatus: currentWaitingStatus,
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        currentWaitingStatus = '보통';
-                      });
-                    },
-                    style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.black),
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
-                          (states) {
-                        Color borderColor = Colors.transparent; // 초기 테두리 색상
-                        if (currentWaitingStatus == '보통') {
-                          borderColor =
-                              Theme.of(context).cardColor; // 버튼이 눌렸을 때의 테두리 색상
-                        }
-                        return RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
-                              color: borderColor, width: 3), // 테두리 색상 적용
-                        );
-                      }),
+
+              const SizedBox(
+                height: 30,
+              ),
+              //메뉴 변동
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadiusDirectional.circular(20),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3), // 그림자 위치 조정
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('보통'),
-                        const SizedBox(height: 30),
-                        SizedBox(
-                          width: 60,
-                          height: 40,
-                          child: Image.asset(
-                            'assets/images/normal.png',
-                            fit: BoxFit.contain,
+                  ],
+                ),
+                width: 360,
+                height: 220,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: 10,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '메뉴 변동',
+                            style: TextStyle(
+                              color: Color(0xFF282828),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                          Text(
+                            dateFormat.format(now),
+                            style: const TextStyle(
+                              color: Color(0xFF999999),
+                              fontSize: 10,
+                            ),
+                          )
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        currentWaitingStatus = '혼잡';
-                      });
-                    },
-                    style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.black),
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
-                          (states) {
-                        Color borderColor = Colors.transparent; // 초기 테두리 색상
-                        if (currentWaitingStatus == '혼잡') {
-                          borderColor =
-                              Theme.of(context).cardColor; // 버튼이 눌렸을 때의 테두리 색상
-                        }
-                        return RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
-                              color: borderColor, width: 3), // 테두리 색상 적용
-                        );
-                      }),
+
+              const SizedBox(
+                height: 30,
+              ),
+              //식수 관리
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadiusDirectional.circular(20),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3), // 그림자 위치 조정
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('혼잡'),
-                        const SizedBox(height: 30),
-                        SizedBox(
-                          width: 60,
-                          height: 40,
-                          child: Image.asset(
-                            'assets/images/busy.png',
-                            fit: BoxFit.contain,
+                  ],
+                ),
+                width: 360,
+                height: 220,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: 10,
+                  ),
+                  child: Column(
+                    children: [
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '식수 관리',
+                            style: TextStyle(
+                              color: Color(0xFF282828),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFF999999),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              height: 130,
+                              child: const Column(
+                                children: [
+                                  Text(
+                                    '예상 식수',
+                                    style: TextStyle(
+                                      color: Color(0xFF999999),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFF999999),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              height: 130,
+                              child: const Column(
+                                children: [
+                                  Text(
+                                    '실제 식수',
+                                    style: TextStyle(
+                                      color: Color(0xFF999999),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        currentWaitingStatus = '매우 혼잡';
-                      });
-                    },
-                    style: ButtonStyle(
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.black),
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                      shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
-                          (states) {
-                        Color borderColor = Colors.transparent; // 초기 테두리 색상
-                        if (currentWaitingStatus == '매우 혼잡') {
-                          borderColor =
-                              Theme.of(context).cardColor; // 버튼이 눌렸을 때의 테두리 색상
-                        }
-                        return RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(
-                              color: borderColor, width: 3), // 테두리 색상 적용
-                        );
-                      }),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('매우 혼잡'),
-                        const SizedBox(height: 30),
-                        SizedBox(
-                          width: 60,
-                          height: 40,
-                          child: Image.asset(
-                            'assets/images/veryBusy.png',
-                            fit: BoxFit.contain,
+
+              const SizedBox(
+                height: 30,
+              ),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadiusDirectional.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3), // 그림자 위치 조정
                           ),
+                        ],
+                      ),
+                      height: 220,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 10,
                         ),
-                      ],
+                        child: TextButton(
+                          onPressed: () => _showImagePicker(),
+                          child: const Center(
+                              child: Text(
+                            "메뉴 사진 \n등록",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF282828),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadiusDirectional.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3), // 그림자 위치 조정
+                          ),
+                        ],
+                      ),
+                      height: 220,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 10,
+                        ),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const WeekDiet(),
+                              ),
+                            );
+                          },
+                          child: const Center(
+                            child: Text(
+                              "금주 식단 \n등록 수정",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF282828),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadiusDirectional.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3), // 그림자 위치 조정
+                          ),
+                        ],
+                      ),
+                      height: 220,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 10,
+                        ),
+                        child: TextButton(
+                          onPressed: () => showMenuInput(),
+                          child: const Center(
+                              child: Text(
+                            "메뉴 입력",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF282828),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadiusDirectional.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3), // 그림자 위치 조정
+                          ),
+                        ],
+                      ),
+                      height: 220,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 10,
+                        ),
+                        child: TextButton(
+                          onPressed: () {},
+                          child: const Center(
+                            child: Text(
+                              "PUSH\n알림 보내기",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF282828),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                height: 30,
               ),
             ],
           ),
-        ),
-        const SizedBox(
-          height: 30,
-        ),
-        Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadiusDirectional.circular(36),
-            color: Theme.of(context).canvasColor,
-          ),
-          width: 350,
-          height: 56,
-          child: const Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 5,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              // crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  '식단 관리',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 30,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            TextButton(
-              onPressed: () => _showImagePicker(),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 1,
-                  ),
-                ),
-                height: 100,
-                child: const Center(
-                    child: Text(
-                  "메뉴 사진 \n등록",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.black,
-                  ),
-                )),
-              ),
-            ),
-            TextButton(
-              onPressed: () {},
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 1,
-                  ),
-                ),
-                height: 100,
-                child: const Center(
-                  child: Text(
-                    "금주 식단 \n등록 수정",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       ],
     );
