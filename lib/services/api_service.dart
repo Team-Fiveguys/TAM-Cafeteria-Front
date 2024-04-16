@@ -77,4 +77,26 @@ class ApiService {
       print('Response body: $responseText');
     }
   }
+
+  static Future<void> postMenu(String name) async {
+    const int cafeterialId = 1;
+    const path = "/menu";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
+        },
+        body: jsonEncode(
+          {
+            'name': name,
+            'cafeteriaId': cafeterialId,
+          },
+        ));
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      print(response.body);
+    }
+  }
 }
