@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+
+import 'package:tam_cafeteria_front/screens/login_screen.dart';
+import 'package:tam_cafeteria_front/screens/menu_suggestion_board_screen.dart';
+
 import 'package:flutter/rendering.dart';
 import 'package:tam_cafeteria_front/screens/admin_screen.dart';
 import 'package:tam_cafeteria_front/screens/main_screen.dart';
 import 'package:tam_cafeteria_front/screens/my_page_screen.dart';
+
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
@@ -122,7 +127,7 @@ class _AppState extends State<App> {
             backgroundColor: Colors.white,
             leading: const Opacity(
               // 투명한 아이콘 버튼 추가
-              opacity: 0.0,
+              opacity: 0.7,
               child: IconButton(
                 icon: Icon(Icons.menu),
                 onPressed: ApiService.test, // 아무것도 하지 않음
