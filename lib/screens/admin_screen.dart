@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +25,17 @@ class _AdminPageState extends State<AdminPage> {
   int? currentWaitingTime = 5;
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
+
+  late String cafeteriaName;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (selectedItem != null) {
+      cafeteriaName = selectedItem!;
+    }
+  }
 
   String? selectedCategory; // 선택된 카테고리를 저장할 변수
   final TextEditingController menuNameController = TextEditingController();
@@ -254,7 +266,6 @@ class _AdminPageState extends State<AdminPage> {
                     ),
                   ],
                 ),
-                width: 360,
                 height: 220,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -264,7 +275,7 @@ class _AdminPageState extends State<AdminPage> {
                   child: Column(
                     children: [
                       Row(
-                        // crossAxisAlignment: CrossAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const Text(
                             '대기열 관리',
@@ -277,7 +288,16 @@ class _AdminPageState extends State<AdminPage> {
                           const SizedBox(
                             width: 10,
                           ),
-                          Text('현재 상태 - $currentWaitingStatus')
+                          Expanded(
+                            child: AutoSizeText(
+                              '현재 상태 - $currentWaitingStatus',
+                              style: const TextStyle(
+                                fontSize: 13,
+                              ),
+                              minFontSize: 10,
+                              maxLines: 2,
+                            ),
+                          )
                         ],
                       ),
                       const SizedBox(
@@ -315,7 +335,6 @@ class _AdminPageState extends State<AdminPage> {
                     ),
                   ],
                 ),
-                width: 360,
                 height: 220,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -369,7 +388,6 @@ class _AdminPageState extends State<AdminPage> {
                     ),
                   ],
                 ),
-                width: 360,
                 height: 220,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -528,7 +546,9 @@ class _AdminPageState extends State<AdminPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const WeekDiet(),
+                                builder: (context) => WeekDiet(
+                                  cafeteriaName: cafeteriaName,
+                                ),
                               ),
                             );
                           },
