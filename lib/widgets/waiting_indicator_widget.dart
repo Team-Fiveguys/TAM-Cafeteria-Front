@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 class WaitingIndicator extends StatelessWidget {
@@ -42,13 +43,15 @@ class WaitingIndicator extends StatelessWidget {
                   fit: BoxFit.contain,
                 ),
               ),
-              Text(
+              AutoSizeText(
                 waitingStatus,
                 style: const TextStyle(
                   color: Color(0xFF6D6D6D),
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
+                minFontSize: 10,
+                maxLines: 2,
               ),
             ],
           ),
