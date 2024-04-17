@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 import 'package:tam_cafeteria_front/screens/login_screen.dart';
 import 'package:tam_cafeteria_front/screens/menu_suggestion_board_screen.dart';
@@ -12,6 +13,14 @@ import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  const yourNativeAppKey = 'bb9947b8eee4ce125f6b8f4c94ed878c';
+  const yourJavascriptAppKey = '46db4c796ce7d09bbbbe0fd7d628ef4b';
+  KakaoSdk.init(
+    nativeAppKey: yourNativeAppKey,
+    javaScriptAppKey: yourJavascriptAppKey,
+  );
   runApp(const App());
 }
 
@@ -38,10 +47,7 @@ class _AppState extends State<App> {
     _selectedIndex = isAdmin ? 2 : 0;
     _widgetOptions = <Widget>[
       MainScreen(),
-      const Text(
-        '검색',
-        style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold),
-      ),
+      const MenuBoardScreen(),
       isAdmin ? const AdminPage() : const MyPage(),
     ];
     _scrollController.addListener(() {
@@ -105,8 +111,8 @@ class _AppState extends State<App> {
                     label: '홈',
                   ),
                   const BottomNavigationBarItem(
-                    icon: Icon(Icons.search),
-                    label: '검색',
+                    icon: Icon(Icons.forum),
+                    label: '게시판',
                   ),
                   BottomNavigationBarItem(
                     icon: const Icon(Icons.person),
@@ -125,13 +131,22 @@ class _AppState extends State<App> {
           child: AppBar(
             scrolledUnderElevation: 0,
             backgroundColor: Colors.white,
-            leading: const Opacity(
+            leading: Opacity(
               // 투명한 아이콘 버튼 추가
-              opacity: 0.7,
-              child: IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: ApiService.test, // 아무것도 하지 않음
-              ),
+              opacity: 0,
+              child: Builder(builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    );
+                  }, // 아무것도 하지 않음
+                );
+              }),
             ),
             actions: [
               Builder(builder: (context) {

@@ -99,4 +99,28 @@ class ApiService {
       print(response.body);
     }
   }
+
+  static Future<void> kakaoLoginPost(String idToken, String accessToken) async {
+    const path = '/oauth2/kakao/token/validate';
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
+      },
+      body: jsonEncode(
+        {
+          'identityToken': idToken,
+          'accessToken': accessToken,
+        },
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      print(response.body);
+    }
+  }
 }
