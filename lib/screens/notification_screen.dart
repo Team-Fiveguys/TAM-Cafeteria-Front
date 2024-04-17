@@ -9,6 +9,8 @@ class NotificationCenter extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: AppBar(
+          scrolledUnderElevation: 0,
+          backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
           title: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -17,12 +19,9 @@ class NotificationCenter extends StatelessWidget {
                 // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
                 child: SizedBox(
                   height: 50,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-                    child: Image.asset(
-                      'assets/images/app_bar_logo.png',
-                      fit: BoxFit.contain,
-                    ),
+                  child: Image.asset(
+                    'assets/images/app_bar_logo.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -33,14 +32,14 @@ class NotificationCenter extends StatelessWidget {
       body: Column(
         children: [
           Container(
-            height: 72,
+            height: 56,
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
+              color: Theme.of(context).canvasColor,
             ),
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: AppBar(
-                backgroundColor: Theme.of(context).primaryColor,
+                backgroundColor: Theme.of(context).canvasColor,
                 automaticallyImplyLeading: false, // 기본 뒤로 가기 버튼을 비활성화
                 leading: IconButton(
                   // leading 위치에 아이콘 버튼 배치
@@ -50,7 +49,7 @@ class NotificationCenter extends StatelessWidget {
                   icon: const Icon(
                     Icons.arrow_back_ios,
                     color: Colors.white,
-                    size: 30,
+                    size: 20,
                   ),
                 ),
                 title: const Text(
