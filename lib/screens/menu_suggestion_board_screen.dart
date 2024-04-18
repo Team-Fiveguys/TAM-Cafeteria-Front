@@ -3,6 +3,7 @@ import 'dart:html';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 
 //태그 달고
 //폰트 줄이고 짜글이 좀 좌우 상하 길이 맞추고 좋아요 icon가져오고 숫자 늘어나게 만들고
@@ -30,6 +31,12 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // FloatingActionButton을 누를 때 수행할 작업
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const WriteMenuScreen(),
+            ),
+          );
         },
         icon: Image.asset(
           'assets/images/write_board_icon.png',

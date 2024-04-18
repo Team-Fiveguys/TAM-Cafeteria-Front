@@ -9,6 +9,7 @@ import 'package:tam_cafeteria_front/screens/main_screen.dart';
 import 'package:tam_cafeteria_front/screens/my_page_screen.dart';
 
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
+import 'package:tam_cafeteria_front/screens/sign_up_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 void main() {
@@ -23,7 +24,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final bool isAdmin = true;
+  final bool isAdmin = false;
 
   late int _selectedIndex; // 현재 선택된 탭의 인덱스
 
@@ -140,7 +141,7 @@ class _AppState extends State<App> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const NotificationCenter(),
+                        builder: (context) => const MenuBoardScreen(), //알람 버튼
                       ),
                     );
                   },
