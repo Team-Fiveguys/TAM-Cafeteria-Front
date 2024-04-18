@@ -1,5 +1,3 @@
-import 'package:tam_cafeteria_front/models/menu_model.dart';
-
 class Diets {
   final int? id;
   final String dayOfWeek;

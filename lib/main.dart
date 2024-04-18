@@ -10,7 +10,6 @@ import 'package:tam_cafeteria_front/screens/main_screen.dart';
 import 'package:tam_cafeteria_front/screens/my_page_screen.dart';
 
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
-import 'package:tam_cafeteria_front/services/api_service.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
