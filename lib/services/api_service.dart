@@ -76,7 +76,7 @@ class ApiService {
   }
 
   static Future<void> postMenu(String name) async {
-    const int cafeterialId = 1;
+    const int cafeteriaId = 1;
     const path = "/menus";
     final url = Uri.http(baseUrl, path);
 
@@ -87,7 +87,7 @@ class ApiService {
         body: jsonEncode(
           {
             'name': name,
-            'cafeteriaId': cafeterialId,
+            'cafeteriaId': cafeteriaId,
           },
         ));
     if (response.statusCode == 200) {
@@ -97,7 +97,7 @@ class ApiService {
     }
   }
 
-  static Future<List<String>> getMenu() async {
+  static Future<Menu> getMenu() async {
     const int cafeterialId = 1;
     const path = "/menus";
     final url = Uri.http(baseUrl, path, {'cafeteriaId': '$cafeterialId'});
@@ -118,9 +118,78 @@ class ApiService {
             .map((item) => item['name'] as String),
       );
 
-      return menuNames;
+      final List<int> menuIds = List<int>.from(
+        jsonResponse['result']['menuQueryDTOList']
+            .map((item) => item['menuId'] as int),
+      );
+
+      return Menu(ids: menuIds, names: menuNames);
     }
     throw Error();
+  }
+
+  static Future<Menu> getDiets(String date, String meals) async {
+    const int cafeterialId = 1;
+    const path = "/diets";
+    final url = Uri.http(
+      baseUrl,
+      path,
+      {
+        'cafeteriaId': '$cafeterialId',
+        'localDate': date,
+        'meals': meals,
+      },
+    );
+
+    final response = await http
+        .get(url, headers: {'Content-Type': 'application/json; charset=UTF-8'});
+
+    if (response.statusCode == 200) {
+      // UTF-8 인코딩을 사용하여 응답 본문을 디코드합니다.
+      final String decodedResponse = utf8.decode(response.bodyBytes);
+
+      // 디코드된 문자열을 JSON으로 파싱합니다.
+      final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+      // 'result' 키에 해당하는 부분을 추출하고, 'menuQueryDTOList' 내부를 순회하며 각 항목의 'name'을 추출하여 리스트를 생성합니다.
+      final List<String> menuNames = List<String>.from(
+        jsonResponse['result']['menuQueryDTOList']
+            .map((item) => item['name'] as String),
+      );
+
+      final List<int> menuIds = List<int>.from(
+        jsonResponse['result']['menuQueryDTOList']
+            .map((item) => item['menuId'] as int),
+      );
+
+      return Menu(ids: menuIds, names: menuNames);
+    }
+    throw Error();
+  }
+
+  static Future<void> postDiets(List<String> menuIdList, String date,
+      String meals, int cafeteriaId, bool dayOff) async {
+    const path = "/admin/diets/";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
+        },
+        body: jsonEncode(
+          {
+            'menuIdList': menuIdList,
+            'date': date,
+            'meals': meals,
+            'cafeteriaId': '$cafeteriaId',
+            'dayOff': dayOff,
+          },
+        ));
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      print(response.body);
+    }
   }
 
   static Future<void> kakaoLoginPost(String idToken, String accessToken) async {
