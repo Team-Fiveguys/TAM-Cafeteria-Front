@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
-void showMenuInput(BuildContext context) {
+Future<void> showMenuInput(BuildContext context) async {
   String? selectedCategory; // 선택된 카테고리를 저장할 변수
   final TextEditingController menuNameController = TextEditingController();
 
-  showDialog(
+  return showDialog<void>(
     context: context,
     builder: (context) {
       // StatefulBuilder를 사용하여 AlertDialog 내부에서 상태 관리
