@@ -1,6 +1,12 @@
-class Menu {
-  final List<dynamic> menuList;
+class MenuList {
+  final List<Map<String, dynamic>> menuList;
 
-  Menu.fromJson(Map<String, dynamic> json)
+  MenuList.fromJson(Map<String, dynamic> json)
       : menuList = json["menuQueryDTOList"];
+}
+
+class Menu {
+  final String name;
+
+  Menu.fromJson(Map<String, dynamic> json) : name = json["name"];
 }

@@ -1,8 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
-
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,9 +26,9 @@ class ApiService {
     final response = await http.get(url);
     if (response.statusCode == 200) {
       final instance = Result.fromJson(jsonDecode(response.body));
-      final dietsInstance = Diets.fromJson(instance.result);
-      final menuInstance = Menu.fromJson(dietsInstance.menu);
-      print('dietsInstance : ${menuInstance.menuList}');
+      // final dietsInstance = Diets.fromJson(instance.result);
+      // final menuInstance = Menu.fromJson(dietsInstance.menu);
+      // print('dietsInstance : ${menuInstance.menuList}');
     } else {
       log("message");
     }
@@ -80,7 +77,7 @@ class ApiService {
 
   static Future<void> postMenu(String name) async {
     const int cafeterialId = 1;
-    const path = "/menu";
+    const path = "/menus";
     final url = Uri.http(baseUrl, path);
 
     final response = await http.post(url,
@@ -98,6 +95,32 @@ class ApiService {
     } else {
       print(response.body);
     }
+  }
+
+  static Future<List<String>> getMenu() async {
+    const int cafeterialId = 1;
+    const path = "/menus";
+    final url = Uri.http(baseUrl, path, {'cafeteriaId': '$cafeterialId'});
+
+    final response = await http
+        .get(url, headers: {'Content-Type': 'application/json; charset=UTF-8'});
+
+    if (response.statusCode == 200) {
+      // UTF-8 인코딩을 사용하여 응답 본문을 디코드합니다.
+      final String decodedResponse = utf8.decode(response.bodyBytes);
+
+      // 디코드된 문자열을 JSON으로 파싱합니다.
+      final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+      // 'result' 키에 해당하는 부분을 추출하고, 'menuQueryDTOList' 내부를 순회하며 각 항목의 'name'을 추출하여 리스트를 생성합니다.
+      final List<String> menuNames = List<String>.from(
+        jsonResponse['result']['menuQueryDTOList']
+            .map((item) => item['name'] as String),
+      );
+
+      return menuNames;
+    }
+    throw Error();
   }
 
   static Future<void> kakaoLoginPost(String idToken, String accessToken) async {
