@@ -28,6 +28,26 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: AppBar(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
+                child: SizedBox(
+                  height: 50,
+                  child: Image.asset(
+                    'assets/images/app_bar_logo.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // FloatingActionButton을 누를 때 수행할 작업

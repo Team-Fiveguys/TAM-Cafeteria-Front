@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tam_cafeteria_front/screens/announcement_board_screen.dart';
 
 import 'package:tam_cafeteria_front/screens/login_screen.dart';
 import 'package:tam_cafeteria_front/screens/menu_suggestion_board_screen.dart';
@@ -141,7 +142,8 @@ class _AppState extends State<App> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const MenuBoardScreen(), //알람 버튼
+                        builder: (context) =>
+                            const AnnounceBoardScreen(), //알람 버튼
                       ),
                     );
                   },
