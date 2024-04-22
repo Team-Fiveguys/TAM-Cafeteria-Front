@@ -29,6 +29,16 @@ class _AdminPageState extends State<AdminPage> {
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
 
+  final List<String> menuList = [
+    "마제소바",
+    "도토리묵야채무침calclalcal",
+    "타코야끼",
+    "락교",
+    "요구르트",
+    "아이스믹스커피",
+    "배추김치&추가밥",
+  ];
+
   late String cafeteriaName;
 
   @override
@@ -333,22 +343,8 @@ class _AdminPageState extends State<AdminPage> {
                                       ),
                                     ),
                                   ),
-                                  // GridView를 사용하여 텍스트를 배치합니다.
-                                  child: GridView.builder(
-                                    gridDelegate:
-                                        const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      mainAxisSpacing: 5,
-                                      crossAxisSpacing: 5,
-                                    ),
-                                    itemCount: 8,
-                                    itemBuilder: (context, index) =>
-                                        const SizedBox(
-                                      width: 100,
-                                      height: 20,
-                                      child: Text("• 배추김치"),
-                                    ),
-                                  ),
+                                  child: //TODO: 여기 ui 완성시키기
+                                      Container(),
                                 ),
                               ),
                             ],
