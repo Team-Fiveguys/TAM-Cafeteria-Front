@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 
 //태그 달고
 //폰트 줄이고 짜글이 좀 좌우 상하 길이 맞추고 좋아요 icon가져오고 숫자 늘어나게 만들고
@@ -25,9 +26,35 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: AppBar(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
+                child: SizedBox(
+                  height: 50,
+                  child: Image.asset(
+                    'assets/images/app_bar_logo.png',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           // FloatingActionButton을 누를 때 수행할 작업
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const WriteMenuScreen(),
+            ),
+          );
         },
         icon: Image.asset(
           'assets/images/write_board_icon.png',

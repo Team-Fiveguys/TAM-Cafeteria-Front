@@ -6,6 +6,8 @@
 //각자 다 패딩 넣고
 //남성 여성 버튼 패딩과 동그랗게
 //약관 동의 맨 아래 붙힌다.
+import 'dart:js_util';
+
 import 'package:flutter/material.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -16,7 +18,37 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  bool _passwordVisible = false;
+  bool _checkpasswordVisible = false;
   bool _isChecked = false;
+  String? _selectedGender;
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _checkPasswordController =
+      TextEditingController();
+  bool _passwordsMatch = true;
+
+  Widget _buildGenderButton(String gender) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(100, 70),
+        backgroundColor: _selectedGender == gender ? Colors.grey : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      onPressed: () {
+        setState(() {
+          _selectedGender = gender;
+        });
+      },
+      child: Text(
+        gender,
+        style: TextStyle(
+          color: _selectedGender == gender ? Colors.white : Colors.black,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +77,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: '닉네임',
+                      hintText: '이름',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10), // 모서리를 둥글게
                       ),
@@ -75,6 +107,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 20.0),
                 Padding(
+                  padding: const EdgeInsets.only(left: 5, right: 5),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(100, 60),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          10,
+                        ),
+                      ),
+                    ),
+                    onPressed: () {},
+                    child: const Text(
+                      '이메일 중복 확인',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                Padding(
                   padding: const EdgeInsets.only(
                     right: 5,
                     left: 5,
@@ -96,12 +147,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           color: Colors.white,
                         ),
-                        child: const TextField(
+                        child: TextFormField(
+                          obscureText: !_passwordVisible,
+                          controller: _passwordController,
                           decoration: InputDecoration(
                             hintText: '비밀번호',
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(12),
+                            contentPadding: const EdgeInsets.all(12),
                             filled: false,
+                            suffixIcon: IconButton(
+                              icon: Icon(_passwordVisible
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                              onPressed: () {
+                                setState(
+                                  () {
+                                    _passwordVisible = !_passwordVisible;
+                                  },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -132,13 +197,51 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           color: Colors.white,
                         ),
-                        child: const TextField(
-                          decoration: InputDecoration(
-                            hintText: '비밀번호 확인',
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(12),
-                            filled: false,
-                          ),
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              obscureText: !_checkpasswordVisible,
+                              controller: _checkPasswordController,
+                              onChanged: (value) {
+                                setState(() {
+                                  _passwordsMatch =
+                                      _passwordController.text == value;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                hintText: '비밀번호 확인',
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.all(12),
+                                filled: false,
+                                suffixIcon: IconButton(
+                                  icon: Icon(_checkpasswordVisible
+                                      ? Icons.visibility_off
+                                      : Icons.visibility),
+                                  onPressed: () {
+                                    setState(
+                                      () {
+                                        _checkpasswordVisible =
+                                            !_checkpasswordVisible;
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            if (!_passwordsMatch) // 일치하지 않을 때에만 출력
+                              const Divider(
+                                color: Colors.black,
+                                thickness: 0.8,
+                              ),
+                            if (!_passwordsMatch)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text(
+                                  '비밀번호가 일치하지 않습니다.',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ],
@@ -156,41 +259,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(100, 70),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                10,
-                              ),
-                            ),
-                          ),
-                          onPressed: () {},
-                          child: const Text(
-                            '남성',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
+                        child: _buildGenderButton('남성'),
                       ),
                       const SizedBox(
                         width: 10,
                       ),
                       Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(100, 70),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                10,
-                              ),
-                            ),
-                          ),
-                          onPressed: () {},
-                          child: const Text(
-                            '여성',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
+                        child: _buildGenderButton('여성'),
                       ),
                     ],
                   ),
