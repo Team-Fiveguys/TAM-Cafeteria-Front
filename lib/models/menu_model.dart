@@ -1,6 +1,6 @@
 class Menu {
-  final List<dynamic> menuList;
+  final List<String> names;
+  final List<int> ids;
 
-  Menu.fromJson(Map<String, dynamic> json)
-      : menuList = json["menuQueryDTOList"];
+  Menu({required this.names, required this.ids});
 }

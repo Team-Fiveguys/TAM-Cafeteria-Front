@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
@@ -36,9 +39,6 @@ class _AdminPageState extends State<AdminPage> {
       cafeteriaName = selectedItem!;
     }
   }
-
-  String? selectedCategory; // 선택된 카테고리를 저장할 변수
-  final TextEditingController menuNameController = TextEditingController();
 
   final List<String> waitingStatusList = [
     "여유",
@@ -102,75 +102,6 @@ class _AdminPageState extends State<AdminPage> {
               child: const Text("등록"),
             ),
           ],
-        );
-      },
-    );
-  }
-
-  void showMenuInput() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        // StatefulBuilder를 사용하여 AlertDialog 내부에서 상태 관리
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: const Text("메뉴 입력"),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DropdownButton<String>(
-                      hint: const Text("카테고리 선택"),
-                      value: selectedCategory,
-                      dropdownColor: Colors.white,
-                      onChanged: (String? newValue) {
-                        // StatefulBuilder의 setState를 사용
-                        setState(() {
-                          selectedCategory = newValue;
-                        });
-                      },
-                      items: <String>['한식', '중식', '일식', '양식']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
-                    TextField(
-                      controller: menuNameController,
-                      decoration: const InputDecoration(
-                        hintText: "메뉴 명",
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    selectedCategory = null;
-                    menuNameController.clear();
-                  },
-                  child: const Text("취소"),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // 여기에 메뉴 등록 로직 추가
-                    print(
-                        "$selectedCategory 카테고리, 메뉴명: ${menuNameController.text}");
-                    ApiService.postMenu(menuNameController.text);
-                    selectedCategory = null;
-                    menuNameController.clear();
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text("등록"),
-                ),
-              ],
-            );
-          },
         );
       },
     );
@@ -335,7 +266,6 @@ class _AdminPageState extends State<AdminPage> {
                     ),
                   ],
                 ),
-                height: 220,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 15,
@@ -366,6 +296,65 @@ class _AdminPageState extends State<AdminPage> {
                       const SizedBox(
                         height: 15,
                       ),
+                      Container(
+                        height: 130,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).canvasColor,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 10),
+                          child: Row(
+                            children: [
+                              const Flexible(
+                                flex: 1,
+                                child: Center(
+                                  child: Text(
+                                    '조식',
+                                    style: TextStyle(
+                                      color: Color(0xFF5A5A5A),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Flexible(
+                                flex: 2,
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      left: BorderSide(
+                                        color: Colors.black,
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  // GridView를 사용하여 텍스트를 배치합니다.
+                                  child: GridView.builder(
+                                    gridDelegate:
+                                        const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 5,
+                                      crossAxisSpacing: 5,
+                                    ),
+                                    itemCount: 8,
+                                    itemBuilder: (context, index) =>
+                                        const SizedBox(
+                                      width: 100,
+                                      height: 20,
+                                      child: Text("• 배추김치"),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -596,7 +585,7 @@ class _AdminPageState extends State<AdminPage> {
                           horizontal: 10,
                         ),
                         child: TextButton(
-                          onPressed: () => showMenuInput(),
+                          onPressed: () => showMenuInput(context),
                           child: const Center(
                               child: Text(
                             "메뉴 입력",
