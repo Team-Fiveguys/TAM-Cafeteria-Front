@@ -12,6 +12,7 @@ import 'package:tam_cafeteria_front/screens/my_page_screen.dart';
 
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 import 'package:tam_cafeteria_front/screens/sign_up_screen.dart';
+import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 void main() {
@@ -34,7 +35,7 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  final bool isAdmin = false;
+  final bool isAdmin = true;
 
   late int _selectedIndex; // 현재 선택된 탭의 인덱스
 
@@ -128,6 +129,30 @@ class _AppState extends State<App> {
             ],
           ),
         ),
+        floatingActionButton: _selectedIndex == 1
+            ? Builder(builder: (context) {
+                return FloatingActionButton.extended(
+                  onPressed: () {
+                    // FloatingActionButton을 누를 때 수행할 작업
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WriteMenuScreen(),
+                      ),
+                    );
+                  },
+                  icon: Image.asset(
+                    'assets/images/write_board_icon.png',
+                    width: 100, // 이미지의 너비 조절
+                    height: 100, // 이미지의 높이 조절
+                  ),
+                  label: const Text(''), // 라벨은 비워둠
+                  backgroundColor: Colors.black, // 배경색을 투명으로 설정하여 이미지만 보이도록 함
+                  shape: const CircleBorder(), // 원형으로 설정
+                );
+              })
+            : null,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60),
           child: AppBar(
@@ -158,7 +183,7 @@ class _AppState extends State<App> {
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            const AnnounceBoardScreen(), //알람 버튼
+                            const NotificationCenter(), //알람 버튼
                       ),
                     );
                   },
