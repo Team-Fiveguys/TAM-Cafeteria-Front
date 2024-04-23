@@ -6,9 +6,12 @@
 //각자 다 패딩 넣고
 //남성 여성 버튼 패딩과 동그랗게
 //약관 동의 맨 아래 붙힌다.
-import 'dart:js_util';
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -25,7 +28,137 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _checkPasswordController =
       TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController checkEmailVerifiyControlloer =
+      TextEditingController();
   bool _passwordsMatch = true;
+
+  bool isSendCode = false;
+
+  Timer? _timer;
+  int _start = 180; // 3분
+
+  void sendEmailCode(BuildContext context) async {
+    String email = emailController.text;
+    String message = await ApiService.postEmailAuthCode(email);
+    if (message == 'true') {
+      startTimer();
+      if (mounted) {
+        setState(() {
+          isSendCode = true;
+        });
+      }
+    } else {
+      _timer?.cancel();
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text("알림"),
+              content: Text(message),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('확인'),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Alert Dialog 창을 닫습니다.
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
+  void checkEmailVerification(BuildContext context) async {
+    print(_start);
+    if (_start == 0) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("알림"),
+            content: const Text("3분이 지났으므로 인증 코드를 재발급해주세요."),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('확인'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Alert Dialog 창을 닫습니다.
+                },
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+    String email = emailController.text;
+    String authCode = checkEmailVerifiyControlloer.text;
+    bool isVerified = await ApiService.postEmailVerification(email, authCode);
+    late String message;
+    if (isVerified) {
+      message = "확인되었습니다";
+      _timer?.cancel();
+    } else {
+      message = "인증 코드가 올바르지 않습니다. 다시 확인해주세요";
+    }
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
+          color: Colors.white,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(message),
+                ElevatedButton(
+                  child: const Text('닫기'),
+                  onPressed: () => Navigator.pop(context),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void startTimer() {
+    const oneSec = Duration(seconds: 1);
+    _timer?.cancel();
+    _start = 180; // 이전 타이머가 있다면 취소
+    _timer = Timer.periodic(
+      oneSec,
+      (Timer timer) {
+        if (_start == 0) {
+          setState(() {
+            timer.cancel();
+          });
+        } else {
+          setState(() {
+            _start--;
+          });
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  String formatTime(int seconds) {
+    int minute = seconds ~/ 60;
+    int second = seconds % 60;
+    return "$minute:${second.toString().padLeft(2, '0')}";
+  }
 
   Widget _buildGenderButton(String gender) {
     return ElevatedButton(
@@ -94,37 +227,129 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     right: 5,
                     left: 5,
                   ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: '이메일',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10), // 모서리를 둥글게
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20.0),
-                Padding(
-                  padding: const EdgeInsets.only(left: 5, right: 5),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(100, 60),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          10,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: emailController,
+                          decoration: InputDecoration(
+                            hintText: '이메일',
+                            border: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.circular(10), // 모서리를 둥글게
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    onPressed: () {},
-                    child: const Text(
-                      '이메일 중복 확인',
-                      style: TextStyle(color: Colors.black),
-                    ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(100, 60),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              10,
+                            ),
+                          ),
+                        ),
+                        onPressed: () => sendEmailCode(context),
+                        child: const Text(
+                          '인증 발송',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+
+                if (isSendCode)
+                  Column(
+                    children: [
+                      const SizedBox(height: 20.0),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Stack(
+                                alignment: Alignment.centerRight,
+                                children: [
+                                  TextField(
+                                    controller: checkEmailVerifiyControlloer,
+                                    decoration: InputDecoration(
+                                      hintText: '이메일 인증 코드',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            10), // 모서리를 둥글게
+                                      ),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsetsDirectional.only(
+                                        end: 12.0),
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      widthFactor: 1.0,
+                                      child: Text(
+                                        formatTime(_start),
+                                        style:
+                                            const TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(100, 60),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    10,
+                                  ),
+                                ),
+                              ),
+                              onPressed: () => checkEmailVerification(context),
+                              child: const Text(
+                                '인증 확인',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
                 const SizedBox(height: 20.0),
+                // 이메일 인증하면서 중복도 같이 확인해서 필요없음
+                // Padding(
+                //   padding: const EdgeInsets.only(left: 5, right: 5),
+                //   child: ElevatedButton(
+                //     style: ElevatedButton.styleFrom(
+                //       minimumSize: const Size(100, 60),
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(
+                //           10,
+                //         ),
+                //       ),
+                //     ),
+                //     onPressed: () {},
+                //     child: const Text(
+                //       '이메일 중복 확인',
+                //       style: TextStyle(color: Colors.black),
+                //     ),
+                //   ),
+                // ),
+                // const SizedBox(height: 20.0),
                 Padding(
                   padding: const EdgeInsets.only(
                     right: 5,
