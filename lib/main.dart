@@ -93,6 +93,7 @@ class _AppState extends ConsumerState<App> {
     var normalized = base64Url.normalize(payload);
     var decoded = utf8.decode(base64Url.decode(normalized));
     final payloadMap = json.decode(decoded);
+    print('main App : decodeJwt : payloadMap $payloadMap');
     setState(() {
       isAdmin = payloadMap['role'] == "ADMIN";
     });
@@ -164,7 +165,7 @@ class _AppState extends ConsumerState<App> {
   void navigateToLoginScreen(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      MaterialPageRoute(builder: (context) => LoginScreen()),
     );
   }
 
@@ -175,7 +176,13 @@ class _AppState extends ConsumerState<App> {
     final accessToken = ref.watch(accessTokenProvider);
     decodeJwt(accessToken);
 
-    print("main App :: build: $accessToken");
+    print("main App :: build: accessToken $accessToken");
+    print("main App :: build: isAdmin $isAdmin");
+    _widgetOptions = <Widget>[
+      MainScreen(),
+      const MenuBoardScreen(),
+      isAdmin ? const AdminPage() : const MyPage(),
+    ];
     return MaterialApp(
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
@@ -257,7 +264,7 @@ class _AppState extends ConsumerState<App> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
+                        builder: (context) => LoginScreen(),
                       ),
                     );
                   }, // 아무것도 하지 않음

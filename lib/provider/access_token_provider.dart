@@ -21,7 +21,8 @@ class AccessTokenNotifier extends StateNotifier<String?> {
     }
   }
 
-  void clearToken() {
+  void clearToken() async {
     state = null;
+    await TokenManagerWithSP.removeToken();
   }
 }
