@@ -12,6 +12,7 @@ import 'package:tam_cafeteria_front/models/diets_model.dart';
 import 'package:tam_cafeteria_front/models/menu_model.dart';
 import 'package:tam_cafeteria_front/models/result_model.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
+import 'package:tam_cafeteria_front/provider/token_manager.dart';
 
 class ApiService {
   static const String baseUrl = "dev.tam-cafeteria.site";
@@ -40,21 +41,26 @@ class ApiService {
   }
 
   static Future<void> postDietPhoto(XFile image) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
     const dietId = 4;
     final url = Uri.http(baseUrl, "/diets/$dietId/dietPhoto");
 
-    // 파일의 MIME 타입을 결정합니다.
+// 파일의 MIME 타입을 결정합니다.
     String? mimeType = lookupMimeType(image.path);
     var mimeeTypeSplit =
         mimeType?.split('/') ?? ['application', 'octet-stream']; // 기본값을 제공합니다.
 
-    // 이미지 파일의 바이트 데이터를 읽습니다.
+// 이미지 파일의 바이트 데이터를 읽습니다.
     var imageBytes = await image.readAsBytes();
 
-    // MultipartRequest 객체를 생성합니다.
-    var request = http.MultipartRequest('POST', url);
+// MultipartRequest 객체를 생성합니다.
+    var request = http.MultipartRequest('POST', url)
+      ..headers.addAll({
+        'Authorization': 'Bearer $accessToken', // accessToken을 헤더에 추가합니다.
+        'Content-Type': 'multipart/form-data',
+      });
 
-    // 이미지 파일을 MultipartFile로 변환합니다.
+// 이미지 파일을 MultipartFile로 변환합니다.
     var multipartFile = http.MultipartFile.fromBytes(
       'photo',
       imageBytes,
@@ -62,13 +68,13 @@ class ApiService {
       filename: basename(image.path), // 파일 이름 설정
     );
 
-    // 변환된 파일을 요청에 추가합니다.
+// 변환된 파일을 요청에 추가합니다.
     request.files.add(multipartFile);
 
-    // 요청을 전송하고 응답을 기다립니다.
+// 요청을 전송하고 응답을 기다립니다.
     var response = await request.send();
 
-    // 응답을 처리합니다.
+// 응답을 처리합니다.
     if (response.statusCode == 200) {
       print('Upload successful');
       String responseText = await response.stream.bytesToString();
@@ -103,12 +109,15 @@ class ApiService {
   }
 
   static Future<Menu> getMenu() async {
+    final accessToken = await TokenManagerWithSP.loadToken();
     const int cafeterialId = 1;
     const path = "/menus";
     final url = Uri.http(baseUrl, path, {'cafeteriaId': '$cafeterialId'});
 
-    final response = await http
-        .get(url, headers: {'Content-Type': 'application/json; charset=UTF-8'});
+    final response = await http.get(url, headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $accessToken',
+    });
 
     if (response.statusCode == 200) {
       // UTF-8 인코딩을 사용하여 응답 본문을 디코드합니다.
@@ -174,12 +183,15 @@ class ApiService {
 
   static Future<void> postDiets(List<String> menuIdList, String date,
       String meals, int cafeteriaId, bool dayOff) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets/";
     final url = Uri.http(baseUrl, path);
 
     final response = await http.post(url,
         headers: {
-          'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
+          'Content-Type': 'application/json',
+          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
+          'Authorization': 'Bearer $accessToken',
         },
         body: jsonEncode(
           {
@@ -190,6 +202,7 @@ class ApiService {
             'dayOff': dayOff,
           },
         ));
+
     if (response.statusCode == 200) {
       print(response.body);
     } else {
@@ -295,15 +308,65 @@ class ApiService {
     }
   }
 
-  // static Future<void> _setLogin(String accessToken, String refreshToken) async {
-  //   // 공유저장소에 유저 DB의 인덱스 저장
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   prefs.setString('accessToken', accessToken);
-  //   prefs.setString('refreshToken', refreshToken);
-  // }
+  static Future<bool> postSignUp(String name, String password, String sex,
+      String email, String authcode) async {
+    const path = "/sign-up";
+    final url = Uri.http(baseUrl, path);
 
-  // static void delAutoLogin() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   await prefs.remove('accessToken');
-  // }
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
+        },
+        body: jsonEncode(
+          {
+            'name': name,
+            'password': password,
+            'sex': sex,
+            'email': email,
+            'authCode': authcode,
+          },
+        ));
+
+    if (response.statusCode == 200) {
+      print(response.body);
+      return true;
+    } else {
+      print(response.body);
+    }
+    throw Error();
+  }
+
+  static Future<String?> postSignIn(String email, String password) async {
+    const path = "/auth/email/sign-in";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
+        },
+        body: jsonEncode(
+          {
+            'email': email,
+            'password': password,
+          },
+        ));
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print(
+          'ApiService:postKakaoLogin :: ${jsonResponse['result']['accessToken']}');
+
+      return jsonResponse['result']['accessToken'];
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
+    }
+    throw Error();
+  }
 }

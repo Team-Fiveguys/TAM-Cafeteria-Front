@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:path/path.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:tam_cafeteria_front/main.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
@@ -14,9 +16,11 @@ import 'package:tam_cafeteria_front/services/api_service.dart'; // SignUpScreen 
 
 //아직회원이 아니신가요? 회원가입> 안 붙음
 class LoginScreen extends ConsumerWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  LoginScreen({Key? key}) : super(key: key);
 
   final bool _isChecked = false;
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   Future<void> loginWithKakao(BuildContext context, WidgetRef ref) async {
     final tokenProvider = ref.read(accessTokenProvider.notifier);
@@ -79,6 +83,111 @@ class LoginScreen extends ConsumerWidget {
     }
   }
 
+  Future<void> loginWithApple(BuildContext context, WidgetRef ref) async {
+    if (Platform.isAndroid) {
+      // TODO: 나중에 redirect로 바꾸기
+      // 안드로이드 기기에서 실행되었다면 경고 다이얼로그 표시
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('경고'),
+          content: const Text('애플 로그인은 iOS 기기에서만 지원됩니다.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () => Navigator.of(context).pop(), // 다이얼로그 닫기
+            ),
+          ],
+        ),
+      );
+      return; // 함수 종료
+    }
+
+    final tokenProvider = ref.read(accessTokenProvider.notifier);
+    final loginProvier = ref.read(loginStateProvider.notifier);
+
+    showDialog(
+      context: context,
+      barrierDismissible:
+          false, // 사용자가 다이얼로그 바깥을 터치하거나 뒤로가기를 눌러 다이얼로그를 닫지 못하게 함
+      builder: (builderContext) => const PopScope(
+        canPop: false, // Android 뒤로가기 버튼으로도 닫지 못하게 함
+        child: Center(
+          child: CircularProgressIndicator(), // 로딩 인디케이터
+        ),
+      ),
+    );
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+      print("loginWithApple : $credential");
+    } catch (error) {
+      print(error);
+    } finally {
+      Navigator.of(context).pop(); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
+    }
+  }
+
+  void loginWithEmail(BuildContext context, WidgetRef ref) async {
+    final tokenProvider = ref.read(accessTokenProvider.notifier);
+    final loginProvier = ref.read(loginStateProvider.notifier);
+    bool success = false;
+    String msg = "";
+    String? accessToken;
+    if (_idController.text.isEmpty) {
+      msg = "이메일을 입력하세요";
+    } else if (_passwordController.text.isEmpty) {
+      msg = "비밀번호를 입력하세요";
+    } else {
+      accessToken = await ApiService.postSignIn(
+          _idController.text, _passwordController.text);
+      success = accessToken != null ? true : false;
+      if (await TokenManagerWithSP.loadToken() != null) {
+        tokenProvider.clearToken();
+      }
+      if (accessToken != null) {
+        tokenProvider.setToken(accessToken);
+        loginProvier.login();
+        //  ref.read(loginStateProvider.state).state = true;
+      }
+    }
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
+          color: Colors.white,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(msg),
+                ElevatedButton(
+                  child: const Text('닫기'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    if (success) {
+                      Navigator.pop(context);
+                    }
+                  },
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    if (success) {
+      Navigator.pop(context);
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
@@ -118,8 +227,9 @@ class LoginScreen extends ConsumerWidget {
                         SizedBox(
                           height: 55,
                           child: TextField(
+                            controller: _idController,
                             decoration: InputDecoration(
-                              hintText: '아이디 입력',
+                              hintText: '이메일 입력',
                               border: OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.circular(20), // 모서리를 둥글게
@@ -133,6 +243,7 @@ class LoginScreen extends ConsumerWidget {
                         SizedBox(
                           height: 55,
                           child: TextField(
+                            controller: _passwordController,
                             decoration: InputDecoration(
                               hintText: '비밀번호 입력',
                               border: OutlineInputBorder(
@@ -146,28 +257,29 @@ class LoginScreen extends ConsumerWidget {
                           ),
                         ),
                         const SizedBox(height: 10.0),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _isChecked,
-                              onChanged: (value) {}, // TODO : 로그인 유지 관리하기
-                            ),
-                            const Text(
-                              '로그인 정보 유지',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
+                        // 일단 로그인 유지로 하기, 나중에 상태 변수 관리하다 앱 종료할때 지우면 될듯
+                        // Row(
+                        //   children: [
+                        //     Checkbox(
+                        //       value: _isChecked,
+                        //       onChanged: (value) {}, // TODO : 로그인 유지 관리하기
+                        //     ),
+                        //     const Text(
+                        //       '로그인 정보 유지',
+                        //       style: TextStyle(
+                        //         color: Colors.white,
+                        //         fontSize: 13,
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
                         const SizedBox(height: 10.0),
                         ElevatedButton(
                           style: ButtonStyle(
                             minimumSize: MaterialStateProperty.all<Size>(
                                 const Size(200, 58)),
                           ),
-                          onPressed: () {},
+                          onPressed: () => loginWithEmail(context, ref),
                           child: const Text(
                             '로그인',
                             style: TextStyle(color: Colors.black),
@@ -241,6 +353,16 @@ class LoginScreen extends ConsumerWidget {
                                     icon: Image.asset(
                                         'assets/images/naver_login_logo.png'),
                                     onPressed: () {},
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 70,
+                                  height: 70,
+                                  child: IconButton(
+                                    icon: Image.asset(
+                                        'assets/images/apple_login_logo.png'),
+                                    onPressed: () =>
+                                        loginWithApple(context, ref),
                                   ),
                                 ),
                                 SizedBox(

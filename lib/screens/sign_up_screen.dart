@@ -24,7 +24,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _passwordVisible = false;
   bool _checkpasswordVisible = false;
   bool _isChecked = false;
+  bool isVerified = false;
   String? _selectedGender;
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _checkPasswordController =
       TextEditingController();
@@ -37,6 +39,65 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   Timer? _timer;
   int _start = 180; // 3분
+
+  void signUp() async {
+    bool success = false;
+    String msg = "";
+    if (!_isChecked) {
+      msg = "약관 동의를 해주세요";
+    } else if (nameController.text.isEmpty) {
+      msg = "이름을 입력해주세요";
+    } else if (_passwordController.text.isEmpty) {
+      msg = "비밀번호를 입력해주세요";
+    } else if (_checkPasswordController.text.isEmpty) {
+      msg = "비밀번호를 확인해주세요";
+    } else if (_passwordController.text != _checkPasswordController.text) {
+      msg = "비밀번호가 일치하지않습니다";
+    } else if (_selectedGender == null) {
+      msg = "성별을 선택해주세요";
+    } else if (!isVerified) {
+      msg = "메일을 인증해주세요";
+    } else {
+      success = await ApiService.postSignUp(
+          nameController.text,
+          _passwordController.text,
+          _selectedGender!,
+          emailController.text,
+          checkEmailVerifiyControlloer.text);
+      if (success) {
+        msg = "회원가입 성공";
+      } else {
+        msg = "회원가입 실패";
+      }
+    }
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: 200,
+          color: Colors.white,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(msg),
+                ElevatedButton(
+                  child: const Text('닫기'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    if (success) {
+                      Navigator.pop(context);
+                    }
+                  },
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   void sendEmailCode(BuildContext context) async {
     String email = emailController.text;
@@ -96,7 +157,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
     String email = emailController.text;
     String authCode = checkEmailVerifiyControlloer.text;
-    bool isVerified = await ApiService.postEmailVerification(email, authCode);
+    isVerified = await ApiService.postEmailVerification(email, authCode);
     late String message;
     if (isVerified) {
       message = "확인되었습니다";
@@ -209,6 +270,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     left: 5,
                   ),
                   child: TextField(
+                    controller: nameController,
                     decoration: InputDecoration(
                       hintText: '이름',
                       border: OutlineInputBorder(
@@ -264,7 +326,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ],
                   ),
                 ),
-
                 if (isSendCode)
                   Column(
                     children: [
@@ -328,28 +389,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ],
                   ),
-
                 const SizedBox(height: 20.0),
-                // 이메일 인증하면서 중복도 같이 확인해서 필요없음
-                // Padding(
-                //   padding: const EdgeInsets.only(left: 5, right: 5),
-                //   child: ElevatedButton(
-                //     style: ElevatedButton.styleFrom(
-                //       minimumSize: const Size(100, 60),
-                //       shape: RoundedRectangleBorder(
-                //         borderRadius: BorderRadius.circular(
-                //           10,
-                //         ),
-                //       ),
-                //     ),
-                //     onPressed: () {},
-                //     child: const Text(
-                //       '이메일 중복 확인',
-                //       style: TextStyle(color: Colors.black),
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 20.0),
                 Padding(
                   padding: const EdgeInsets.only(
                     right: 5,
@@ -593,9 +633,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             minimumSize: const Size(double.infinity, 80),
           ),
-          onPressed: () {
-            // 회원가입 기능 구현
-          },
+          onPressed: signUp,
           child: const Text(
             '회원가입',
             style: TextStyle(
