@@ -40,6 +40,7 @@ dependencies:
   table_calendar: ^3.0.0
   shared_preferences: ^2.2.3
   flutter_riverpod: ^2.5.1
+  sign_in_with_apple: ^6.1.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -72,6 +73,7 @@ flutter:
     - assets/images/login_logo.png
     - assets/images/google_login_logo.png
     - assets/images/naver_login_logo.png
+    - assets/images/apple_login_logo.png
     - assets/images/kakao_login_logo.png
     - assets/images/dot_line.png
     - assets/images/hot_badge.png
