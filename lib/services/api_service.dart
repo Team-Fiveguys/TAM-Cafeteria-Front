@@ -1,16 +1,21 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/models/diets_model.dart';
 import 'package:tam_cafeteria_front/models/menu_model.dart';
 import 'package:tam_cafeteria_front/models/result_model.dart';
+import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 
 class ApiService {
   static const String baseUrl = "dev.tam-cafeteria.site";
+
   static Future<void> test() async {
     // final url = Uri.http('dev.tam-cafeteria.site', '/cafeteria', {
     //   'name': "명진당",
@@ -192,7 +197,8 @@ class ApiService {
     }
   }
 
-  static Future<void> kakaoLoginPost(String idToken, String accessToken) async {
+  static Future<String?> postKakaoLogin(
+      String idToken, String accessToken) async {
     const path = '/oauth2/kakao/token/validate';
     final url = Uri.http(baseUrl, path);
 
@@ -209,10 +215,95 @@ class ApiService {
       ),
     );
 
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
     if (response.statusCode == 200) {
-      print(response.body);
+      print(
+          'ApiService:postKakaoLogin :: ${jsonResponse['result']['accessToken']}');
+
+      return jsonResponse['result']['accessToken'];
     } else {
-      print(response.body);
+      print(jsonResponse);
+      // return jsonResponse['message'];
+    }
+    throw Error();
+  }
+
+  static Future<String> postEmailAuthCode(String email) async {
+    const path = '/auth/email';
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
+      },
+      body: jsonEncode(
+        {
+          'email': email,
+        },
+      ),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print(jsonResponse);
+
+      return 'true';
+    } else {
+      print(jsonResponse);
+      return jsonResponse['message'];
     }
   }
+
+  static Future<bool> postEmailVerification(
+      String email, String authCode) async {
+    const path = '/auth/email/verification';
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
+      },
+      body: jsonEncode(
+        {
+          'email': email,
+          'authCode': authCode,
+        },
+      ),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print(jsonResponse);
+      return true;
+    } else {
+      print(jsonResponse);
+      return false;
+    }
+  }
+
+  // static Future<void> _setLogin(String accessToken, String refreshToken) async {
+  //   // 공유저장소에 유저 DB의 인덱스 저장
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   prefs.setString('accessToken', accessToken);
+  //   prefs.setString('refreshToken', refreshToken);
+  // }
+
+  // static void delAutoLogin() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   await prefs.remove('accessToken');
+  // }
 }
