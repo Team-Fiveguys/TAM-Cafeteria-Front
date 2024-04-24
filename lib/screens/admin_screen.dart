@@ -22,7 +22,7 @@ class _AdminPageState extends State<AdminPage> {
   final DateTime now = DateTime.now();
   final DateFormat dateFormat = DateFormat('yyyy / MM / dd');
 
-  final String serverWaitingStatus = '여유';
+  String serverWaitingStatus = '여유';
   String? selectedItem = '명진당';
   String currentWaitingStatus = '선택 안함';
   int? currentWaitingTime = 5;
@@ -54,7 +54,7 @@ class _AdminPageState extends State<AdminPage> {
     "여유",
     "보통",
     "혼잡",
-    "매우 \n혼잡",
+    "매우혼잡",
   ];
 
   final List<String> waitingImageList = [
@@ -117,8 +117,20 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
+  void updateCurrentStatus(String newStatus) {
+    setState(() {
+      currentWaitingStatus = newStatus;
+    });
+  }
+
+  Future<void> getCongestionStatus() async {
+    serverWaitingStatus = await ApiService.getCongestionStatus(1);
+    currentWaitingStatus = serverWaitingStatus;
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("admin screen : build");
     return Column(
       children: [
         //관리자 페이지
@@ -209,54 +221,68 @@ class _AdminPageState extends State<AdminPage> {
                 ),
                 height: 220,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: 10,
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text(
-                            '대기열 관리',
-                            style: TextStyle(
-                              color: Color(0xFF282828),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
-                            child: AutoSizeText(
-                              '현재 상태 - $currentWaitingStatus',
-                              style: const TextStyle(
-                                fontSize: 13,
-                              ),
-                              minFontSize: 10,
-                              maxLines: 2,
-                            ),
-                          )
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Row(
-                        children: [
-                          for (var i = 0; i < 4; i++)
-                            WaitingIndicator(
-                              imageUrl: waitingImageList[i],
-                              waitingStatus: waitingStatusList[i],
-                              currentStatus: currentWaitingStatus,
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 15,
+                      horizontal: 10,
+                    ),
+                    child: FutureBuilder(
+                        future: getCongestionStatus(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            // 에러 발생 시
+                            return Text('Error: ${snapshot.error}');
+                          } else {
+                            return Column(
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      '대기열 관리',
+                                      style: TextStyle(
+                                        color: Color(0xFF282828),
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    Expanded(
+                                      child: AutoSizeText(
+                                        '현재 상태 - $currentWaitingStatus',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                        ),
+                                        minFontSize: 10,
+                                        maxLines: 2,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                                Row(
+                                  children: [
+                                    for (var i = 0; i < 4; i++)
+                                      WaitingIndicator(
+                                        imageUrl: waitingImageList[i],
+                                        waitingStatus: waitingStatusList[i],
+                                        currentStatus: currentWaitingStatus,
+                                        onStatusChanged: updateCurrentStatus,
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          }
+                        })),
               ),
 
               const SizedBox(

@@ -1,22 +1,35 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tam_cafeteria_front/models/menu_model.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/time_indicator_widget.dart';
 
-class TodayMenuInfo extends StatelessWidget {
-  TodayMenuInfo({
+class TodayMenuInfo extends StatefulWidget {
+  const TodayMenuInfo({
     super.key,
     required this.cafeteriaName,
     required this.lunchHour,
     this.breakfastHour,
   });
-  final DateTime now = DateTime.now();
-  final DateFormat dateFormat = DateFormat('yyyy / MM / dd');
   final String cafeteriaName;
   final String lunchHour;
   final String? breakfastHour;
-  static bool? isSoldOut = true;
 
-  final List<String> menuList = [
+  @override
+  State<TodayMenuInfo> createState() => _TodayMenuInfoState();
+}
+
+class _TodayMenuInfoState extends State<TodayMenuInfo> {
+  final DateTime now = DateTime.now();
+
+  final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+  bool isSoldOut = false;
+  String currentCongestionStatus = "보통";
+
+  ValueNotifier<int> refreshNotifier = ValueNotifier(0);
+
+  List<String> menuList = [
     "마제소바",
     "도토리묵야채무침calclalcal",
     "타코야끼",
@@ -25,6 +38,34 @@ class TodayMenuInfo extends StatelessWidget {
     "아이스믹스커피",
     "배추김치&추가밥",
   ];
+
+  final Map<String, String> congestionImage = {
+    '여유': 'assets/images/easy.png',
+    '보통': 'assets/images/normal.png',
+    '혼잡': 'assets/images/busy.png',
+    '매우혼잡': 'assets/images/veryBusy.png',
+  };
+
+  final Map<String, String> congestionTime = {
+    '여유': '약 0~5분',
+    '보통': '약 5분~10분',
+    '혼잡': '약 10분~20분',
+    '매우혼잡': '약 20분~',
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMenu(); // 메뉴 데이터 로드
+  }
+
+  void _loadMenu() async {
+    final menus = await getDietsInMain(
+        widget.cafeteriaName == "학생회관" ? 'BREAKFAST' : 'LUNCH');
+    setState(() {
+      menuList = menus; // 상태 업데이트
+    });
+  }
 
   void popUpMenuImage(BuildContext context) {
     showDialog(
@@ -87,7 +128,7 @@ class TodayMenuInfo extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  cafeteriaName,
+                                  widget.cafeteriaName,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
@@ -188,6 +229,19 @@ class TodayMenuInfo extends StatelessWidget {
     );
   }
 
+  Future<void> getCongestionStatus() async {
+    currentCongestionStatus = await ApiService.getCongestionStatus(
+        widget.cafeteriaName == "명진당" ? 1 : 1); // TODO : 학생회관 Id 설정하기
+  }
+
+  Future<List<String>> getDietsInMain(String meals) async {
+    Menu? menus = await ApiService.getDiets(dateFormat.format(now), meals);
+    if (menus != null) {
+      return menus.names;
+    }
+    return [];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -214,7 +268,7 @@ class TodayMenuInfo extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  cafeteriaName,
+                  widget.cafeteriaName,
                   style: TextStyle(
                     color: Theme.of(context).primaryColorDark,
                     fontSize: 20,
@@ -250,8 +304,8 @@ class TodayMenuInfo extends StatelessWidget {
                   flex: 1,
                   child: Column(children: [
                     TimeIndicator(
-                      lunchHour: lunchHour,
-                      breakfastHour: breakfastHour,
+                      lunchHour: widget.lunchHour,
+                      breakfastHour: widget.breakfastHour,
                     ),
                     const SizedBox(
                       height: 10,
@@ -259,41 +313,51 @@ class TodayMenuInfo extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       height: 130,
-                      decoration: getBorderColor(context,
-                          cafeteriaName == "학생회관" ? breakfastHour! : lunchHour),
+                      decoration: getBorderColor(
+                          context,
+                          widget.cafeteriaName == "학생회관"
+                              ? widget.breakfastHour!
+                              : widget.lunchHour),
                       child: Center(
                         child: SingleChildScrollView(
-                            child: isSoldOut!
-                                ? Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        width: 30,
-                                        height: 30,
-                                        child: Image.asset(
-                                            'assets/images/soldOut.png'),
-                                      ),
-                                      const Text('품절'),
-                                    ],
-                                  )
-                                : Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      for (var menu in menuList)
-                                        Text(
-                                          "• $menu",
-                                          style: TextStyle(
-                                            color: Theme.of(context)
-                                                .primaryColorDark,
-                                            fontSize: 10,
-                                          ),
-                                        )
-                                    ],
-                                  )),
+                          child: FutureBuilder(
+                            future: getDietsInMain(
+                                widget.cafeteriaName == "학생회관"
+                                    ? 'BREAKFAST'
+                                    : 'LUNCH'),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (snapshot.hasError) {
+                                // 에러 발생 시
+                                return Text('Error: ${snapshot.error}');
+                              } else {
+                                return isSoldOut
+                                    ? soldOutWidget()
+                                    : Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          for (var menu in menuList)
+                                            Text(
+                                              "• $menu",
+                                              style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryColorDark,
+                                                fontSize: 10,
+                                              ),
+                                            )
+                                        ],
+                                      );
+                              }
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ]),
@@ -305,9 +369,9 @@ class TodayMenuInfo extends StatelessWidget {
                   flex: 1,
                   child: Column(
                     children: [
-                      breakfastHour != null
+                      widget.breakfastHour != null
                           ? TimeIndicator(
-                              lunchHour: lunchHour,
+                              lunchHour: widget.lunchHour,
                             )
                           : const TimeIndicator(
                               name: "명분이네",
@@ -321,24 +385,47 @@ class TodayMenuInfo extends StatelessWidget {
                         height: 130,
                         decoration: getBorderColor(
                             context,
-                            cafeteriaName == "학생회관"
-                                ? lunchHour
+                            widget.cafeteriaName == "학생회관"
+                                ? widget.lunchHour
                                 : "11:00 ~ 15:00"),
                         child: Center(
                           child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                for (var menu in menuList)
-                                  Text(
-                                    "• $menu",
-                                    style: TextStyle(
-                                      color: Theme.of(context).primaryColorDark,
-                                      fontSize: 10,
-                                    ),
-                                  )
-                              ],
+                            child: FutureBuilder(
+                              future: getDietsInMain(
+                                  widget.cafeteriaName == "학생회관"
+                                      ? 'BREAKFAST'
+                                      : 'LUNCH'),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  // 에러 발생 시
+                                  return Text('Error: ${snapshot.error}');
+                                } else {
+                                  return isSoldOut
+                                      ? soldOutWidget()
+                                      : Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            for (var menu in menuList)
+                                              Text(
+                                                "• $menu",
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryColorDark,
+                                                  fontSize: 10,
+                                                ),
+                                              )
+                                          ],
+                                        );
+                                }
+                              },
                             ),
                           ),
                         ),
@@ -369,30 +456,54 @@ class TodayMenuInfo extends StatelessWidget {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 67,
-                                    height: 36,
-                                    child: Image.asset(
-                                      'assets/images/veryBusy.png',
-                                      fit: BoxFit.contain,
-                                    ),
-                                  ),
-                                  const Text(
-                                    '대기인원',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const Text(
-                                    '혼잡',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                              child: ValueListenableBuilder(
+                                valueListenable: refreshNotifier,
+                                builder: (context, value, child) {
+                                  return FutureBuilder(
+                                    future: getCongestionStatus(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        // 에러 발생 시
+                                        return Text('Error: ${snapshot.error}');
+                                      } else {
+                                        return Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(
+                                              width: 67,
+                                              height: 36,
+                                              child: Image.asset(
+                                                congestionImage[
+                                                    currentCongestionStatus]!,
+                                                fit: BoxFit.contain,
+                                              ),
+                                            ),
+                                            Text(
+                                              currentCongestionStatus,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              congestionTime[
+                                                  currentCongestionStatus]!,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 10,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }
+                                    },
+                                  );
+                                },
                               ),
                             ),
                           ),
@@ -403,15 +514,15 @@ class TodayMenuInfo extends StatelessWidget {
                               icon: const Icon(
                                 Icons.refresh,
                                 size: 15,
-                                // color: Colors.lightBlue,
                               ),
                               onPressed: () {
-                                // 새로고침 로직을 여기에 작성
+                                refreshNotifier.value +=
+                                    1; // 이렇게 하면 ValueListenableBuilder가 rebuild됩니다.
                               },
                             ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -420,6 +531,21 @@ class TodayMenuInfo extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Column soldOutWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 30,
+          height: 30,
+          child: Image.asset('assets/images/soldOut.png'),
+        ),
+        const Text('품절'),
+      ],
     );
   }
 }
