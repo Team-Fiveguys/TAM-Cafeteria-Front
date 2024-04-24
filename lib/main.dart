@@ -50,31 +50,14 @@ class _AppState extends ConsumerState<App> {
   int _selectedIndex = 0; // 현재 선택된 탭의 인덱스
 
   final ScrollController _scrollController = ScrollController();
-  bool _isVisible = true;
+  final ValueNotifier<bool> _isVisible = ValueNotifier(true);
+  // final bool _isVisible = true;
 
   List<Widget> _widgetOptions = <Widget>[
     MainScreen(),
     const MenuBoardScreen(),
     const MyPage(),
   ];
-
-  void _scrollListener() {
-    if (_scrollController.position.userScrollDirection ==
-        ScrollDirection.reverse) {
-      if (_isVisible == true) {
-        setState(() {
-          _isVisible = false;
-        });
-      }
-    } else if (_scrollController.position.userScrollDirection ==
-        ScrollDirection.forward) {
-      if (_isVisible == false) {
-        setState(() {
-          _isVisible = true;
-        });
-      }
-    }
-  }
 
   void decodeJwt(String? token) {
     if (token == null) {
@@ -131,6 +114,15 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.reverse) {
+        _isVisible.value = false;
+      } else if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.forward) {
+        _isVisible.value = true;
+      }
+    });
     Future.delayed(Duration.zero, () {
       _autoLoginCheck();
     });
@@ -140,12 +132,12 @@ class _AppState extends ConsumerState<App> {
       const MenuBoardScreen(),
       isAdmin ? const AdminPage() : const MyPage(),
     ];
-    _scrollController.addListener(_scrollListener);
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _isVisible.dispose();
     super.dispose();
   }
 
@@ -194,37 +186,38 @@ class _AppState extends ConsumerState<App> {
         canvasColor: const Color(0xFF002967),
       ),
       home: Scaffold(
-        bottomNavigationBar: AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          height: _isVisible ? 60.0 : 0.0,
-          child: Wrap(
-            children: [
-              Builder(builder: (context) {
-                return BottomNavigationBar(
-                  backgroundColor: Colors.white,
-                  items: <BottomNavigationBarItem>[
-                    const BottomNavigationBarItem(
-                      icon: Icon(Icons.home),
-                      label: '홈',
-                    ),
-                    const BottomNavigationBarItem(
-                      icon: Icon(Icons.forum),
-                      label: '게시판',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.person),
-                      label: isAdmin ? '관리자페이지' : '마이페이지',
+        bottomNavigationBar: AnimatedBuilder(
+            animation: _isVisible,
+            builder: (context, child) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: _isVisible.value ? 56.0 : 0.0,
+                child: Wrap(
+                  children: [
+                    BottomNavigationBar(
+                      backgroundColor: Colors.white,
+                      items: <BottomNavigationBarItem>[
+                        const BottomNavigationBarItem(
+                          icon: Icon(Icons.home),
+                          label: '홈',
+                        ),
+                        const BottomNavigationBarItem(
+                          icon: Icon(Icons.forum),
+                          label: '게시판',
+                        ),
+                        BottomNavigationBarItem(
+                          icon: const Icon(Icons.person),
+                          label: isAdmin ? '관리자페이지' : '마이페이지',
+                        ),
+                      ],
+                      currentIndex: _selectedIndex,
+                      selectedItemColor: Colors.amber[800],
+                      onTap: (index) => _onItemTapped(index, context),
                     ),
                   ],
-                  currentIndex: _selectedIndex, // 현재 선택된 탭의 인덱스
-                  selectedItemColor: Colors.amber[800],
-                  onTap: (index) =>
-                      _onItemTapped(index, context), // 탭 선택 시 호출될 함수
-                );
-              }),
-            ],
-          ),
-        ),
+                ),
+              );
+            }),
         floatingActionButton: _selectedIndex == 1
             ? Builder(builder: (context) {
                 return FloatingActionButton.extended(
