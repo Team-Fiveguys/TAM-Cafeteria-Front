@@ -142,7 +142,8 @@ class ApiService {
     throw Error();
   }
 
-  static Future<Menu> getDiets(String date, String meals) async {
+  static Future<Menu?> getDiets(String date, String meals) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
     const int cafeterialId = 1;
     const path = "/diets";
     final url = Uri.http(
@@ -155,33 +156,37 @@ class ApiService {
       },
     );
 
-    final response = await http
-        .get(url, headers: {'Content-Type': 'application/json; charset=UTF-8'});
+    final response = await http.get(url, headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $accessToken',
+    });
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
       // UTF-8 인코딩을 사용하여 응답 본문을 디코드합니다.
-      final String decodedResponse = utf8.decode(response.bodyBytes);
-
-      // 디코드된 문자열을 JSON으로 파싱합니다.
-      final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
+      print("ApiService : getDiets: response : $date $jsonResponse");
       // 'result' 키에 해당하는 부분을 추출하고, 'menuQueryDTOList' 내부를 순회하며 각 항목의 'name'을 추출하여 리스트를 생성합니다.
       final List<String> menuNames = List<String>.from(
-        jsonResponse['result']['menuQueryDTOList']
+        jsonResponse['result']['menuResponseListDTO']['menuQueryDTOList']
             .map((item) => item['name'] as String),
       );
 
       final List<int> menuIds = List<int>.from(
-        jsonResponse['result']['menuQueryDTOList']
+        jsonResponse['result']['menuResponseListDTO']['menuQueryDTOList']
             .map((item) => item['menuId'] as int),
       );
 
       return Menu(ids: menuIds, names: menuNames);
     }
-    throw Error();
+    print("ApiService : getDiets: response : $date $jsonResponse");
+    // throw Error();
+    return null;
   }
 
-  static Future<void> postDiets(List<String> menuIdList, String date,
+  static Future<void> postDiets(List<String> menuNameList, String date,
       String meals, int cafeteriaId, bool dayOff) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets/";
@@ -195,7 +200,7 @@ class ApiService {
         },
         body: jsonEncode(
           {
-            'menuIdList': menuIdList,
+            'menuNameList': menuNameList,
             'date': date,
             'meals': meals,
             'cafeteriaId': '$cafeteriaId',
@@ -368,5 +373,64 @@ class ApiService {
       // return jsonResponse['message'];
     }
     throw Error();
+  }
+
+  static Future<void> postCongestionStatus(
+      String congestion, int cafeteriaId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final path = "/admin/cafeterias/$cafeteriaId/congestion";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(
+          {
+            'congestion': congestion,
+          },
+        ));
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postCongestionStatus : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
+    }
+  }
+
+  static Future<String> getCongestionStatus(int cafeteriaId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final path = "/cafeterias/$cafeteriaId/congestion";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : getCongestionStatus : $jsonResponse');
+      if (jsonResponse['result']['congestion'] != null) {
+        return jsonResponse['result']['congestion'];
+      }
+    } else {
+      print(jsonResponse);
+    }
+    return "선택 안함";
   }
 }
