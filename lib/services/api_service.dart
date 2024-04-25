@@ -40,25 +40,44 @@ class ApiService {
     }
   }
 
-  static Future<void> postDietPhoto(XFile image) async {
+  static Future<void> postDietPhoto(
+      XFile image, String date, String meals, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
-    const dietId = 4;
-    final url = Uri.http(baseUrl, "/diets/$dietId/dietPhoto");
+    const path = '/diets/dietPhoto';
+    final url = Uri.http(baseUrl, path);
 
 // 파일의 MIME 타입을 결정합니다.
     String? mimeType = lookupMimeType(image.path);
     var mimeeTypeSplit =
-        mimeType?.split('/') ?? ['application', 'octet-stream']; // 기본값을 제공합니다.
+        mimeType?.split('/') ?? ['application', 'json']; // 기본값을 제공합니다.
 
 // 이미지 파일의 바이트 데이터를 읽습니다.
     var imageBytes = await image.readAsBytes();
 
 // MultipartRequest 객체를 생성합니다.
+    // MultipartRequest 객체를 생성합니다.
     var request = http.MultipartRequest('POST', url)
       ..headers.addAll({
         'Authorization': 'Bearer $accessToken', // accessToken을 헤더에 추가합니다.
         'Content-Type': 'multipart/form-data',
       });
+    var dietQuery = {
+      'cafeteriaId': cafeteriaId.toString(),
+      'meals': meals,
+      'localDate': date,
+    };
+// 필요한 텍스트 필드를 추가합니다.
+    String dietQueryJson = jsonEncode(dietQuery);
+
+// JSON 문자열을 바이트로 변환합니다.
+    List<int> dietQueryBytes = utf8.encode(dietQueryJson);
+
+// dietQuery를 MultipartFile로 만듭니다.
+    http.MultipartFile dietQueryFile = http.MultipartFile.fromBytes(
+      'dietQuery', // 서버에서 기대하는 필드명을 사용해야 합니다.
+      dietQueryBytes,
+      contentType: MediaType('application', 'json'), // 올바른 MIME 타입 설정
+    );
 
 // 이미지 파일을 MultipartFile로 변환합니다.
     var multipartFile = http.MultipartFile.fromBytes(
@@ -70,17 +89,19 @@ class ApiService {
 
 // 변환된 파일을 요청에 추가합니다.
     request.files.add(multipartFile);
-
+    request.files.add(dietQueryFile);
 // 요청을 전송하고 응답을 기다립니다.
     var response = await request.send();
 
 // 응답을 처리합니다.
     if (response.statusCode == 200) {
       print('Upload successful');
+      // 응답 본문을 읽습니다.
       String responseText = await response.stream.bytesToString();
       print('Response body: $responseText');
     } else {
       print('Upload failed');
+      // 실패한 경우의 응답 본문을 읽습니다.
       String responseText = await response.stream.bytesToString();
       print('Response body: $responseText');
     }
@@ -179,9 +200,11 @@ class ApiService {
             .map((item) => item['menuId'] as int),
       );
 
-      return Menu(ids: menuIds, names: menuNames);
+      final String? imageUrl = jsonResponse['result']['photoURI'];
+
+      return Menu(ids: menuIds, names: menuNames, imageUrl: imageUrl);
     }
-    print("ApiService : getDiets: response : $date $jsonResponse");
+    // print("ApiService : getDiets: response : $date $jsonResponse");
     // throw Error();
     return null;
   }
@@ -189,7 +212,7 @@ class ApiService {
   static Future<void> postDiets(List<String> menuNameList, String date,
       String meals, int cafeteriaId, bool dayOff) async {
     final accessToken = await TokenManagerWithSP.loadToken();
-    const path = "/admin/diets/";
+    const path = "/admin/diets";
     final url = Uri.http(baseUrl, path);
 
     final response = await http.post(url,
@@ -207,11 +230,76 @@ class ApiService {
             'dayOff': dayOff,
           },
         ));
+    final String decodedResponse = utf8.decode(response.bodyBytes);
 
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
     if (response.statusCode == 200) {
-      print(response.body);
+      print('postDiets : $jsonResponse');
     } else {
-      print(response.body);
+      print('postDiets : $jsonResponse');
+    }
+  }
+
+  static Future<void> putDiets(
+      String menuName, String date, String meals, int cafeteriaId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/admin/diets/menus";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.put(url,
+        headers: {
+          'Content-Type': 'application/json',
+          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(
+          {
+            'menuName': menuName,
+            'localDate': date,
+            'meals': meals,
+            'cafeteriaId': '$cafeteriaId',
+          },
+        ));
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+    if (response.statusCode == 200) {
+      print('putDiets : $jsonResponse');
+    } else {
+      print('putDiets : $jsonResponse');
+    }
+  }
+
+  static Future<void> deleteDiets(
+      String menuName, String date, String meals, int cafeteriaId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/admin/diets/menus";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.delete(url,
+        headers: {
+          'Content-Type': 'application/json',
+          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(
+          {
+            'menuName': menuName,
+            'localDate': date,
+            'meals': meals,
+            'cafeteriaId': '$cafeteriaId',
+          },
+        ));
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+    if (response.statusCode == 200) {
+      print('putDiets : $jsonResponse');
+    } else {
+      print('putDiets : $jsonResponse');
     }
   }
 
@@ -424,7 +512,7 @@ class ApiService {
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      print('ApiService : getCongestionStatus : $jsonResponse');
+      // print('ApiService : getCongestionStatus : $jsonResponse');
       if (jsonResponse['result']['congestion'] != null) {
         return jsonResponse['result']['congestion'];
       }

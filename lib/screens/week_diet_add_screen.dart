@@ -114,6 +114,26 @@ class _WeekDietState extends State<WeekDiet> {
         operationalDays[selectedDay]!);
   }
 
+  void registeringOneMenuInDiets(String menuName) async {
+    await ApiService.putDiets(
+      menuName,
+      selectedDay,
+      "LUNCH",
+      1,
+    );
+    setState(() {});
+  }
+
+  void removeOneMenuInDiets(String menuName) async {
+    await ApiService.deleteDiets(
+      menuName,
+      selectedDay,
+      "LUNCH",
+      1,
+    );
+    setState(() {});
+  }
+
   void showDietAddDialog() async {
     await showDialog(
       context: context,
@@ -242,8 +262,13 @@ class _WeekDietState extends State<WeekDiet> {
                     // 메뉴 등록 로직 추가
                     print(
                         "$selectedCategory 카테고리, 메뉴명: ${menuNameController.text}");
+                    if (weekMenus[selectedDay]!.isNotEmpty) {
+                      registeringOneMenuInDiets(menuNameController.text);
+                    } else {
+                      registeringDiets();
+                    }
                     weekMenus[selectedDay]!.add(menuNameController.text);
-                    registeringDiets();
+
                     selectedCategory = null;
                     menuNameController.clear();
                     Navigator.of(context).pop();
@@ -557,10 +582,7 @@ class _WeekDietState extends State<WeekDiet> {
                                         ),
                                         IconButton(
                                             onPressed: () {
-                                              setState(() {
-                                                weekMenus[selectedDay]!
-                                                    .remove(menu);
-                                              });
+                                              removeOneMenuInDiets(menu);
                                             },
                                             icon: const Icon(
                                               Icons.remove,
