@@ -20,7 +20,7 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> {
   final DateTime now = DateTime.now();
-  final DateFormat dateFormat = DateFormat('yyyy / MM / dd');
+  final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
 
   String serverWaitingStatus = '여유';
   String? selectedItem = '명진당';
@@ -104,7 +104,8 @@ class _AdminPageState extends State<AdminPage> {
             TextButton(
               onPressed: () {
                 if (_image != null) {
-                  ApiService.postDietPhoto(_image!);
+                  ApiService.postDietPhoto(
+                      _image!, dateFormat.format(now), "LUNCH", 1);
                 }
                 // 이미지 업로드 로직 추가
                 Navigator.of(context).pop();
