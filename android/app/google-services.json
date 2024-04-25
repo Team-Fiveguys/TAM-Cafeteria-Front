@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "257167473366",
+    "project_id": "tam-fcm",
+    "storage_bucket": "tam-fcm.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257167473366:android:eadb2922abdba693132777",
+        "android_client_info": {
+          "package_name": "com.example.tam_cafeteria_front"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVOn_Fxm0con1MQ0iRxGqImjUYyqIKiEE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

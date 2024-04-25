@@ -1,6 +1,10 @@
 import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:tam_cafeteria_front/firebase_options.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
@@ -25,6 +29,7 @@ void main() async {
     nativeAppKey: yourNativeAppKey,
     javaScriptAppKey: yourJavascriptAppKey,
   );
+  await initiallizingFCM();
   runApp(
     ProviderScope(
       overrides: [
@@ -36,6 +41,50 @@ void main() async {
       child: const App(),
     ),
   );
+}
+
+Future<void> initiallizingFCM() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  String? fcmToken = await FirebaseMessaging.instance.getToken();
+  print(fcmToken);
+  if (await Permission.notification.isDenied) {
+    await Permission.notification.request();
+  }
+  FirebaseMessaging.instance.requestPermission(
+    badge: true,
+    alert: true,
+    sound: true,
+  );
+  FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
+    if (message != null) {
+      print('main : message : ${message.data}');
+      if (message.notification != null) {
+        print(message.notification!.title);
+        print(message.notification!.body);
+        print(message.data["click_action"]);
+      }
+    }
+  });
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
+    if (message != null) {
+      if (message.notification != null) {
+        print(message.notification!.title);
+        print(message.notification!.body);
+        print(message.data["click_action"]);
+      }
+    }
+  });
+  FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+    if (message != null) {
+      if (message.notification != null) {
+        print(message.notification!.title);
+        print(message.notification!.body);
+        print(message.data["click_action"]);
+      }
+    }
+  });
 }
 
 class App extends ConsumerStatefulWidget {
@@ -76,7 +125,7 @@ class _AppState extends ConsumerState<App> {
     var normalized = base64Url.normalize(payload);
     var decoded = utf8.decode(base64Url.decode(normalized));
     final payloadMap = json.decode(decoded);
-    print('main App : decodeJwt : payloadMap $payloadMap');
+    // print('main App : decodeJwt : payloadMap $payloadMap');
     setState(() {
       isAdmin = payloadMap['role'] == "ADMIN";
     });
@@ -164,12 +213,12 @@ class _AppState extends ConsumerState<App> {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    print('build :: ${ref.watch(loginStateProvider)}');
+    // print('build :: ${ref.watch(loginStateProvider)}');
     final accessToken = ref.watch(accessTokenProvider);
     decodeJwt(accessToken);
 
-    print("main App :: build: accessToken $accessToken");
-    print("main App :: build: isAdmin $isAdmin");
+    // print("main App :: build: accessToken $accessToken");
+    // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
       const MenuBoardScreen(),
