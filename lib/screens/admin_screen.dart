@@ -608,7 +608,7 @@ class _AdminPageState extends State<AdminPage> {
                           horizontal: 10,
                         ),
                         child: TextButton(
-                          onPressed: () => showMenuInput(context),
+                          onPressed: () => showMenuInput(context, setState),
                           child: const Center(
                               child: Text(
                             "메뉴 입력",

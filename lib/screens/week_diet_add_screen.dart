@@ -181,10 +181,13 @@ class _WeekDietState extends State<WeekDiet> {
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               var data = snapshot.data!.names;
+
                               final currentMenus = weekMenus[selectedDay] ?? [];
                               data = data
                                   .where((menu) => !currentMenus.contains(menu))
                                   .toList();
+                              print(
+                                  '길이 ${data.length}, ${filteredMenus.length}, ${menuNameController.text.isEmpty}');
                               return ListView.builder(
                                 itemCount: menuNameController.text.isEmpty
                                     ? data.length
@@ -220,7 +223,7 @@ class _WeekDietState extends State<WeekDiet> {
                       ),
                       TextButton(
                         onPressed: () async {
-                          await showMenuInput(context).then((_) {});
+                          await showMenuInput(context, setState).then((_) {});
                           this.setState(() {
                             menuList = ApiService.getMenu();
                           });
@@ -289,7 +292,7 @@ class _WeekDietState extends State<WeekDiet> {
     if (todayDiets != null) {
       weekMenus[selectedDay] = todayDiets.names;
     }
-    print('weekDiets : loadMenus : $selectedDay $weekMenus');
+    // print('weekDiets : loadMenus : $selectedDay $weekMenus');
   }
 
   @override
@@ -393,6 +396,7 @@ class _WeekDietState extends State<WeekDiet> {
               ),
             ),
             Container(
+              margin: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadiusDirectional.circular(20),
                 color: Colors.white,
@@ -593,7 +597,7 @@ class _WeekDietState extends State<WeekDiet> {
                                     ),
                                   ),
                                   const SizedBox(
-                                    height: 20,
+                                    height: 10,
                                   ),
                                 ],
                               );
