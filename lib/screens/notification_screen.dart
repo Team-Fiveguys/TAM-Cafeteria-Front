@@ -6,27 +6,24 @@ class NotificationCenter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: AppBar(
-          scrolledUnderElevation: 0,
-          backgroundColor: Colors.white,
-          automaticallyImplyLeading: false,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
-                child: SizedBox(
-                  height: 50,
-                  child: Image.asset(
-                    'assets/images/app_bar_logo.png',
-                    fit: BoxFit.contain,
-                  ),
+      appBar: AppBar(
+        scrolledUnderElevation: 3,
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
+              child: SizedBox(
+                height: 50,
+                child: Image.asset(
+                  'assets/images/app_bar_logo.png',
+                  fit: BoxFit.contain,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       body: Column(

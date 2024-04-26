@@ -109,23 +109,30 @@ class ApiService {
 
   static Future<void> postMenu(String name) async {
     const int cafeteriaId = 1;
+    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/menus";
     final url = Uri.http(baseUrl, path);
 
     final response = await http.post(url,
         headers: {
-          'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken' // JSON 형식의 데이터를 전송한다고 명시합니다.
         },
         body: jsonEncode(
           {
             'name': name,
-            'cafeteriaId': cafeteriaId,
+            'cafeteriaId': cafeteriaId.toString(),
           },
         ));
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
     if (response.statusCode == 200) {
-      print(response.body);
+      print('postMenu : $jsonResponse');
     } else {
-      print(response.body);
+      print('postMenu : $jsonResponse');
     }
   }
 
@@ -188,7 +195,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       // UTF-8 인코딩을 사용하여 응답 본문을 디코드합니다.
-      print("ApiService : getDiets: response : $date $jsonResponse");
+      // print("ApiService : getDiets: response : $date $jsonResponse");
       // 'result' 키에 해당하는 부분을 추출하고, 'menuQueryDTOList' 내부를 순회하며 각 항목의 'name'을 추출하여 리스트를 생성합니다.
       final List<String> menuNames = List<String>.from(
         jsonResponse['result']['menuResponseListDTO']['menuQueryDTOList']
