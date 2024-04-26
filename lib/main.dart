@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tam_cafeteria_front/firebase_options.dart';
+import 'package:tam_cafeteria_front/notification/local_notification.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
@@ -52,6 +54,7 @@ Future<void> initiallizingFCM() async {
   if (await Permission.notification.isDenied) {
     await Permission.notification.request();
   }
+  await initializeNotifications();
   FirebaseMessaging.instance.requestPermission(
     badge: true,
     alert: true,
@@ -59,6 +62,7 @@ Future<void> initiallizingFCM() async {
   );
   FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
     if (message != null) {
+      showNotification(message);
       print('main : message : ${message.data}');
       if (message.notification != null) {
         print(message.notification!.title);
@@ -163,6 +167,7 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
+    _permissionWithNotification();
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
@@ -181,6 +186,10 @@ class _AppState extends ConsumerState<App> {
       const MenuBoardScreen(),
       isAdmin ? const AdminPage() : const MyPage(),
     ];
+  }
+
+  void _permissionWithNotification() async {
+    await [Permission.notification].request();
   }
 
   @override
@@ -233,6 +242,18 @@ class _AppState extends ConsumerState<App> {
         dividerColor: const Color(0xFFc6c6c6),
         cardColor: const Color(0xFFFFDA7B),
         canvasColor: const Color(0xFF002967),
+        appBarTheme: const AppBarTheme(
+          // elevation: 5,
+          scrolledUnderElevation: 3,
+          backgroundColor: Colors.white,
+          shadowColor: Colors.black,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(10), // 하단 모서리의 반경을 30으로 설정
+            ),
+          ),
+        ),
       ),
       home: Scaffold(
         bottomNavigationBar: AnimatedBuilder(
@@ -291,62 +312,59 @@ class _AppState extends ConsumerState<App> {
               })
             : null,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: AppBar(
-            scrolledUnderElevation: 0,
-            backgroundColor: Colors.white,
-            leading: Opacity(
-              // 투명한 아이콘 버튼 추가
-              opacity: 0,
-              child: Builder(builder: (context) {
-                return IconButton(
-                  icon: const Icon(Icons.menu),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoginScreen(),
-                      ),
-                    );
-                  }, // 아무것도 하지 않음
-                );
-              }),
-            ),
-            actions: [
-              Builder(builder: (context) {
-                return IconButton(
-                  onPressed: () {
-                    // ApiService.delAutoLogin();
-                    ref.read(loginStateProvider.notifier).logout();
-                    print(accessToken);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const NotificationCenter(), //알람 버튼
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.notifications),
-                );
-              }),
-            ],
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
-                  child: SizedBox(
-                    height: 50,
-                    child: Image.asset(
-                      'assets/images/app_bar_logo.png',
-                      fit: BoxFit.contain,
+        appBar: AppBar(
+          // elevation: 100,
+          scrolledUnderElevation: 3,
+          backgroundColor: Colors.white,
+          leading: Opacity(
+            // 투명한 아이콘 버튼 추가
+            opacity: 0,
+            child: Builder(builder: (context) {
+              return IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(),
                     ),
+                  );
+                }, // 아무것도 하지 않음
+              );
+            }),
+          ),
+          actions: [
+            Builder(builder: (context) {
+              return IconButton(
+                onPressed: () {
+                  // ApiService.delAutoLogin();
+                  ref.read(loginStateProvider.notifier).logout();
+                  print(accessToken);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationCenter(), //알람 버튼
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.notifications),
+              );
+            }),
+          ],
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
+                child: SizedBox(
+                  height: 50,
+                  child: Image.asset(
+                    'assets/images/app_bar_logo.png',
+                    fit: BoxFit.contain,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         body: SingleChildScrollView(
