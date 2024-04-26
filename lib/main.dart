@@ -212,11 +212,15 @@ class _AppState extends ConsumerState<App> {
     }
   }
 
-  void navigateToLoginScreen(BuildContext context) {
-    Navigator.push(
+  Future<void> navigateToLoginScreen(BuildContext context) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => LoginScreen()),
     );
+    print('main : navigateToLogin : $result');
+    if (result != null) {
+      setState(() {});
+    }
   }
 
   // This widget is the root of your application.
