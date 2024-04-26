@@ -1,7 +1,8 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:tam_cafeteria_front/models/menu_model.dart';
+import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/time_indicator_widget.dart';
 
@@ -25,21 +26,14 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
 
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
   bool isSoldOut = false;
+  bool isDayOff = false;
   String currentCongestionStatus = "보통";
 
   String? imageUrl;
 
   ValueNotifier<int> refreshNotifier = ValueNotifier(0);
 
-  List<String> menuList = [
-    "마제소바",
-    "도토리묵야채무침calclalcal",
-    "타코야끼",
-    "락교",
-    "요구르트",
-    "아이스믹스커피",
-    "배추김치&추가밥",
-  ];
+  List<String> menuList = [];
 
   final Map<String, String> congestionImage = {
     '여유': 'assets/images/easy.png',
@@ -58,15 +52,13 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   @override
   void initState() {
     super.initState();
-    _loadMenu(); // 메뉴 데이터 로드
+    _loadDiet(); // 메뉴 데이터 로드
   }
 
-  void _loadMenu() async {
+  void _loadDiet() async {
     final menus = await getDietsInMain(
         widget.cafeteriaName == "학생회관" ? 'BREAKFAST' : 'LUNCH');
-    setState(() {
-      menuList = menus; // 상태 업데이트
-    });
+    menuList = menus; // 상태 업데이트
   }
 
   void popUpMenuImage(BuildContext context) {
@@ -105,21 +97,41 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                   SizedBox(
                     width: 270,
                     height: 210,
-                    child: imageUrl != ""
-                        ? Image.network(imageUrl!)
-                        : const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(Icons.hourglass_empty),
-                                SizedBox(
-                                  height: 40,
-                                ),
-                                Text('식단 사진이 등록 전입니다.'),
-                              ],
-                            ),
+                    child: Image.network(
+                      imageUrl ?? "",
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                                : null,
                           ),
+                        );
+                      },
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        // 에러 발생 시 표시될 위젯
+                        return const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(Icons.hourglass_empty),
+                              SizedBox(
+                                height: 40,
+                              ),
+                              Text('식단 사진이 등록 전입니다.'),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 20,
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(
@@ -249,10 +261,13 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   }
 
   Future<List<String>> getDietsInMain(String meals) async {
-    Menu? menus = await ApiService.getDiets(dateFormat.format(now), meals);
-
+    Diet? menus = await ApiService.getDiets(dateFormat.format(now), meals);
+    print('today menu info : getDietsInMain ${menus?.names}');
     if (menus != null) {
       imageUrl = menus.imageUrl;
+      menuList = menus.names;
+      isSoldOut = menus.soldOut;
+      isDayOff = menus.dayOff;
       return menus.names;
     }
     return [];
@@ -260,6 +275,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
 
   @override
   Widget build(BuildContext context) {
+    print('today menu info : build ');
     return Container(
       height: 230,
       decoration: BoxDecoration(
@@ -351,25 +367,49 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                 // 에러 발생 시
                                 return Text('Error: ${snapshot.error}');
                               } else {
-                                return isSoldOut
-                                    ? soldOutWidget()
-                                    : Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          for (var menu in menuList)
-                                            Text(
-                                              "• $menu",
+                                if (isSoldOut) {
+                                  return soldOutWidget();
+                                }
+                                if (isDayOff) {
+                                  return dayOffWidget();
+                                } else {
+                                  return Column(
+                                    crossAxisAlignment: menuList.isEmpty
+                                        ? CrossAxisAlignment.center
+                                        : CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: menuList.isEmpty
+                                        ? [
+                                            const Icon(
+                                              Icons.mood_bad,
+                                              size: 40,
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            const AutoSizeText(
+                                              '식단 미등록',
+                                              textAlign: TextAlign.center,
                                               style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryColorDark,
-                                                fontSize: 10,
+                                                fontSize: 15,
                                               ),
-                                            )
-                                        ],
-                                      );
+                                              maxLines: 2,
+                                            ),
+                                          ]
+                                        : [
+                                            for (var menu in menuList)
+                                              AutoSizeText(
+                                                "• $menu",
+                                                style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryColorDark,
+                                                  fontSize: 13,
+                                                ),
+                                                minFontSize: 10,
+                                              )
+                                          ],
+                                  );
+                                }
                               }
                             },
                           ),
@@ -421,25 +461,50 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                   // 에러 발생 시
                                   return Text('Error: ${snapshot.error}');
                                 } else {
-                                  return isSoldOut
-                                      ? soldOutWidget()
-                                      : Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            for (var menu in menuList)
-                                              Text(
-                                                "• $menu",
+                                  if (isSoldOut) {
+                                    return soldOutWidget();
+                                  }
+                                  if (isDayOff) {
+                                    return dayOffWidget();
+                                  } else {
+                                    return Column(
+                                      crossAxisAlignment: menuList.isEmpty
+                                          ? CrossAxisAlignment.center
+                                          : CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: menuList.isEmpty
+                                          ? [
+                                              const Icon(
+                                                Icons.mood_bad,
+                                                size: 40,
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              const AutoSizeText(
+                                                '식단 미등록',
+                                                textAlign: TextAlign.center,
                                                 style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .primaryColorDark,
-                                                  fontSize: 10,
+                                                  fontSize: 15,
                                                 ),
-                                              )
-                                          ],
-                                        );
+                                                maxLines: 2,
+                                              ),
+                                            ]
+                                          : [
+                                              for (var menu in menuList)
+                                                AutoSizeText(
+                                                  "• $menu",
+                                                  style: TextStyle(
+                                                    color: Theme.of(context)
+                                                        .primaryColorDark,
+                                                    fontSize: 13,
+                                                  ),
+                                                  minFontSize: 10,
+                                                )
+                                            ],
+                                    );
+                                  }
                                 }
                               },
                             ),
@@ -561,6 +626,21 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
           child: Image.asset('assets/images/soldOut.png'),
         ),
         const Text('품절'),
+      ],
+    );
+  }
+
+  Column dayOffWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: 30,
+          height: 30,
+          child: Image.asset('assets/images/soldOut.png'),
+        ),
+        const Text('미운영'),
       ],
     );
   }

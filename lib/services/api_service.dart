@@ -1,44 +1,14 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tam_cafeteria_front/models/diets_model.dart';
-import 'package:tam_cafeteria_front/models/menu_model.dart';
-import 'package:tam_cafeteria_front/models/result_model.dart';
-import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
+import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
 
 class ApiService {
   static const String baseUrl = "dev.tam-cafeteria.site";
-
-  static Future<void> test() async {
-    // final url = Uri.http('dev.tam-cafeteria.site', '/cafeteria', {
-    //   'name': "명진당",
-    //   'address': "123",
-    //   'hour': "11:30 ~ 14:30",
-    // });
-    const path = "/diets/1/MONDAY";
-    final url = Uri.http(
-      baseUrl,
-      path,
-      {'meals': "BREAKFAST"},
-    );
-    final response = await http.get(url);
-    if (response.statusCode == 200) {
-      final instance = Result.fromJson(jsonDecode(response.body));
-      // final dietsInstance = Diets.fromJson(instance.result);
-      // final menuInstance = Menu.fromJson(dietsInstance.menu);
-      // print('dietsInstance : ${menuInstance.menuList}');
-    } else {
-      log("message");
-    }
-  }
 
   static Future<void> postDietPhoto(
       XFile image, String date, String meals, int cafeteriaId) async {
@@ -136,7 +106,7 @@ class ApiService {
     }
   }
 
-  static Future<Menu> getMenu() async {
+  static Future<Diet> getMenu() async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const int cafeterialId = 1;
     const path = "/menus";
@@ -165,12 +135,16 @@ class ApiService {
             .map((item) => item['menuId'] as int),
       );
 
-      return Menu(ids: menuIds, names: menuNames);
+      final bool dayOff = jsonResponse['result']['dayOff'] ?? false;
+      final bool soldOut = jsonResponse['result']['soldOut'] ?? false;
+
+      return Diet(
+          ids: menuIds, names: menuNames, dayOff: dayOff, soldOut: soldOut);
     }
     throw Error();
   }
 
-  static Future<Menu?> getDiets(String date, String meals) async {
+  static Future<Diet?> getDiets(String date, String meals) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const int cafeterialId = 1;
     const path = "/diets";
@@ -209,7 +183,16 @@ class ApiService {
 
       final String? imageUrl = jsonResponse['result']['photoURI'];
 
-      return Menu(ids: menuIds, names: menuNames, imageUrl: imageUrl);
+      final bool dayOff = jsonResponse['result']['dayOff'];
+      final bool soldOut = jsonResponse['result']['soldOut'];
+
+      return Diet(
+        ids: menuIds,
+        names: menuNames,
+        dayOff: dayOff,
+        soldOut: soldOut,
+        imageUrl: imageUrl,
+      );
     }
     // print("ApiService : getDiets: response : $date $jsonResponse");
     // throw Error();
@@ -527,5 +510,73 @@ class ApiService {
       print(jsonResponse);
     }
     return "선택 안함";
+  }
+
+  static Future<String?> postAppleLogin(
+      String? socialId, String? identityToken, String authorizationCode) async {
+    const path = '/oauth2/apple/token/validate';
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
+      },
+      body: jsonEncode(
+        {
+          'socialId': socialId,
+          'identityToken': identityToken,
+          'authorizationCode': authorizationCode,
+        },
+      ),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print(
+          'ApiService:postAppleLogin :: ${jsonResponse['result']['accessToken']}');
+
+      return jsonResponse['result']['accessToken'];
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
+    }
+    throw Error();
+  }
+
+  static Future<void> patchDayOffStatus(int cafeteriaId, String date) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/admin/diets/dayOff";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode(
+        {
+          'cafeteriaId': cafeteriaId.toString(),
+          'localDate': date,
+        },
+      ),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      // print('ApiService : getCongestionStatus : $jsonResponse');
+      print('${jsonResponse['result']['dayOff']}');
+    } else {
+      print(jsonResponse);
+    }
   }
 }
