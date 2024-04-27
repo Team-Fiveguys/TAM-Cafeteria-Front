@@ -579,4 +579,39 @@ class ApiService {
       print(jsonResponse);
     }
   }
+
+  static Future<void> getWeekDiets(
+      int cafeteriaId, int year, int month, int weekNum, String meals) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/diets/weeks";
+    final Map<String, dynamic> queryParameters = {
+      'cafeteriaId': cafeteriaId.toString(),
+      'year': year.toString(),
+      'month': month.toString(),
+      'weekNum': weekNum.toString(),
+      'meals': meals,
+    };
+
+    // Uri 생성 시 queryParameters를 전달합니다.
+    final url = Uri.http(baseUrl, path, queryParameters);
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      // print('ApiService : getCongestionStatus : $jsonResponse');
+      print('ApiService:getWeekDiets : ${jsonResponse['result']}');
+    } else {
+      print(jsonResponse);
+    }
+  }
 }
