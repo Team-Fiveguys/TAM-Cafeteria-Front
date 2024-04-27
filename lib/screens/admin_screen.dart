@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
+import 'package:tam_cafeteria_front/screens/notification_send_screen.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
@@ -48,6 +49,7 @@ class _AdminPageState extends State<AdminPage> {
     if (selectedItem != null) {
       cafeteriaName = selectedItem!;
     }
+    print('admin initState');
   }
 
   final List<String> waitingStatusList = [
@@ -127,6 +129,7 @@ class _AdminPageState extends State<AdminPage> {
   Future<void> getCongestionStatus() async {
     serverWaitingStatus = await ApiService.getCongestionStatus(1);
     currentWaitingStatus = serverWaitingStatus;
+    print(currentWaitingStatus);
   }
 
   @override
@@ -647,7 +650,15 @@ class _AdminPageState extends State<AdminPage> {
                           horizontal: 10,
                         ),
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const NotificationSendPage(),
+                              ),
+                            );
+                          },
                           child: const Center(
                             child: Text(
                               "PUSH\n알림 보내기",
