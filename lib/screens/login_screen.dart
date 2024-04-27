@@ -218,9 +218,20 @@ class LoginScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            size: 20,
+          ),
+        ),
+      ),
       //여기 수직 center 가능?
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
         child: Center(
           child: ListView(
             shrinkWrap: true,
@@ -231,7 +242,7 @@ class LoginScreen extends ConsumerWidget {
                 height: 81,
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
               Padding(
                 padding: const EdgeInsets.all(9.0),
