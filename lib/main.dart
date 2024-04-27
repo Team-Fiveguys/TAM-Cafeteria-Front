@@ -239,26 +239,34 @@ class _AppState extends ConsumerState<App> {
     ];
     return MaterialApp(
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        primaryColor: const Color(0xFF3e3e3e),
-        primaryColorLight: const Color(0xFF97948f),
-        primaryColorDark: const Color(0xFF515151),
-        dividerColor: const Color(0xFFc6c6c6),
-        cardColor: const Color(0xFFFFDA7B),
-        canvasColor: const Color(0xFF002967),
-        appBarTheme: const AppBarTheme(
-          // elevation: 5,
-          scrolledUnderElevation: 3,
-          backgroundColor: Colors.white,
-          shadowColor: Colors.black,
-          surfaceTintColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(10), // 하단 모서리의 반경을 30으로 설정
+          dialogBackgroundColor: Colors.white,
+          // colorScheme: ColorScheme.fromSwatch().copyWith(
+          //   secondary: const Color(0xFFFFF7E3),
+          // ),
+          scaffoldBackgroundColor: Colors.white,
+          primaryColor: const Color(0xFF3e3e3e),
+          primaryColorLight: const Color(0xFF97948f),
+          primaryColorDark: const Color(0xFF515151),
+          dividerColor: const Color(0xFFc6c6c6),
+          cardColor: const Color(0xFFFFDA7B),
+          canvasColor: const Color(0xFF002967),
+          appBarTheme: const AppBarTheme(
+            // elevation: 5,
+            scrolledUnderElevation: 3,
+            backgroundColor: Colors.white,
+            shadowColor: Colors.black,
+            surfaceTintColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(10), // 하단 모서리의 반경을 30으로 설정
+              ),
             ),
           ),
-        ),
-      ),
+          indicatorColor: Colors.white,
+          progressIndicatorTheme: const ProgressIndicatorThemeData(
+              color: Colors.blue,
+              circularTrackColor: Colors.white,
+              refreshBackgroundColor: Colors.white)),
       home: Scaffold(
         bottomNavigationBar: AnimatedBuilder(
             animation: _isVisible,
@@ -371,9 +379,14 @@ class _AppState extends ConsumerState<App> {
             ],
           ),
         ),
-        body: SingleChildScrollView(
-          controller: _scrollController,
-          child: _widgetOptions.elementAt(_selectedIndex),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            setState(() {});
+          },
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: _widgetOptions.elementAt(_selectedIndex),
+          ),
         ),
       ),
     );
