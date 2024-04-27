@@ -380,9 +380,11 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: menuList.isEmpty
                                         ? [
-                                            const Icon(
-                                              Icons.mood_bad,
-                                              size: 40,
+                                            SizedBox(
+                                              width: 30,
+                                              height: 30,
+                                              child: Image.asset(
+                                                  'assets/images/soldOut.png'),
                                             ),
                                             const SizedBox(
                                               height: 10,
@@ -475,9 +477,11 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                           MainAxisAlignment.center,
                                       children: menuList.isEmpty
                                           ? [
-                                              const Icon(
-                                                Icons.mood_bad,
-                                                size: 40,
+                                              SizedBox(
+                                                width: 30,
+                                                height: 30,
+                                                child: Image.asset(
+                                                    'assets/images/soldOut.png'),
                                               ),
                                               const SizedBox(
                                                 height: 10,
