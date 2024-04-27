@@ -250,7 +250,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
 
   Future<List<String>> getDietsInMain(String meals) async {
     Menu? menus = await ApiService.getDiets(dateFormat.format(now), meals);
-
+//getdiets
     if (menus != null) {
       imageUrl = menus.imageUrl;
       return menus.names;
@@ -498,6 +498,13 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                                 congestionImage[
                                                     currentCongestionStatus]!,
                                                 fit: BoxFit.contain,
+                                              ),
+                                            ),
+                                            // 널 체크
+                                            Text(
+                                              currentCongestionStatus,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             Text(
