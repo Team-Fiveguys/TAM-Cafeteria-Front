@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class NotificationSendPage extends StatefulWidget {
   const NotificationSendPage({super.key});
@@ -9,6 +10,67 @@ class NotificationSendPage extends StatefulWidget {
 }
 
 class _NotificationSendPageState extends State<NotificationSendPage> {
+  void pushNotification() async {
+    await ApiService.postNotificationToSubscriber(
+        "알림 테스트", "내용", "1", "today_diet");
+  }
+
+  void showSendNotification() async {
+    TextEditingController titleController = TextEditingController();
+    TextEditingController contentController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("알림 작성"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    hintText: "제목",
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                TextField(
+                  controller: contentController,
+                  decoration: InputDecoration(
+                    hintText: "내용",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                  ),
+                  maxLines: 10, // 무제한 줄 입력을 허용하거나, 원하는 줄 수를 지정할 수 있습니다.
+                  keyboardType:
+                      TextInputType.multiline, // 여러 줄 입력을 위해 키보드 타입 설정
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("취소"),
+            ),
+            TextButton(
+              onPressed: () async {
+                await ApiService.postNotificationToAllUser(
+                    titleController.text, contentController.text);
+                Navigator.of(context).pop();
+              },
+              child: const Text("등록"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,7 +165,7 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
                               horizontal: 10,
                             ),
                             child: TextButton(
-                              onPressed: () {},
+                              onPressed: pushNotification,
                               child: const Center(
                                   child: Text(
                                 "금주 식단\n 등록 완료",
@@ -184,7 +246,7 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
                       ),
                       child: Center(
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: showSendNotification,
                           child: const Text(
                             "직접 알림\n보내기",
                             textAlign: TextAlign.center,

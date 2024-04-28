@@ -580,7 +580,7 @@ class ApiService {
     }
   }
 
-  static Future<void> getWeekDiets(
+  static Future<Map<String?, Diet>> getWeekDiets(
       int cafeteriaId, int year, int month, int weekNum, String meals) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/diets/weeks";
@@ -609,9 +609,125 @@ class ApiService {
 
     if (response.statusCode == 200) {
       // print('ApiService : getCongestionStatus : $jsonResponse');
-      print('ApiService:getWeekDiets : ${jsonResponse['result']}');
+      print('ApiService:getWeekDiets : $meals ${jsonResponse['result']}');
+      Map<String?, Diet> responseData = {};
+      final instance = jsonResponse['result']['dietResponseDTOList'];
+      for (var resultInstance in instance) {
+        final date = resultInstance['date'];
+        final List<String> menuNames = List<String>.from(
+          resultInstance['menuResponseListDTO']['menuQueryDTOList']
+              .map((item) => item['name'] as String),
+        );
+        final List<int> menuIds = List<int>.from(
+          jsonResponse['result']['menuResponseListDTO']['menuQueryDTOList']
+              .map((item) => item['menuId'] as int),
+        );
+        final dayOff = resultInstance['dayOff'];
+        final soldOut = resultInstance['soldOut'];
+        Diet diet = Diet(
+            names: menuNames, ids: menuIds, dayOff: dayOff, soldOut: soldOut);
+        responseData[date] = diet;
+      }
+      return responseData;
     } else {
       print(jsonResponse);
+    }
+    return {};
+  }
+
+  static Future<void> postNotificationToSubscriber(String title, String content,
+      String cafeteriaName, String notificationType) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/admin/notifications/topic/subscriber";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(
+          {
+            "title": title,
+            "content": content,
+            "cafeteriaName": cafeteriaName,
+            "notificationType": notificationType,
+          },
+        ));
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postNotificationToSubscriber : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
+    }
+  }
+
+  static Future<void> postNotificationSet(String registrationToken) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/users/notificationSet";
+    final url = Uri.http(
+      baseUrl,
+      path,
+      {
+        "registrationToken": registrationToken,
+      },
+    );
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postNotificationSet : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
+    }
+  }
+
+  static Future<void> postNotificationToAllUser(
+      String title, String content) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/admin/notifications/general/users";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(
+          {
+            "title": title,
+            "content": content,
+          },
+        ));
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postNotificationToAllUser : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
     }
   }
 }
