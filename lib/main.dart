@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tam_cafeteria_front/firebase_options.dart';
@@ -19,6 +20,77 @@ import 'package:tam_cafeteria_front/screens/main_screen.dart';
 import 'package:tam_cafeteria_front/screens/my_page_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('backgroundHandler : $message');
+  // showNotification(message);
+  // 세부 내용이 필요한 경우 추가...
+}
+
+@pragma('vm:entry-point')
+void backgroundHandler(NotificationResponse details) {
+  // 액션 추가... 파라미터는 details.payload 방식으로 전달
+}
+
+void initializeNotification() async {
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(const AndroidNotificationChannel(
+          'high_importance_channel', 'high_importance_notification',
+          importance: Importance.max));
+
+  await flutterLocalNotificationsPlugin.initialize(
+    const InitializationSettings(
+      android: AndroidInitializationSettings("@mipmap/ic_launcher"),
+      iOS: DarwinInitializationSettings(),
+    ),
+    onDidReceiveNotificationResponse: (details) {
+      // 액션 추가...
+    },
+    onDidReceiveBackgroundNotificationResponse: backgroundHandler,
+  );
+
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    RemoteNotification? notification = message.notification;
+
+    if (notification != null) {
+      flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'high_importance_channel',
+              'high_importance_notification',
+              importance: Importance.max,
+              color: Color(0xFFFFFFFF),
+            ),
+            iOS: DarwinNotificationDetails(),
+          ),
+          payload: message.data['test_paremeter1']);
+
+      print("수신자 측 메시지 수신");
+    }
+  });
+
+  RemoteMessage? message = await FirebaseMessaging.instance.getInitialMessage();
+
+  if (message != null) {
+    // 액션 부분 -> 파라미터는 message.data['test_parameter1'] 이런 방식으로...
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +103,11 @@ void main() async {
     nativeAppKey: yourNativeAppKey,
     javaScriptAppKey: yourJavascriptAppKey,
   );
+
   await initiallizingFCM();
+
+  initializeNotification();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   runApp(
     ProviderScope(
       overrides: [
@@ -54,41 +130,27 @@ Future<void> initiallizingFCM() async {
   if (await Permission.notification.isDenied) {
     await Permission.notification.request();
   }
-  await initializeNotifications();
-  FirebaseMessaging.instance.requestPermission(
+  // await initializeNotifications();
+  NotificationSettings settings =
+      await FirebaseMessaging.instance.requestPermission(
     badge: true,
     alert: true,
     sound: true,
   );
-  FirebaseMessaging.onMessage.listen((RemoteMessage? message) {
-    if (message != null) {
-      showNotification(message);
-      print('main : message : ${message.data}');
-      if (message.notification != null) {
-        print(message.notification!.title);
-        print(message.notification!.body);
-        print(message.data["click_action"]);
-      }
+
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    // 사용자가 알림 권한을 허용했을 때
+    // 여기에서 API 호출 로직을 추가하세요.
+    if (fcmToken != null) {
+      await ApiService.postNotificationSet(fcmToken);
     }
-  });
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage? message) {
-    if (message != null) {
-      if (message.notification != null) {
-        print(message.notification!.title);
-        print(message.notification!.body);
-        print(message.data["click_action"]);
-      }
-    }
-  });
-  FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
-    if (message != null) {
-      if (message.notification != null) {
-        print(message.notification!.title);
-        print(message.notification!.body);
-        print(message.data["click_action"]);
-      }
-    }
-  });
+  } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    // 사용자가 잠정적으로 알림을 허용했을 때
+    // 필요한 경우 여기에 로직을 추가하세요.
+  } else {
+    // 사용자가 알림 권한을 거부했을 때
+    // 필요한 경우 여기에 로직을 추가하세요.
+  }
 }
 
 class App extends ConsumerStatefulWidget {
@@ -167,7 +229,7 @@ class _AppState extends ConsumerState<App> {
   @override
   void initState() {
     super.initState();
-    _permissionWithNotification();
+    // _permissionWithNotification();
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
@@ -188,9 +250,12 @@ class _AppState extends ConsumerState<App> {
     ];
   }
 
-  void _permissionWithNotification() async {
-    await [Permission.notification].request();
-  }
+  // void _permissionWithNotification() async {
+  //   if (await Permission.notification.isDenied &&
+  //       !await Permission.notification.isPermanentlyDenied) {
+  //     await [Permission.notification].request();
+  //   }
+  // }
 
   @override
   void dispose() {
@@ -335,12 +400,8 @@ class _AppState extends ConsumerState<App> {
               return IconButton(
                 icon: const Icon(Icons.menu),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginScreen(),
-                    ),
-                  );
+                  FirebaseMessaging.instance.subscribeToTopic('1');
+                  FirebaseMessaging.instance.subscribeToTopic('today_diet');
                 }, // 아무것도 하지 않음
               );
             }),
