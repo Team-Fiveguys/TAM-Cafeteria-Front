@@ -140,62 +140,86 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(15),
-                        color: const Color(0xFF0186D1),
+                        color: const Color(0xFFFFB800),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 10,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 10,
+                          ),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  widget.cafeteriaName,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 70,
-                                ),
-                                Text(
-                                  dateFormat.format(now),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w100,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for (var menu in menuList)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 3,
-                                    ),
-                                    child: Text(
-                                      "• $menu",
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.cafeteriaName,
                                       style: const TextStyle(
                                         color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 70,
+                                    ),
+                                    Text(
+                                      dateFormat.format(now),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w100,
                                         fontSize: 10,
                                       ),
                                     ),
-                                  ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
+                                  ],
+                                ),
+                                if (isSoldOut)
+                                  soldOutWidget(Colors.white)
+                                else if (isDayOff)
+                                  dayOffWidget(Colors.white)
+                                else
+                                  Column(
+                                    crossAxisAlignment: menuList.isEmpty
+                                        ? CrossAxisAlignment.center
+                                        : CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: menuList.isEmpty
+                                        ? [
+                                            SizedBox(
+                                              width: 30,
+                                              height: 30,
+                                              child: Image.asset(
+                                                'assets/images/soldOut.png',
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                            const AutoSizeText(
+                                              '식단 미등록',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                color: Colors.white,
+                                              ),
+                                              maxLines: 2,
+                                            ),
+                                          ]
+                                        : [
+                                            for (var menu in menuList)
+                                              AutoSizeText(
+                                                "• $menu",
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 13,
+                                                ),
+                                                minFontSize: 10,
+                                              )
+                                          ],
+                                  )
+                              ])),
                     ),
                   ),
                 ],
@@ -262,7 +286,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
 
   Future<List<String>> getDietsInMain(String meals) async {
     Diet? menus = await ApiService.getDiets(dateFormat.format(now), meals);
-    print('today menu info : getDietsInMain ${menus?.names}');
+    print('today menu info : getDietsInMain $meals,${menus?.names}');
     if (menus != null) {
       imageUrl = menus.imageUrl;
       menuList = menus.names;
@@ -368,10 +392,12 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                 return Text('Error: ${snapshot.error}');
                               } else {
                                 if (isSoldOut) {
-                                  return soldOutWidget();
+                                  return soldOutWidget(
+                                      Theme.of(context).primaryColorDark);
                                 }
                                 if (isDayOff) {
-                                  return dayOffWidget();
+                                  return dayOffWidget(
+                                      Theme.of(context).primaryColorDark);
                                 } else {
                                   return Column(
                                     crossAxisAlignment: menuList.isEmpty
@@ -464,10 +490,12 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                   return Text('Error: ${snapshot.error}');
                                 } else {
                                   if (isSoldOut) {
-                                    return soldOutWidget();
+                                    return soldOutWidget(
+                                        Theme.of(context).primaryColorDark);
                                   }
                                   if (isDayOff) {
-                                    return dayOffWidget();
+                                    return dayOffWidget(
+                                        Theme.of(context).primaryColorDark);
                                   } else {
                                     return Column(
                                       crossAxisAlignment: menuList.isEmpty
@@ -619,7 +647,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
     );
   }
 
-  Column soldOutWidget() {
+  Column soldOutWidget(Color? selectedColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -627,14 +655,20 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
         SizedBox(
           width: 30,
           height: 30,
-          child: Image.asset('assets/images/soldOut.png'),
+          child: Image.asset(
+            'assets/images/soldOut.png',
+            color: selectedColor,
+          ),
         ),
-        const Text('품절'),
+        Text(
+          '품절',
+          style: TextStyle(color: selectedColor),
+        ),
       ],
     );
   }
 
-  Column dayOffWidget() {
+  Column dayOffWidget(Color? selectedColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -642,9 +676,15 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
         SizedBox(
           width: 30,
           height: 30,
-          child: Image.asset('assets/images/soldOut.png'),
+          child: Image.asset(
+            'assets/images/soldOut.png',
+            color: selectedColor,
+          ),
         ),
-        const Text('미운영'),
+        Text(
+          '미운영',
+          style: TextStyle(color: selectedColor),
+        ),
       ],
     );
   }
