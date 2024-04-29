@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/models/cafeteria_model.dart';
+import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class WeekMenuInfo extends StatefulWidget {
@@ -15,120 +17,136 @@ class WeekMenuInfo extends StatefulWidget {
 }
 
 class _WeekMenuInfoState extends State<WeekMenuInfo> {
-  final List<List<String>> menuList = [
-    [
-      "마제소바",
-      "도토리묵야채무침침침",
-      "타코야끼",
-      "락교",
-      "요구르트",
-      "아이스믹스커피",
-      "배추김치&추가밥",
-    ],
-    [
-      "마제소바",
-      "도토리묵야채무침",
-      "타코야끼",
-      "락교",
-      "요구르트",
-      "아이스믹스커피",
-      "배추김치&추가밥",
-    ],
-    [
-      "마제소바",
-      "도토리묵야채무침",
-      "타코야끼",
-      "락교",
-      "요구르트",
-      "아이스믹스커피",
-      "배추김치&추가밥",
-    ],
-    [
-      "마제소바",
-      "도토리묵야채무침",
-      "타코야끼",
-      "락교",
-      "요구르트",
-      "아이스믹스커피",
-      "배추김치&추가밥",
-    ],
-    [
-      "마제소바",
-      "도토리묵야채무침",
-      "타코야끼",
-      "락교",
-      "요구르트",
-      "아이스믹스커피",
-      "배추김치&추가밥",
-    ],
-    [],
-    [],
-  ];
+  Map<String, Diet?> weekDietBreakfastList = {};
+  Map<String, Diet?> weekDietLunchList = {};
 
-  int today = DateTime.now().weekday; // 1: 월요일, 2: 화요일, ..., 7: 일요일
+  DateTime today = DateTime.now(); // 1: 월요일, 2: 화요일, ..., 7: 일요일
+  DateFormat dateFormat = DateFormat("yyyy-MM-dd");
 
-  int getWeekOfMonth(DateTime date) {
-    // 해당 날짜의 달의 첫째 날
-    DateTime firstDayOfMonth = DateTime(date.year, date.month, 1);
-    // 첫째 날의 요일 (DateTime에서 월요일은 1, 일요일은 7)
+  String formatToday = "";
+  Map<String, int> getWeekOfMonth(DateTime date) {
+    // 해당 날짜가 속한 주의 목요일 구하기
+    int deltaToThursday = (DateTime.thursday - date.weekday) % 7;
+    DateTime thursdayOfWeek = date.add(Duration(days: deltaToThursday));
+
+    // 목요일의 달의 첫째 날
+    DateTime firstDayOfMonth =
+        DateTime(thursdayOfWeek.year, thursdayOfWeek.month, 1);
+    // 첫째 날의 요일
     int firstWeekdayOfMonth = firstDayOfMonth.weekday;
 
-    // 해당 날짜의 일
-    int dayOfMonth = date.day;
-
-    // 첫째 날의 요일을 고려하여 몇 주차인지 계산
-    // 첫 주의 남은 일수를 계산 (첫째 날이 월요일이 아니면 첫 주는 짧을 수 있음)
+    // 첫 주의 남은 일수 계산
     int daysInFirstWeek = 8 - firstWeekdayOfMonth;
     // 첫 주를 제외한 날짜
-    int remainingDays = dayOfMonth - daysInFirstWeek;
+    int remainingDays = thursdayOfWeek.day - daysInFirstWeek;
     // 나머지 날짜를 7로 나누어 몇 주차인지 계산 (0부터 시작하므로 +1)
     int weekOfMonth =
         (remainingDays > 0 ? ((remainingDays - 1) / 7).floor() + 2 : 1);
 
-    return weekOfMonth;
+    // 해당 목요일이 속한 달과 주차 정보 반환
+    return {"month": thursdayOfWeek.month, "weekOfMonth": weekOfMonth};
   }
 
   List<String> days = ["월", "화", "수", "목", "금", "토", "일"];
 
-  // 오늘 요일을 기준으로 리스트를 두 부분으로 나눕니다.
-  late List<String> beforeToday;
-  late List<String> fromToday;
-
-  // 두 부분을 서로 뒤바꿔서 합칩니다.
-  late List<String> reorderedDays;
+  final ScrollController _controller = ScrollController();
 
   @override
   void initState() {
     super.initState();
-
-    beforeToday = days.sublist(0, today - 1);
-    fromToday = days.sublist(today - 1);
-    reorderedDays = fromToday + beforeToday;
+    formatToday = dateFormat.format(today);
   }
 
-  Color getBorderColor(int index) {
+  Color getBorderColor(String date) {
     // 오늘 요일에 해당하는 아이템의 테두리색을 다르게 설정합니다.
-    if (index == 0) {
+    if (date == formatToday) {
       return Theme.of(context).cardColor; // 오늘 요일에 대한 테두리색
     } else {
       return Colors.white; // 기본 테두리색
     }
   }
 
-  Color getTextColor(int index) {
+  Color getTextColor(String date) {
     // 오늘 요일에 해당하는 아이템의 테두리색을 다르게 설정합니다.
-    if (index == 0) {
+    if (date == formatToday) {
       return const Color(0xFFF79800); // 오늘 요일에 대한 테두리색
     } else {
       return const Color(0xFFB9B9B9); // 기본 테두리색
     }
   }
 
-  Future<void> getWeekDiets() async {
-    final weekNum = getWeekOfMonth(DateTime.now());
-    print('week menu info : getWeekDiets : $weekNum');
-    await ApiService.getWeekDiets(
-        1, DateTime.now().year, DateTime.now().month, weekNum, "LUNCH");
+  String formatDateString(String dateString) {
+    DateTime dateTime = DateFormat('yyyy-MM-dd').parse(dateString);
+    String formattedDate = DateFormat('M/d').format(dateTime);
+    return formattedDate;
+  }
+
+  Future<void> getWeekDiets(String meals) async {
+    weekDietBreakfastList = {};
+    weekDietLunchList = {};
+    final today = DateTime.now();
+    final todayAfterSevenDays = today.add(const Duration(days: 7));
+    final todayBeforeSevenDays = today.subtract(const Duration(days: 7));
+
+    var thisWeekMap = getWeekOfMonth(today);
+    var nextWeekMap = getWeekOfMonth(todayAfterSevenDays);
+    var lastWeekMap = getWeekOfMonth(todayBeforeSevenDays);
+    Map<String?, Diet> totalWeek = {};
+    try {
+      final thisWeek = await ApiService.getWeekDiets(
+        1,
+        today.year,
+        thisWeekMap["month"]!,
+        thisWeekMap["weekOfMonth"]!,
+        meals,
+      );
+
+      final nextWeek = await ApiService.getWeekDiets(
+        1,
+        todayAfterSevenDays.year,
+        nextWeekMap["month"]!,
+        nextWeekMap["weekOfMonth"]!,
+        meals,
+      );
+
+      final lastWeek = await ApiService.getWeekDiets(
+        1,
+        todayBeforeSevenDays.year,
+        lastWeekMap["month"]!,
+        lastWeekMap["weekOfMonth"]!,
+        meals,
+      );
+      totalWeek.addAll(lastWeek);
+      totalWeek.addAll(thisWeek);
+      totalWeek.addAll(nextWeek);
+    } catch (e) {
+      print(e);
+    }
+
+    final now = DateTime.now();
+
+    final lastMonday = now.subtract(Duration(days: now.weekday + 6));
+
+    final nextSunday = now.add(Duration(days: 14 - now.weekday));
+    DateTime currentDate = lastMonday;
+
+    while (currentDate.isBefore(nextSunday.add(const Duration(days: 1)))) {
+      final formatDate = dateFormat.format(currentDate);
+      if (meals == "LUNCH") {
+        if (totalWeek.containsKey(formatDate)) {
+          weekDietLunchList[formatDate] = totalWeek[formatDate];
+        } else {
+          weekDietLunchList[formatDate] = null;
+        }
+      } else {
+        if (totalWeek.containsKey(formatDate)) {
+          weekDietBreakfastList[formatDate] = totalWeek[formatDate];
+        } else {
+          weekDietBreakfastList[formatDate] = null;
+        }
+      }
+      currentDate = currentDate.add(const Duration(days: 1));
+    }
   }
 
   @override
@@ -201,98 +219,161 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
                   horizontal: 10,
                 ),
                 child: FutureBuilder(
-                  future: getWeekDiets(),
-                  builder: (context, snapshot) => SizedBox(
-                    height: 177, // ListView의 높이를 설정합니다.
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
-                      itemCount: reorderedDays.length,
-                      separatorBuilder: (context, index) {
-                        return const SizedBox(
-                          width: 5,
-                        );
-                      },
-                      itemBuilder: (context, index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 0, // spreadRadius를 줄입니다.
-                                blurRadius:
-                                    3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
-                                offset: const Offset(0, 0), // 그림자 위치 조정
-                              ),
-                            ],
-                            borderRadius: BorderRadius.circular(15),
-                            color: Colors.white,
-                          ),
-                          width: 130,
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 5,
-                            vertical: 5,
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(
-                                width: 3,
-                                color:
-                                    getBorderColor(index), // 인덱스에 따라 경계선 색상 결정
-                              ),
-                              color: Colors.white, // 안쪽 Container의 배경색
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  reorderedDays[index],
-                                  style: TextStyle(color: getTextColor(index)),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                if (menuList[(today - 1 + index) % 7].isEmpty)
-                                  const Center(
-                                    child: Text(
-                                      "미운영",
-                                      style: TextStyle(
-                                        color: Color(0xFF5A5A5A),
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  Expanded(
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          for (var menu in menuList[
-                                              (today - 1 + index) % 7])
-                                            Text(
-                                              "• $menu",
-                                              style: const TextStyle(
-                                                color: Color(0xFF5A5A5A),
-                                                fontSize: 12,
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ),
+                  future: getWeekDiets("BREAKFAST"),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      // 에러 발생 시
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      List<String> dateList =
+                          weekDietBreakfastList.keys.toList();
+                      int initialIndex = dateList.indexOf(formatToday);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (initialIndex != -1) {
+                          // 오늘 날짜가 리스트에 있으면
+                          _controller.jumpTo(
+                              initialIndex * 130.0); // 각 아이템의 너비가 130.0이라고 가정
+                        }
+                      });
+                      return SizedBox(
+                        height: 177, // ListView의 높이를 설정합니다.
+                        child: ListView.separated(
+                          controller: _controller,
+                          scrollDirection:
+                              Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
+                          itemCount: dateList.length,
+                          separatorBuilder: (context, index) {
+                            return const SizedBox(
+                              width: 5,
+                            );
+                          },
+                          itemBuilder: (context, index) {
+                            final date = dateList[index];
+                            DateTime dateTime = DateTime.parse(date);
+
+                            return Container(
+                              decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 0, // spreadRadius를 줄입니다.
+                                    blurRadius:
+                                        3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
+                                    offset: const Offset(0, 0), // 그림자 위치 조정
                                   ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                                ],
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.white,
+                              ),
+                              width: 130,
+                              margin: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 5,
+                              ),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    width: 3,
+                                    color: getBorderColor(
+                                        date), // 인덱스에 따라 경계선 색상 결정
+                                  ),
+                                  color: Colors.white, // 안쪽 Container의 배경색
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          days[dateTime.weekday - 1],
+                                          style: TextStyle(
+                                              color: getTextColor(date)),
+                                        ),
+                                        Text(
+                                          formatDateString(date),
+                                          style: TextStyle(
+                                              color: getTextColor(date)),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                    if (weekDietBreakfastList[date] == null)
+                                      const Center(
+                                        child: Text(
+                                          "미등록",
+                                          style: TextStyle(
+                                            color: Color(0xFF5A5A5A),
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      )
+                                    else if (weekDietBreakfastList[date]!
+                                        .names
+                                        .isEmpty)
+                                      const Center(
+                                        child: Text(
+                                          "미등록",
+                                          style: TextStyle(
+                                            color: Color(0xFF5A5A5A),
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      )
+                                    else if (weekDietBreakfastList[date]!
+                                        .dayOff)
+                                      const Center(
+                                        child: Text(
+                                          "미운영",
+                                          style: TextStyle(
+                                            color: Color(0xFF5A5A5A),
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              for (var menu
+                                                  in weekDietBreakfastList[
+                                                          date]!
+                                                      .names)
+                                                Text(
+                                                  "• $menu",
+                                                  style: const TextStyle(
+                                                    color: Color(0xFF5A5A5A),
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }
+                  },
                 ),
               ),
               const SizedBox(
@@ -341,94 +422,159 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
               padding: const EdgeInsets.symmetric(
                 horizontal: 10,
               ),
-              child: SizedBox(
-                height: 177, // ListView의 높이를 설정합니다.
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
-                  itemCount: reorderedDays.length,
-                  separatorBuilder: (context, index) {
-                    return const SizedBox(
-                      width: 5,
+              child: FutureBuilder(
+                future: getWeekDiets("LUNCH"),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
-                  },
-                  itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 0, // spreadRadius를 줄입니다.
-                            blurRadius: 3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
-                            offset: const Offset(0, 0), // 그림자 위치 조정
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.white,
-                      ),
-                      width: 130,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 5,
-                        vertical: 5,
-                      ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            width: 3,
-                            color: getBorderColor(index), // 인덱스에 따라 경계선 색상 결정
-                          ),
-                          color: Colors.white, // 안쪽 Container의 배경색
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              reorderedDays[index],
-                              style: TextStyle(color: getTextColor(index)),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            if (menuList[(today - 1 + index) % 7].isEmpty)
-                              const Center(
-                                child: Text(
-                                  "미운영",
-                                  style: TextStyle(
-                                    color: Color(0xFF5A5A5A),
-                                    fontSize: 15,
-                                  ),
+                  } else if (snapshot.hasError) {
+                    // 에러 발생 시
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    List<String> dateList = weekDietLunchList.keys.toList();
+                    int initialIndex = dateList.indexOf(formatToday);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (initialIndex != -1) {
+                        // 오늘 날짜가 리스트에 있으면
+                        _controller.jumpTo(
+                            initialIndex * 130.0); // 각 아이템의 너비가 130.0이라고 가정
+                      }
+                    });
+                    return SizedBox(
+                      height: 177, // ListView의 높이를 설정합니다.
+                      child: ListView.separated(
+                        controller: _controller,
+                        scrollDirection:
+                            Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
+                        itemCount: dateList.length,
+                        separatorBuilder: (context, index) {
+                          return const SizedBox(
+                            width: 5,
+                          );
+                        },
+                        itemBuilder: (context, index) {
+                          final date = dateList[index];
+                          DateTime dateTime = DateTime.parse(date);
+
+                          return Container(
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 0, // spreadRadius를 줄입니다.
+                                  blurRadius:
+                                      3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
+                                  offset: const Offset(0, 0), // 그림자 위치 조정
                                 ),
-                              )
-                            else
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                              ],
+                              borderRadius: BorderRadius.circular(15),
+                              color: Colors.white,
+                            ),
+                            width: 130,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 5,
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  width: 3,
+                                  color:
+                                      getBorderColor(date), // 인덱스에 따라 경계선 색상 결정
+                                ),
+                                color: Colors.white, // 안쪽 Container의 배경색
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      for (var menu
-                                          in menuList[(today - 1 + index) % 7])
-                                        Text(
-                                          "• $menu",
-                                          style: const TextStyle(
-                                            color: Color(0xFF5A5A5A),
-                                            fontSize: 12,
-                                          ),
-                                        ),
+                                      Text(
+                                        days[dateTime.weekday - 1],
+                                        style: TextStyle(
+                                            color: getTextColor(date)),
+                                      ),
+                                      Text(
+                                        formatDateString(date),
+                                        style: TextStyle(
+                                            color: getTextColor(date)),
+                                      ),
                                     ],
                                   ),
-                                ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  if (weekDietLunchList[date] == null)
+                                    const Center(
+                                      child: Text(
+                                        "미등록",
+                                        style: TextStyle(
+                                          color: Color(0xFF5A5A5A),
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    )
+                                  else if (weekDietLunchList[date]!
+                                      .names
+                                      .isEmpty)
+                                    const Center(
+                                      child: Text(
+                                        "미등록",
+                                        style: TextStyle(
+                                          color: Color(0xFF5A5A5A),
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    )
+                                  else if (weekDietLunchList[date]!.dayOff)
+                                    const Center(
+                                      child: Text(
+                                        "미운영",
+                                        style: TextStyle(
+                                          color: Color(0xFF5A5A5A),
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    Expanded(
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            for (var menu
+                                                in weekDietLunchList[date]!
+                                                    .names)
+                                              Text(
+                                                "• $menu",
+                                                style: const TextStyle(
+                                                  color: Color(0xFF5A5A5A),
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
-                          ],
-                        ),
+                            ),
+                          );
+                        },
                       ),
                     );
-                  },
-                ),
+                  }
+                },
               ),
             ),
             const SizedBox(

@@ -49,8 +49,8 @@ class _WeekDietState extends State<WeekDiet> {
   void initState() {
     super.initState();
     _selectedDay = now;
-    firstDay = now.subtract(Duration(days: now.weekday % 7));
-    lastDay = firstDay.add(const Duration(days: 14));
+    firstDay = now.subtract(const Duration(days: 7));
+    lastDay = firstDay.add(const Duration(days: 21));
 
     menuNameController.addListener(filteringMenus);
     selectedDay = dateFormat.format(now);

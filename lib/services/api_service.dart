@@ -609,7 +609,6 @@ class ApiService {
 
     if (response.statusCode == 200) {
       // print('ApiService : getCongestionStatus : $jsonResponse');
-      print('ApiService:getWeekDiets : $meals ${jsonResponse['result']}');
       Map<String?, Diet> responseData = {};
       final instance = jsonResponse['result']['dietResponseDTOList'];
       for (var resultInstance in instance) {
@@ -619,7 +618,7 @@ class ApiService {
               .map((item) => item['name'] as String),
         );
         final List<int> menuIds = List<int>.from(
-          jsonResponse['result']['menuResponseListDTO']['menuQueryDTOList']
+          resultInstance['menuResponseListDTO']['menuQueryDTOList']
               .map((item) => item['menuId'] as int),
         );
         final dayOff = resultInstance['dayOff'];
