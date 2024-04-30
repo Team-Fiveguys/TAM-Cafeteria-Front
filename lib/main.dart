@@ -25,7 +25,8 @@ import 'package:tam_cafeteria_front/services/api_service.dart';
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print('backgroundHandler : $message');
+  print('backgroundHandler : ${message.data}');
+  await ApiService.postNotificationToServer(message.data["id"]);
   // showNotification(message);
   // 세부 내용이 필요한 경우 추가...
 }
@@ -64,7 +65,8 @@ void initializeNotification() async {
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     RemoteNotification? notification = message.notification;
-
+    print('onMessage listen: ${message.data}');
+    await ApiService.postNotificationToServer(message.data["id"]);
     if (notification != null) {
       flutterLocalNotificationsPlugin.show(
           notification.hashCode,
@@ -411,8 +413,7 @@ class _AppState extends ConsumerState<App> {
               return IconButton(
                 onPressed: () {
                   // ApiService.delAutoLogin();
-                  ref.read(loginStateProvider.notifier).logout();
-                  print(accessToken);
+                  // ref.read(loginStateProvider.notifier).logout();
                   Navigator.push(
                     context,
                     MaterialPageRoute(
