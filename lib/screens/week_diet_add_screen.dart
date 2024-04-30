@@ -14,14 +14,16 @@ class WeekDiet extends StatefulWidget {
   const WeekDiet({
     super.key,
     required this.cafeteriaName,
+    required this.cafeteriaId,
   });
   final String cafeteriaName;
+  final int cafeteriaId;
   @override
   State<WeekDiet> createState() => _WeekDietState();
 }
 
 class _WeekDietState extends State<WeekDiet> {
-  Future<Diet> menuList = ApiService.getMenu();
+  late Future<Diet> menuList;
   late int initMenuListLength;
   List<String> filteredMenus = [];
 
@@ -48,6 +50,7 @@ class _WeekDietState extends State<WeekDiet> {
   @override
   void initState() {
     super.initState();
+    menuList = ApiService.getMenu(widget.cafeteriaId);
     _selectedDay = now;
     firstDay = now.subtract(const Duration(days: 7));
     lastDay = firstDay.add(const Duration(days: 21));
@@ -59,7 +62,8 @@ class _WeekDietState extends State<WeekDiet> {
       // lastDay를 포함하기 위해 1일 추가
       String formattedDate = dateFormat.format(currentDate);
       Future.delayed(Duration.zero, () async {
-        Diet? todayDiets = await ApiService.getDiets(formattedDate, "LUNCH");
+        Diet? todayDiets = await ApiService.getDiets(
+            formattedDate, "LUNCH", widget.cafeteriaId);
         if (todayDiets != null) {
           weekMenus[formattedDate] = todayDiets.names;
           operationalDays[formattedDate] = todayDiets.dayOff;
@@ -204,9 +208,11 @@ class _WeekDietState extends State<WeekDiet> {
                       ),
                       TextButton(
                         onPressed: () async {
-                          await showMenuInput(context, setState).then((_) {});
+                          await showMenuInput(
+                                  context, setState, widget.cafeteriaId)
+                              .then((_) {});
                           this.setState(() {
-                            menuList = ApiService.getMenu();
+                            menuList = ApiService.getMenu(widget.cafeteriaId);
                           });
                           setState(() {
                             filteringMenus();
@@ -268,7 +274,8 @@ class _WeekDietState extends State<WeekDiet> {
   }
 
   Future<void> loadDiets() async {
-    Diet? todayDiets = await ApiService.getDiets(selectedDay, "LUNCH");
+    Diet? todayDiets =
+        await ApiService.getDiets(selectedDay, "LUNCH", widget.cafeteriaId);
 
     if (todayDiets != null) {
       weekMenus[selectedDay] = todayDiets.names;

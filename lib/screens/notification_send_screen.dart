@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class NotificationSendPage extends StatefulWidget {
-  const NotificationSendPage({super.key});
+  const NotificationSendPage({
+    super.key,
+    required this.cafeteriaId,
+  });
+  final int cafeteriaId;
 
   @override
   State<NotificationSendPage> createState() => _NotificationSendPageState();
@@ -12,7 +16,7 @@ class NotificationSendPage extends StatefulWidget {
 class _NotificationSendPageState extends State<NotificationSendPage> {
   void pushNotification() async {
     await ApiService.postNotificationToSubscriber(
-        "알림 테스트", "내용", "1", "today_diet");
+        "알림 테스트", "내용", widget.cafeteriaId.toString(), "today_diet");
   }
 
   void showSendNotification() async {
@@ -168,7 +172,7 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
                               onPressed: pushNotification,
                               child: const Center(
                                   child: Text(
-                                "금주 식단\n 등록 완료",
+                                "주간 식단\n 등록 완료",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   color: Color(0xFF282828),
@@ -207,7 +211,7 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
                               onPressed: () {},
                               child: const Center(
                                 child: Text(
-                                  "금주 식단\n수정 완료",
+                                  "주간 식단\n수정 완료",
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     color: Color(0xFF282828),

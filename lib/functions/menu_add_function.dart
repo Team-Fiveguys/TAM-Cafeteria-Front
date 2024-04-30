@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 Future<void> showMenuInput(
-    BuildContext context, StateSetter beforeSetState) async {
+    BuildContext context, StateSetter beforeSetState, int cafeteriaId) async {
   String? selectedCategory; // 선택된 카테고리를 저장할 변수
   final TextEditingController menuNameController = TextEditingController();
 
@@ -59,7 +59,8 @@ Future<void> showMenuInput(
                   // 여기에 메뉴 등록 로직 추가
                   print(
                       "$selectedCategory 카테고리, 메뉴명: ${menuNameController.text}");
-                  await ApiService.postMenu(menuNameController.text);
+                  await ApiService.postMenu(
+                      menuNameController.text, cafeteriaId);
                   selectedCategory = null;
                   menuNameController.clear();
                   Navigator.of(context).pop();

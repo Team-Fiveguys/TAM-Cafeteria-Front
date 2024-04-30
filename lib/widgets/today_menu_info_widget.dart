@@ -25,6 +25,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   final DateTime now = DateTime.now();
 
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+  int cafeteriaId = 1;
   bool isSoldOut = false;
   bool isDayOff = false;
   String currentCongestionStatus = "보통";
@@ -285,7 +286,11 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   }
 
   Future<List<String>> getDietsInMain(String meals) async {
-    Diet? menus = await ApiService.getDiets(dateFormat.format(now), meals);
+    Diet? menus = await ApiService.getDiets(
+      dateFormat.format(now),
+      meals,
+      cafeteriaId,
+    );
     print('today menu info : getDietsInMain $meals,${menus?.names}');
     if (menus != null) {
       imageUrl = menus.imageUrl;
