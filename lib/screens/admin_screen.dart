@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
+import 'package:tam_cafeteria_front/screens/notification_send_screen.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
@@ -24,6 +25,7 @@ class _AdminPageState extends State<AdminPage> {
   final DateTime now = DateTime.now();
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
 
+  int cafateriaId = 1;
   String serverWaitingStatus = '여유';
   String? selectedItem = '명진당';
   String currentWaitingStatus = '선택 안함';
@@ -50,6 +52,7 @@ class _AdminPageState extends State<AdminPage> {
     if (selectedItem != null) {
       cafeteriaName = selectedItem!;
     }
+    print('admin initState');
   }
 
   final List<String> waitingStatusList = [
@@ -107,7 +110,7 @@ class _AdminPageState extends State<AdminPage> {
               onPressed: () {
                 if (_image != null) {
                   ApiService.postDietPhoto(
-                      _image!, dateFormat.format(now), "LUNCH", 1);
+                      _image!, dateFormat.format(now), "LUNCH", cafateriaId);
                 }
                 // 이미지 업로드 로직 추가
                 Navigator.of(context).pop();
@@ -127,8 +130,9 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Future<void> getCongestionStatus() async {
-    serverWaitingStatus = await ApiService.getCongestionStatus(1);
+    serverWaitingStatus = await ApiService.getCongestionStatus(cafateriaId);
     currentWaitingStatus = serverWaitingStatus;
+    print(currentWaitingStatus);
   }
 
   @override
@@ -278,6 +282,7 @@ class _AdminPageState extends State<AdminPage> {
                                         imageUrl: waitingImageList[i],
                                         waitingStatus: waitingStatusList[i],
                                         currentStatus: currentWaitingStatus,
+                                        cafeteriaId: cafateriaId,
                                         onStatusChanged: updateCurrentStatus,
                                       ),
                                   ],
@@ -703,13 +708,14 @@ class _AdminPageState extends State<AdminPage> {
                               MaterialPageRoute(
                                 builder: (context) => WeekDiet(
                                   cafeteriaName: cafeteriaName,
+                                  cafeteriaId: cafateriaId,
                                 ),
                               ),
                             );
                           },
                           child: const Center(
                             child: Text(
-                              "금주 식단 \n등록 수정",
+                              "주간 식단 \n등록 수정",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Color(0xFF282828),
@@ -751,7 +757,8 @@ class _AdminPageState extends State<AdminPage> {
                           horizontal: 10,
                         ),
                         child: TextButton(
-                          onPressed: () => showMenuInput(context, setState),
+                          onPressed: () =>
+                              showMenuInput(context, setState, cafateriaId),
                           child: const Center(
                               child: Text(
                             "메뉴 입력",
@@ -790,7 +797,16 @@ class _AdminPageState extends State<AdminPage> {
                           horizontal: 10,
                         ),
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NotificationSendPage(
+                                  cafeteriaId: cafateriaId,
+                                ),
+                              ),
+                            );
+                          },
                           child: const Center(
                             child: Text(
                               "PUSH\n알림 보내기",
@@ -810,6 +826,90 @@ class _AdminPageState extends State<AdminPage> {
               ),
               const SizedBox(
                 height: 30,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadiusDirectional.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3), // 그림자 위치 조정
+                          ),
+                        ],
+                      ),
+                      height: 220,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 10,
+                        ),
+                        child: TextButton(
+                          onPressed: () {},
+                          child: const Center(
+                              child: Text(
+                            "식당 등록",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF282828),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadiusDirectional.circular(20),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3), // 그림자 위치 조정
+                          ),
+                        ],
+                      ),
+                      height: 220,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 15,
+                          horizontal: 10,
+                        ),
+                        child: TextButton(
+                          onPressed: () {},
+                          child: const Center(
+                            child: Text(
+                              "유저 관리",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF282828),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(
+                width: 20,
               ),
             ],
           ),

@@ -104,7 +104,7 @@ class MainScreen extends StatelessWidget {
               // crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  '금주 식단표',
+                  '주간 식단표',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,

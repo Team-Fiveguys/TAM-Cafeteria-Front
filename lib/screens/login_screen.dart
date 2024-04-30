@@ -49,7 +49,7 @@ class LoginScreen extends ConsumerWidget {
           loginProvier.login();
           //  ref.read(loginStateProvider.state).state = true;
         }
-        Navigator.of(context).pop(true);
+        Navigator.pop(context, "login success");
         // message == "true" ? Navigator.of(context).pop(true) : print(message);
       } catch (error) {
         print('카카오톡으로 로그인 실패 $error');
@@ -62,18 +62,33 @@ class LoginScreen extends ConsumerWidget {
         // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
         try {
           OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-          ApiService.postKakaoLogin(token.idToken!, token.accessToken);
+          final accessToken = await ApiService.postKakaoLogin(
+              token.idToken!, token.accessToken);
+          print('카카오톡으로 로그인 성공');
+          if (accessToken != null) {
+            tokenProvider.setToken(accessToken);
+            loginProvier.login();
+            //  ref.read(loginStateProvider.state).state = true;
+          }
+          Navigator.pop(context, "login success");
           print('카카오계정으로 로그인 성공');
         } catch (error) {
           print('카카오계정으로 로그인 실패 $error');
         }
       } finally {
-        Navigator.of(context).pop(); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
+        Navigator.pop(context, "login success"); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
       }
     } else {
       try {
         OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-        ApiService.postKakaoLogin(token.idToken!, token.accessToken);
+        final accessToken =
+            await ApiService.postKakaoLogin(token.idToken!, token.accessToken);
+        if (accessToken != null) {
+          tokenProvider.setToken(accessToken);
+          loginProvier.login();
+          //  ref.read(loginStateProvider.state).state = true;
+        }
+        Navigator.of(context).pop(true);
         print('카카오계정으로 로그인 성공');
       } catch (error) {
         print('카카오계정으로 로그인 실패 $error');
@@ -125,6 +140,18 @@ class LoginScreen extends ConsumerWidget {
         ],
       );
       print("loginWithApple : $credential");
+
+      final accessToken = await ApiService.postAppleLogin(
+          credential.userIdentifier,
+          credential.identityToken,
+          credential.authorizationCode);
+      print('애플로 로그인 성공');
+      if (accessToken != null) {
+        tokenProvider.setToken(accessToken);
+        loginProvier.login();
+        //  ref.read(loginStateProvider.state).state = true;
+      }
+      Navigator.pop(context, "login success");
     } catch (error) {
       print(error);
     } finally {
@@ -172,7 +199,7 @@ class LoginScreen extends ConsumerWidget {
                   onPressed: () {
                     Navigator.pop(context);
                     if (success) {
-                      Navigator.pop(context);
+                      Navigator.pop(context, "login success");
                     }
                   },
                 )
@@ -184,16 +211,27 @@ class LoginScreen extends ConsumerWidget {
     );
     if (success) {
       Navigator.pop(context);
-      Navigator.pop(context);
+      Navigator.pop(context, "login success");
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            size: 20,
+          ),
+        ),
+      ),
       //여기 수직 center 가능?
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
         child: Center(
           child: ListView(
             shrinkWrap: true,
@@ -204,7 +242,7 @@ class LoginScreen extends ConsumerWidget {
                 height: 81,
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
               Padding(
                 padding: const EdgeInsets.all(9.0),

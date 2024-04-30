@@ -9,11 +9,13 @@ class WaitingIndicator extends StatefulWidget {
     required this.waitingStatus,
     required this.currentStatus,
     required this.onStatusChanged,
+    required this.cafeteriaId,
   });
 
   final String imageUrl;
   final String waitingStatus;
   final String currentStatus;
+  final int cafeteriaId;
   final Function(String) onStatusChanged;
 
   @override
@@ -25,7 +27,7 @@ class _WaitingIndicatorState extends State<WaitingIndicator> {
     print(
         'WaitingIndicator : setWaitingStatus : waitingStatus ${widget.waitingStatus}');
     await ApiService.postCongestionStatus(
-        widget.waitingStatus, 1); // TODO : cafeteriaId 수정하기
+        widget.waitingStatus, widget.cafeteriaId); // TODO : cafeteriaId 수정하기
     widget.onStatusChanged(widget.waitingStatus);
   }
 
