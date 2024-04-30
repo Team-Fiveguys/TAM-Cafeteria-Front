@@ -16,7 +16,9 @@ import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class AdminPage extends StatefulWidget {
-  const AdminPage({super.key});
+  const AdminPage({super.key, required this.testValue});
+
+  final int testValue;
 
   @override
   State<AdminPage> createState() => _AdminPageState();
@@ -172,6 +174,7 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     print("admin screen : build");
+    print('testValue in admin ${widget.testValue}');
     return Column(
       children: [
         //관리자 페이지
