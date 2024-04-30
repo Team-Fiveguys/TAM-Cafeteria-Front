@@ -880,4 +880,30 @@ class ApiService {
       // return jsonResponse['message'];
     }
   }
+
+  static Future<void> readAllNotification() async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/users/notifications/read";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : deleteAllNotification : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
+    }
+  }
 }
