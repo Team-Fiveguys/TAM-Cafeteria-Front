@@ -1,7 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:path/path.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key}) : super(key: key);
@@ -11,6 +15,10 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
+  bool overallAlarm = false;
+  bool restaurantAlarm = false;
+  bool featureAlarm = false;
+
   @override
   Widget build(
     BuildContext context,
@@ -41,11 +49,11 @@ class _MyPageState extends State<MyPage> {
           ),
         ),
         const SizedBox(
-          height: 10,
+          height: 30,
         ),
         Container(
-          margin: const EdgeInsets.all(10),
-          padding: const EdgeInsets.all(20),
+          margin: const EdgeInsets.all(11),
+          padding: const EdgeInsets.all(35),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(19),
@@ -68,7 +76,7 @@ class _MyPageState extends State<MyPage> {
                 children: [
                   Icon(
                     Icons.person,
-                    size: 100,
+                    size: 90,
                   ), // Assuming you want a person icon
                   SizedBox(width: 8), // Adjust as needed for spacing
                   Column(
@@ -83,31 +91,62 @@ class _MyPageState extends State<MyPage> {
                       ),
                       Text('닉네임'),
                       Text('sssss@naver.com'),
+                      Text('성별'),
                     ],
                   ),
                 ],
               ),
               const SizedBox(height: 20),
-              buildButtonWithPasswordDialog(context, '비밀번호 수정'),
-              const SizedBox(height: 10),
-              buildButtonWithNicknameDialog(context, '닉네임 수정'),
-              const SizedBox(height: 10),
-              buildButtonWithDialog(context, '이메일 수정', '이메일 수정 내용'),
-              const SizedBox(height: 10),
-              buildButtonWithDialog(context, '약관보기', '약관보기 내용'),
-              const SizedBox(height: 60),
-              buildButtonWithDialog(context, '회원 탈퇴', '회탈'),
-              const SizedBox(height: 10),
-              // ElevatedButton(
-              //   onPressed: () {
-              //     // 로그아웃 버튼을 눌렀을 때 실행되는 로그아웃 기능
-              //     ref.read(loginStateProvider.notifier).logout();
-              //     // 로그아웃 후의 추가 작업
-              //     Navigator.pushReplacementNamed(
-              //         context, '/loginScreen'); // 로그인 화면으로 이동
-              //   },
-              //   child: const Text('로그아웃'),
-              // ),
+              buildButtonWithPasswordDialog(
+                context,
+                '비밀번호 변경',
+              ),
+              const SizedBox(height: 20),
+              buildButtonWithNicknameDialog(
+                context,
+                '닉네임 수정',
+              ),
+              const SizedBox(height: 20),
+              // buildButtonWithDialog(context, '약관보기', '약관보기 내용'),
+              // const SizedBox(height: 20),
+              buildButtonWithAlarmDialog(
+                context,
+                '알람 설정',
+              ),
+              const SizedBox(height: 20),
+              buildButtonWithWithdrawDialog(
+                context,
+                '회원 탈퇴',
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Consumer(
+                    builder: (context, ref, child) {
+                      return ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffffb800),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        onPressed: () {
+                          // 로그아웃 버튼을 눌렀을 때 실행되는 로그아웃 기능
+                          ref.read(loginStateProvider.notifier).logout();
+                          // 로그아웃 후의 추가 작업
+                          Navigator.pushReplacementNamed(
+                              context, '/loginScreen'); // 로그인 화면으로 이동
+                        },
+                        child: const Text(
+                          '로그아웃',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -115,13 +154,237 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
+  Widget buildButtonWithWithdrawDialog(
+      BuildContext context, String buttonText) {
+    return Center(
+      child: Container(
+        height: 55,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(19),
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text(buttonText),
+                  content: const Text('정말로 탈퇴하시겠습니까?'),
+                  actions: <Widget>[
+                    ElevatedButton(
+                      onPressed: () {
+                        // Implement logic for withdrawal here
+                        // This is just a placeholder for demonstration
+                        print('회원 탈퇴 처리');
+
+                        // Close the dialog
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xffffb800),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      child: const Text(
+                        '네',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0x00000000),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      child: const Text(
+                        '아니요',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xffc6c6c6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              buttonText,
+              style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildButtonWithAlarmDialog(BuildContext context, String buttonText) {
+    bool overallAlarm = true;
+    bool restaurantAlarm = false;
+    bool featureAlarm = true;
+
+    return Center(
+      child: Container(
+        height: 55,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(19),
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    return AlertDialog(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Overall alarm toggle
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                buttonText,
+                                style: const TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Colors.black54,
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          ),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('전체 알람'),
+                              Switch(
+                                value: overallAlarm,
+                                onChanged: (value) {
+                                  setState(() {
+                                    overallAlarm = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          // Restaurant-specific alarm toggles
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('식당 알람'),
+                              Switch(
+                                value: restaurantAlarm,
+                                onChanged: (value) {
+                                  setState(() {
+                                    restaurantAlarm = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          // Feature-specific alarm toggles
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                '기능 알람',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('data'),
+                                  Switch(
+                                    value: featureAlarm,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        featureAlarm = value;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      actions: <Widget>[
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xffffb800),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: const Text(
+                            '저장',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xffc6c6c6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              buttonText,
+              style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget buildButtonWithDialog(
       BuildContext context, String buttonText, String dialogContent) {
     return Center(
       child: Container(
-        width: 400,
+        height: 55,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(19),
+          borderRadius: BorderRadius.circular(0),
         ),
         child: ElevatedButton(
           onPressed: () {
@@ -143,14 +406,17 @@ class _MyPageState extends State<MyPage> {
               },
             );
           },
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xffc6c6c6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
           ),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               buttonText,
-              style: const TextStyle(color: Colors.black),
+              style: const TextStyle(color: Colors.white),
               textAlign: TextAlign.left,
             ),
           ),
@@ -164,78 +430,162 @@ class _MyPageState extends State<MyPage> {
     TextEditingController nicknameController = TextEditingController();
 
     return Center(
-      child: Container(
-        width: 400,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(19),
-        ),
-        child: ElevatedButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text(buttonText),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        controller: nicknameController,
-                        decoration: const InputDecoration(labelText: '변경 닉네임'),
-                      ),
-                    ],
+        child: Container(
+      // width: 300,
+      height: 55,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(19),
+      ),
+      child: ElevatedButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return Material(
+                type: MaterialType.transparency,
+                child: Center(
+                  child: Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    backgroundColor: Colors.white,
+                    child: Stack(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          padding: const EdgeInsets.all(20.0),
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      '000님-탐식당',
+                                      style: TextStyle(color: Colors.black54),
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          buttonText,
+                                          style: const TextStyle(
+                                            color: Colors.black54,
+                                            fontSize: 20.0,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(
+                                              Icons.arrow_forward_ios,
+                                              color: Colors.black54),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20.0),
+                                Center(
+                                  child: SizedBox(
+                                    child: TextField(
+                                      controller: nicknameController,
+                                      decoration: const InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(16),
+                                            ),
+                                          ),
+                                          labelText: '현재 닉네임'),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 20.0),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        // Implement logic to handle nickname change here
+                                        String newNickname =
+                                            nicknameController.text;
+
+                                        // For demonstration purposes, let's just print the entered nickname
+                                        print('New Nickname: $newNickname');
+
+                                        // Close the dialog
+                                        Navigator.of(context).pop();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            const Color(0xffffb800),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        '저장',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('취소'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Implement logic to handle nickname change here
-                        String newNickname = nicknameController.text;
-
-                        // For demonstration purposes, let's just print the entered nickname
-                        print('New Nickname: $newNickname');
-
-                        // Close the dialog
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('저장'),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                ),
+              );
+            },
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xffc6c6c6),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
           ),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              buttonText,
-              style: const TextStyle(color: Colors.black),
-              textAlign: TextAlign.left,
-            ),
+        ),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            buttonText,
+            style: const TextStyle(color: Colors.white),
+            textAlign: TextAlign.left,
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget buildButtonWithPasswordDialog(
-      BuildContext context, String buttonText) {
+    BuildContext context,
+    String buttonText,
+  ) {
     TextEditingController currentPasswordController = TextEditingController();
     TextEditingController newPasswordController = TextEditingController();
     TextEditingController confirmNewPasswordController =
         TextEditingController();
 
+    bool obscureCurrentPassword = true;
+    bool obscureNewPassword = true;
+    bool obscureConfirmNewPassword = true;
+    bool passwordsMatch = true;
+
     return Center(
       child: Container(
-        width: 400,
+        height: 55,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(19),
         ),
@@ -244,69 +594,250 @@ class _MyPageState extends State<MyPage> {
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text(buttonText),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        controller: currentPasswordController,
-                        decoration: const InputDecoration(labelText: '현재 비밀번호'),
-                        obscureText: true,
-                      ),
-                      TextField(
-                        controller: newPasswordController,
-                        decoration:
-                            const InputDecoration(labelText: '새로운 비밀번호'),
-                        obscureText: true,
-                      ),
-                      TextField(
-                        controller: confirmNewPasswordController,
-                        decoration:
-                            const InputDecoration(labelText: '새로운 비밀번호 확인'),
-                        obscureText: true,
-                      ),
-                    ],
-                  ),
-                  actions: <Widget>[
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('취소'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Implement logic to handle password change here
-                        String currentPassword = currentPasswordController.text;
-                        String newPassword = newPasswordController.text;
-                        String confirmNewPassword =
-                            confirmNewPasswordController.text;
+                return StatefulBuilder(
+                  builder: (BuildContext context, setState) {
+                    return Material(
+                      type: MaterialType.transparency,
+                      child: Center(
+                        child: Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          backgroundColor: Colors.white,
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                padding: const EdgeInsets.all(30.0),
+                                child: SizedBox(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            '000님-탐식당',
+                                            style: TextStyle(
+                                                color: Colors.black54),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                buttonText,
+                                                style: const TextStyle(
+                                                  color: Colors.black54,
+                                                  fontSize: 20.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    color: Colors.black54),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 20.0),
+                                      Center(
+                                        child: SizedBox(
+                                          width: 260,
+                                          child: TextField(
+                                            controller:
+                                                currentPasswordController,
+                                            decoration: InputDecoration(
+                                              labelText: '현재 비밀번호',
+                                              labelStyle: const TextStyle(
+                                                  color: Colors.black54),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(16),
+                                                ),
+                                              ),
+                                              suffixIcon: IconButton(
+                                                icon: Icon(
+                                                  obscureCurrentPassword
+                                                      ? Icons.visibility
+                                                      : Icons.visibility_off,
+                                                  color: Colors.black54,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    obscureCurrentPassword =
+                                                        !obscureCurrentPassword;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                            obscureText: obscureCurrentPassword,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10.0),
+                                      Center(
+                                        child: SizedBox(
+                                          width: 260,
+                                          child: TextField(
+                                            controller: newPasswordController,
+                                            decoration: InputDecoration(
+                                              labelText: '새로운 비밀번호',
+                                              labelStyle: const TextStyle(
+                                                  color: Colors.black54),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(16),
+                                                ),
+                                              ),
+                                              suffixIcon: IconButton(
+                                                icon: Icon(
+                                                  obscureNewPassword
+                                                      ? Icons.visibility
+                                                      : Icons.visibility_off,
+                                                  color: Colors.black54,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    obscureNewPassword =
+                                                        !obscureNewPassword;
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                            obscureText: obscureNewPassword,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10.0),
+                                      Center(
+                                        child: SizedBox(
+                                          width: 260,
+                                          child: TextField(
+                                            controller:
+                                                confirmNewPasswordController,
+                                            decoration: InputDecoration(
+                                              labelText: '새로운 비밀번호 확인',
+                                              labelStyle: const TextStyle(
+                                                  color: Colors.black54),
+                                              border: const OutlineInputBorder(
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(16),
+                                                ),
+                                              ),
+                                              suffixIcon: IconButton(
+                                                icon: Icon(
+                                                  obscureConfirmNewPassword
+                                                      ? Icons.visibility
+                                                      : Icons.visibility_off,
+                                                  color: Colors.black54,
+                                                ),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    obscureConfirmNewPassword =
+                                                        !obscureConfirmNewPassword;
+                                                  });
+                                                },
+                                              ),
+                                              errorText: !passwordsMatch
+                                                  ? '비밀번호가 다릅니다'
+                                                  : null,
+                                            ),
+                                            obscureText:
+                                                obscureConfirmNewPassword,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                passwordsMatch =
+                                                    newPasswordController
+                                                            .text ==
+                                                        value;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20.0),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              // Implement logic to handle password change here
+                                              String currentPassword =
+                                                  currentPasswordController
+                                                      .text;
+                                              String newPassword =
+                                                  newPasswordController.text;
+                                              String confirmNewPassword =
+                                                  confirmNewPasswordController
+                                                      .text;
 
-                        // Validate and process the password change
-                        // For demonstration purposes, let's just print the entered passwords
-                        print('Current Password: $currentPassword');
-                        print('New Password: $newPassword');
-                        print('Confirm New Password: $confirmNewPassword');
+                                              // Validate and process the password change
+                                              // For demonstration purposes, let's just print the entered passwords
+                                              print(
+                                                  'Current Password: $currentPassword');
+                                              print(
+                                                  'New Password: $newPassword');
+                                              print(
+                                                  'Confirm New Password: $confirmNewPassword');
 
-                        // Close the dialog
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text('저장'),
-                    ),
-                  ],
+                                              // Close the dialog
+                                              Navigator.of(context).pop();
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  const Color(0xffffb800),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
+                                              ),
+                                            ),
+                                            child: const Text(
+                                              '저장',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             );
           },
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xffc6c6c6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
           ),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               buttonText,
-              style: const TextStyle(color: Colors.black),
+              style: const TextStyle(color: Colors.white),
               textAlign: TextAlign.left,
             ),
           ),

@@ -326,18 +326,22 @@ class _AdminPageState extends State<AdminPage> {
                           const SizedBox(
                             width: 140,
                           ),
-                          const Text('메뉴수정'),
-                          const Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: Colors.amber,
-                          ), //그냥 수정페이지로 갈수 있게?
+                          //그냥 수정페이지로 갈수 있게?
                           Text(
                             dateFormat.format(now),
                             style: const TextStyle(
                               color: Color(0xFF999999),
                               fontSize: 10,
                             ),
-                          )
+                          ),
+                          const SizedBox(
+                            width: 3,
+                          ),
+                          const Text('메뉴수정'),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.amber,
+                          ),
                         ],
                       ),
                       const SizedBox(
