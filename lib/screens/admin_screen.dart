@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:tam_cafeteria_front/models/menu_model.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +12,7 @@ import 'package:tam_cafeteria_front/screens/notification_send_screen.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
@@ -326,13 +328,25 @@ class _AdminPageState extends State<AdminPage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          const SizedBox(
+                            width: 140,
+                          ),
+                          //그냥 수정페이지로 갈수 있게?
                           Text(
                             dateFormat.format(now),
                             style: const TextStyle(
                               color: Color(0xFF999999),
                               fontSize: 10,
                             ),
-                          )
+                          ),
+                          const SizedBox(
+                            width: 3,
+                          ),
+                          const Text('메뉴수정'),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: Colors.amber,
+                          ),
                         ],
                       ),
                       const SizedBox(
@@ -375,8 +389,136 @@ class _AdminPageState extends State<AdminPage> {
                                       ),
                                     ),
                                   ),
-                                  child: //TODO: 여기 ui 완성시키기
-                                      Container(),
+                                  child: FutureBuilder<List<String>>(
+                                    future: ApiService.getTodayLunchMenu(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        // 데이터를 기다리는 동안 로딩 표시를 표시합니다.
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        // 에러가 발생한 경우 에러 메시지를 표시합니다.
+                                        return Center(
+                                          child:
+                                              Text('Error: ${snapshot.error}'),
+                                        );
+                                      } else {
+                                        // 데이터를 성공적으로 불러온 경우 메뉴 항목을 그리드 뷰로 표시합니다.
+                                        return GridView.builder(
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount:
+                                                2, // 한 줄에 표시할 아이템의 수를 2로 설정합니다.
+                                            childAspectRatio:
+                                                3, // 아이템의 가로 세로 비율을 조정합니다.
+                                          ),
+                                          itemCount: snapshot.data!.length,
+                                          itemBuilder: (context, index) {
+                                            return Container(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      10, 0, 0, 0),
+                                              child: Text(
+                                                '.${snapshot.data![index]}',
+                                                style: const TextStyle(
+                                                    fontSize: 16),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Container(
+                        height: 130,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).canvasColor,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 10),
+                          child: Row(
+                            children: [
+                              const Flexible(
+                                flex: 1,
+                                child: Center(
+                                  child: Text(
+                                    '중식',
+                                    style: TextStyle(
+                                      color: Color(0xFF5A5A5A),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Flexible(
+                                flex: 2,
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    border: Border(
+                                      left: BorderSide(
+                                        color: Colors.black,
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                  child: FutureBuilder<List<String>>(
+                                    future: ApiService.getTodayLunchMenu(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        // 데이터를 기다리는 동안 로딩 표시를 표시합니다.
+                                        return const Center(
+                                          child: CircularProgressIndicator(),
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        // 에러가 발생한 경우 에러 메시지를 표시합니다.
+                                        return Center(
+                                          child:
+                                              Text('Error: ${snapshot.error}'),
+                                        );
+                                      } else {
+                                        // 데이터를 성공적으로 불러온 경우 메뉴 항목을 그리드 뷰로 표시합니다.
+                                        return GridView.builder(
+                                          gridDelegate:
+                                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount:
+                                                2, // 한 줄에 표시할 아이템의 수를 2로 설정합니다.
+                                            childAspectRatio:
+                                                3, // 아이템의 가로 세로 비율을 조정합니다.
+                                          ),
+                                          itemCount: snapshot.data!.length,
+                                          itemBuilder: (context, index) {
+                                            return Container(
+                                              padding:
+                                                  const EdgeInsets.fromLTRB(
+                                                      10, 0, 0, 0),
+                                              child: Text(
+                                                '.${snapshot.data![index]}',
+                                                style: const TextStyle(
+                                                    fontSize: 16),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      }
+                                    },
+                                  ),
                                 ),
                               ),
                             ],
@@ -522,15 +664,16 @@ class _AdminPageState extends State<AdminPage> {
                         child: TextButton(
                           onPressed: () => _showImagePicker(),
                           child: const Center(
-                              child: Text(
-                            "메뉴 사진 \n등록",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xFF282828),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                            child: Text(
+                              "메뉴 사진 \n등록",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF282828),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          )),
+                          ),
                         ),
                       ),
                     ),

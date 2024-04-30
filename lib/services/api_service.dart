@@ -7,6 +7,8 @@ import 'package:path/path.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/models/notification_model.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
+import 'package:tam_cafeteria_front/models/menu_model.dart';
+import 'package:intl/intl.dart';
 
 class ApiService {
   static const String baseUrl = "dev.tam-cafeteria.site";
@@ -237,20 +239,23 @@ class ApiService {
     const path = "/admin/diets/menus";
     final url = Uri.http(baseUrl, path);
 
-    final response = await http.put(url,
-        headers: {
-          'Content-Type': 'application/json',
-          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
-          'Authorization': 'Bearer $accessToken',
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode(
+        {
+          'menuName': menuName,
+          'localDate': date,
+          'meals': meals,
+          'cafeteriaId': '$cafeteriaId',
         },
-        body: jsonEncode(
-          {
-            'menuName': menuName,
-            'localDate': date,
-            'meals': meals,
-            'cafeteriaId': '$cafeteriaId',
-          },
-        ));
+      ),
+    );
+
     final String decodedResponse = utf8.decode(response.bodyBytes);
 
     // 디코드된 문자열을 JSON으로 파싱합니다.
@@ -511,6 +516,37 @@ class ApiService {
     }
     return "선택 안함";
   }
+
+  static Future<List<String>> getTodayBreakfastMenu() async {
+    // 현재 날짜를 가져옵니다.
+    DateTime now = DateTime.now();
+    // 날짜를 yyyy-MM-dd 형식의 문자열로 변환합니다.
+    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+    // 학생회관의 점심 메뉴를 불러옵니다.
+    Menu? menu = await getDiets(formattedDate, 'BREAKFAST');
+    if (menu != null) {
+      // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
+      return menu.names;
+    } else {
+      // 오류 처리 또는 기본값 반환 등을 수행할 수 있습니다.
+      return [];
+    }
+  }
+
+  // getTodayLunchMenu 메소드를 ApiService 클래스 내부에 추가합니다.
+  static Future<List<String>> getTodayLunchMenu() async {
+    // 현재 날짜를 가져옵니다.
+    DateTime now = DateTime.now();
+    // 날짜를 yyyy-MM-dd 형식의 문자열로 변환합니다.
+    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+    // 학생회관의 점심 메뉴를 불러옵니다.
+    Menu? menu = await getDiets(formattedDate, 'LUNCH');
+    if (menu != null) {
+      // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
+      return menu.names;
+    } else {
+      // 오류 처리 또는 기본값 반환 등을 수행할 수 있습니다.
+      return [];
 
   static Future<String?> postAppleLogin(
       String? socialId, String? identityToken, String authorizationCode) async {
