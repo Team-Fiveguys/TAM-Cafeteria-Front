@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:tam_cafeteria_front/models/menu_model.dart';
+// import 'package:tam_cafeteria_front/models/menu_model.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
+import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/screens/notification_send_screen.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
@@ -127,6 +128,39 @@ class _AdminPageState extends State<AdminPage> {
     setState(() {
       currentWaitingStatus = newStatus;
     });
+  }
+
+  Future<List<String>> getTodayBreakfastMenu() async {
+    // 현재 날짜를 가져옵니다.
+    DateTime now = DateTime.now();
+    // 날짜를 yyyy-MM-dd 형식의 문자열로 변환합니다.
+    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+    // 학생회관의 점심 메뉴를 불러옵니다.
+    Diet? menu =
+        await ApiService.getDiets(formattedDate, 'BREAKFAST', cafateriaId);
+    if (menu != null) {
+      // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
+      return menu.names;
+    } else {
+      // 오류 처리 또는 기본값 반환 등을 수행할 수 있습니다.
+      return [];
+    }
+  }
+
+  Future<List<String>> getTodayLunchMenu() async {
+    // 현재 날짜를 가져옵니다.
+    DateTime now = DateTime.now();
+    // 날짜를 yyyy-MM-dd 형식의 문자열로 변환합니다.
+    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
+    // 학생회관의 점심 메뉴를 불러옵니다.
+    Diet? menu = await ApiService.getDiets(formattedDate, 'LUNCH', cafateriaId);
+    if (menu != null) {
+      // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
+      return menu.names;
+    } else {
+      // 오류 처리 또는 기본값 반환 등을 수행할 수 있습니다.
+      return [];
+    }
   }
 
   Future<void> getCongestionStatus() async {
@@ -320,32 +354,41 @@ class _AdminPageState extends State<AdminPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            '메뉴 변동',
-                            style: TextStyle(
-                              color: Color(0xFF282828),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Row(
+                            children: [
+                              const Text(
+                                '메뉴 변동',
+                                style: TextStyle(
+                                  color: Color(0xFF282828),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                dateFormat.format(now),
+                                style: const TextStyle(
+                                  color: Color(0xFF999999),
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(
-                            width: 140,
-                          ),
+
                           //그냥 수정페이지로 갈수 있게?
-                          Text(
-                            dateFormat.format(now),
-                            style: const TextStyle(
-                              color: Color(0xFF999999),
-                              fontSize: 10,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 3,
-                          ),
-                          const Text('메뉴수정'),
-                          const Icon(
-                            Icons.arrow_forward_ios_rounded,
-                            color: Colors.amber,
+                          const Row(
+                            children: [
+                              SizedBox(
+                                width: 3,
+                              ),
+                              Text('메뉴수정'),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                color: Colors.amber,
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -390,7 +433,7 @@ class _AdminPageState extends State<AdminPage> {
                                     ),
                                   ),
                                   child: FutureBuilder<List<String>>(
-                                    future: ApiService.getTodayLunchMenu(),
+                                    future: getTodayBreakfastMenu(),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
                                           ConnectionState.waiting) {
@@ -478,7 +521,7 @@ class _AdminPageState extends State<AdminPage> {
                                     ),
                                   ),
                                   child: FutureBuilder<List<String>>(
-                                    future: ApiService.getTodayLunchMenu(),
+                                    future: getTodayLunchMenu(),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
                                           ConnectionState.waiting) {
