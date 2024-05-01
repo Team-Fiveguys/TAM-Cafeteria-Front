@@ -100,7 +100,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final String? initialToken =
       await TokenManagerWithSP.loadToken(); // SharedPreferences에서 토큰 로드
-  await dotenv.load(fileName: "appKey.env");
+  await dotenv.load(fileName: 'assets/config/.env');
   final yourNativeAppKey = dotenv.env['NATIVE_APP_KEY']!; // .env에서 AppKey 로드
   final yourJavascriptAppKey =
       dotenv.env['JAVASCRIPT_APP_KEY']!; // .env에서 AppKey 로드

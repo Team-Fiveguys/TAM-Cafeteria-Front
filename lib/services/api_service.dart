@@ -507,14 +507,14 @@ class ApiService {
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      // print('ApiService : getCongestionStatus : $jsonResponse');
+      print('ApiService : getCongestionStatus : $jsonResponse');
       if (jsonResponse['result']['congestion'] != null) {
         return jsonResponse['result']['congestion'];
       }
     } else {
       print(jsonResponse);
     }
-    return "선택 안함";
+    return "운영안함";
   }
 
   //
@@ -901,6 +901,72 @@ class ApiService {
 
     if (response.statusCode == 200) {
       print('ApiService : deleteAllNotification : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
+    }
+  }
+
+  static Future<void> postAddCafeteria(
+      String name,
+      String location,
+      bool runBreakfast,
+      bool runLunch,
+      String? breakfastTime,
+      String? lunchTime) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/admin/cafeterias";
+    final url = Uri.http(baseUrl, path);
+    String breakfastStart = "";
+    String breakfastEnd = "";
+    String lunchStart = "";
+    String lunchEnd = "";
+    if (breakfastTime != null) {
+      String start = breakfastTime.split("~")[0];
+
+      breakfastStart = "$start:00"; // hour 변수의 값을 할당합니다.
+
+      String end = breakfastTime.split("~")[1];
+      // second는 0을 할당합니다.
+      breakfastEnd = "$end:00";
+    }
+    if (lunchTime != null) {
+      String start = lunchTime.split("~")[0];
+      // second는 0을 할당합니다.
+      lunchStart = "$start:00";
+
+      String end = lunchTime.split("~")[1];
+      // second는 0을 할당합니다.
+      lunchEnd = "$end:00";
+    }
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode(
+        {
+          "name": name,
+          "location": location,
+          'runBreakfast': runBreakfast,
+          'runLunch': runLunch,
+          "breakfastStartTime": breakfastStart,
+          "breakfastEndTime": breakfastEnd,
+          "lunchStartTime": lunchStart,
+          "lunchEndTime": lunchEnd,
+        },
+      ),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postAddCafeteria : $jsonResponse');
     } else {
       print(jsonResponse);
       // return jsonResponse['message'];
