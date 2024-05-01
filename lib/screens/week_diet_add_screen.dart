@@ -336,7 +336,7 @@ class _WeekDietState extends State<WeekDiet> {
                     ),
                   ),
                   title: const Text(
-                    '금주 식단 등록/수정',
+                    '주간 식단 등록/수정',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
