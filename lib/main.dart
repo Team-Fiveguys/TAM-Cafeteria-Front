@@ -22,6 +22,7 @@ import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -99,9 +100,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final String? initialToken =
       await TokenManagerWithSP.loadToken(); // SharedPreferences에서 토큰 로드
-
-  const yourNativeAppKey = 'bb9947b8eee4ce125f6b8f4c94ed878c';
-  const yourJavascriptAppKey = '46db4c796ce7d09bbbbe0fd7d628ef4b';
+  await dotenv.load(fileName: "appKey.env");
+  final yourNativeAppKey = dotenv.env['NATIVE_APP_KEY']!; // .env에서 AppKey 로드
+  final yourJavascriptAppKey =
+      dotenv.env['JAVASCRIPT_APP_KEY']!; // .env에서 AppKey 로드
   KakaoSdk.init(
     nativeAppKey: yourNativeAppKey,
     javaScriptAppKey: yourJavascriptAppKey,
