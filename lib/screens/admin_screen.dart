@@ -17,7 +17,10 @@ import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class AdminPage extends StatefulWidget {
-  const AdminPage({super.key, required this.testValue});
+  const AdminPage(
+      {super.key, required this.testValue, required this.switchMypage});
+
+  final Function switchMypage;
 
   final int testValue;
 
@@ -246,52 +249,75 @@ class _AdminPageState extends State<AdminPage> {
           ),
         ),
         //명진당 (식당 선택 리스트)
-        Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-          ),
-          alignment: Alignment.centerRight,
-          child: DropdownButton<String>(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 5,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+                onPressed: () => widget.switchMypage(),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Theme.of(context).canvasColor,
+                      size: 15,
+                    ),
+                    Text(
+                      '마이페이지',
+                      style: TextStyle(
+                        color: Theme.of(context).canvasColor,
+                        fontSize: 12,
+                      ),
+                    )
+                  ],
+                )),
+            Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+              ),
+              alignment: Alignment.centerRight,
+              child: DropdownButton<String>(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
+                ),
+                value: selectedItem, // 현재 선택된 항목
+                icon: const Icon(Icons.arrow_drop_down_sharp), // 아래 화살표 아이콘
+                iconSize: 24,
+                elevation: 20,
+                dropdownColor: Colors.white,
+                style: const TextStyle(color: Colors.black), // 텍스트 스타일
+                underline: Container(
+                  height: 2,
+                  color: Colors.black,
+                ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedItem = newValue;
+                    if (newValue == "명진당") {
+                      cafateriaId = 1;
+                    } else if (newValue == "학생회관") {
+                      cafateriaId = 2;
+                    } else {
+                      cafateriaId = 4;
+                    }
+                    cafeteriaName = selectedItem!;
+                  });
+                  print('$selectedItem');
+                },
+                items: <String>[
+                  '명진당',
+                  '학생회관',
+                  '명분이네',
+                ] // 선택 가능한 항목 리스트
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
             ),
-            value: selectedItem, // 현재 선택된 항목
-            icon: const Icon(Icons.arrow_drop_down_sharp), // 아래 화살표 아이콘
-            iconSize: 24,
-            elevation: 20,
-            dropdownColor: Colors.white,
-            style: const TextStyle(color: Colors.black), // 텍스트 스타일
-            underline: Container(
-              height: 2,
-              color: Colors.black,
-            ),
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedItem = newValue;
-                if (newValue == "명진당") {
-                  cafateriaId = 1;
-                } else if (newValue == "학생회관") {
-                  cafateriaId = 2;
-                } else {
-                  cafateriaId = 4;
-                }
-                cafeteriaName = selectedItem!;
-              });
-              print('$selectedItem');
-            },
-            items: <String>[
-              '명진당',
-              '학생회관',
-              '명분이네',
-            ] // 선택 가능한 항목 리스트
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
+          ],
         ),
         //대기열 관리
         Padding(

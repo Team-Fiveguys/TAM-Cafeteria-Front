@@ -168,7 +168,7 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   bool isAdmin = false;
   int _selectedIndex = 0; // 현재 선택된 탭의 인덱스
-
+  bool switchOn = false;
   int testValue = 1;
 
   final ScrollController _scrollController = ScrollController();
@@ -180,6 +180,21 @@ class _AppState extends ConsumerState<App> {
     const MenuBoardScreen(),
     const MyPage(),
   ];
+
+  void switchMypage() {
+    //어드민에서 호출
+    setState(() {
+      switchOn = true;
+      isAdmin = false;
+    });
+  }
+
+  void switchAdminPage() {
+    //마이페이지에서 호출
+    setState(() {
+      switchOn = false;
+    });
+  }
 
   void decodeJwt(String? token) {
     if (token == null) {
@@ -220,8 +235,12 @@ class _AppState extends ConsumerState<App> {
           isAdmin
               ? AdminPage(
                   testValue: testValue,
+                  switchMypage: switchMypage,
                 )
-              : const MyPage(),
+              : MyPage(
+                  switchOn: switchOn,
+                  switchAdmin: switchAdminPage,
+                ),
         ];
       });
     } else {
@@ -234,8 +253,12 @@ class _AppState extends ConsumerState<App> {
           isAdmin
               ? AdminPage(
                   testValue: testValue,
+                  switchMypage: switchMypage,
                 )
-              : const MyPage(),
+              : MyPage(
+                  switchOn: switchOn,
+                  switchAdmin: switchAdminPage,
+                ),
         ];
       });
     }
@@ -264,8 +287,12 @@ class _AppState extends ConsumerState<App> {
       isAdmin
           ? AdminPage(
               testValue: testValue,
+              switchMypage: switchMypage,
             )
-          : const MyPage(),
+          : MyPage(
+              switchOn: switchOn,
+              switchAdmin: switchAdminPage,
+            ),
     ];
   }
 
@@ -320,18 +347,24 @@ class _AppState extends ConsumerState<App> {
   Widget build(BuildContext context) {
     // print('build :: ${ref.watch(loginStateProvider)}');
     final accessToken = ref.watch(accessTokenProvider);
-    decodeJwt(accessToken);
+    if (!switchOn) {
+      decodeJwt(accessToken);
+    }
 
     // print("main App :: build: accessToken $accessToken");
-    // print("main App :: build: isAdmin $isAdmin");
+    print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
       const MenuBoardScreen(),
       isAdmin
           ? AdminPage(
               testValue: testValue,
+              switchMypage: switchMypage,
             )
-          : const MyPage(),
+          : MyPage(
+              switchOn: switchOn,
+              switchAdmin: switchAdminPage,
+            ),
     ];
     return MaterialApp(
       theme: ThemeData(
