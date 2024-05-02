@@ -69,10 +69,9 @@ class _MyPageState extends State<MyPage> {
             ],
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.person,
@@ -83,13 +82,12 @@ class _MyPageState extends State<MyPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '안녕하세요 00님 학식 맛있게 드세요!',
+                        '안녕하세요 00님',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text('닉네임'),
                       Text('sssss@naver.com'),
                       Text('성별'),
                     ],
@@ -111,7 +109,7 @@ class _MyPageState extends State<MyPage> {
               // const SizedBox(height: 20),
               buildButtonWithAlarmDialog(
                 context,
-                '알람 설정',
+                '알림 설정',
               ),
               const SizedBox(height: 20),
               buildButtonWithWithdrawDialog(
@@ -231,9 +229,11 @@ class _MyPageState extends State<MyPage> {
   }
 
   Widget buildButtonWithAlarmDialog(BuildContext context, String buttonText) {
-    bool overallAlarm = true;
+    bool overallAlarm = false;
     bool restaurantAlarm = false;
-    bool featureAlarm = true;
+    bool featureAlarm = false;
+    // bool studentrestaurantAlarm = false;
+    // bool libraryrestaurantAlarm = false;
 
     return Center(
       child: Container(
@@ -280,7 +280,7 @@ class _MyPageState extends State<MyPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('전체 알람'),
+                              const Text('전체 알림'),
                               Switch(
                                 value: overallAlarm,
                                 onChanged: (value) {
@@ -295,7 +295,7 @@ class _MyPageState extends State<MyPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('식당 알람'),
+                              const Text('식당 알림'),
                               Switch(
                                 value: restaurantAlarm,
                                 onChanged: (value) {
@@ -306,6 +306,38 @@ class _MyPageState extends State<MyPage> {
                               ),
                             ],
                           ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Text('명진당'),
+                                  Switch(
+                                    value: restaurantAlarm,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        restaurantAlarm = value;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  const Text('학생회관'),
+                                  Switch(
+                                    value: restaurantAlarm,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        restaurantAlarm = value;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+
                           // Feature-specific alarm toggles
                           const SizedBox(
                             height: 10,
@@ -314,7 +346,7 @@ class _MyPageState extends State<MyPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                '기능 알람',
+                                '기능 알림',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               Row(
@@ -629,9 +661,16 @@ class _MyPageState extends State<MyPage> {
                                                 color: Colors.black54),
                                           ),
                                           Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
                                             children: [
+                                              IconButton(
+                                                icon: const Icon(
+                                                    Icons.arrow_back_ios,
+                                                    color: Colors.black54),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              const SizedBox(width: 5),
                                               Text(
                                                 buttonText,
                                                 style: const TextStyle(
@@ -640,19 +679,10 @@ class _MyPageState extends State<MyPage> {
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
-                                              IconButton(
-                                                icon: const Icon(
-                                                    Icons.arrow_forward_ios,
-                                                    color: Colors.black54),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ),
                                             ],
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 20.0),
                                       Center(
                                         child: SizedBox(
                                           width: 260,

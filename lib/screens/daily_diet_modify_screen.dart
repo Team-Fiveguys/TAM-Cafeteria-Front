@@ -119,6 +119,20 @@
 //     setState(() {});
 //   }
 
+//   // void updateExistingMenuInDiets(String menuName) async {
+//   //   // 수정 함수 호출
+//   //   await ApiService.updateDiets(
+//   //     menuName,
+//   //     selectedDay,
+//   //     "LUNCH",
+//   //     1,
+//   //   );
+
+//   //   setState(() {
+//   //     // 필요한 경우 UI 업데이트
+//   //   });
+//   // }
+
 //   void showDietAddDialog() async {
 //     await showDialog(
 //       context: context,
@@ -518,15 +532,86 @@
 //                                                   ),
 //                                                 ),
 //                                                 IconButton(
-//                                                     onPressed: () {
-//                                                       removeOneMenuInDiets(
-//                                                           menu);
-//                                                     },
-//                                                     icon: const Icon(
-//                                                       Icons.remove,
-//                                                       size: 30,
-//                                                       color: Color(0xFFFFB800),
-//                                                     ))
+//                                                   onPressed: () {
+//                                                     showDialog(
+//                                                       context: context,
+//                                                       builder: (BuildContext
+//                                                           context) {
+//                                                         // 새로운 메뉴 이름을 저장할 변수
+
+//                                                         return AlertDialog(
+//                                                           title: Row(
+//                                                             children: [
+//                                                               const Expanded(
+//                                                                 child:
+//                                                                     SizedBox(),
+//                                                               ),
+//                                                               IconButton(
+//                                                                 icon: const Icon(
+//                                                                     Icons
+//                                                                         .close),
+//                                                                 onPressed: () {
+//                                                                   Navigator.of(
+//                                                                           context)
+//                                                                       .pop(); // 다이얼로그 닫기
+//                                                                 },
+//                                                               ),
+//                                                             ],
+//                                                           ),
+//                                                           content: Column(
+//                                                             mainAxisSize:
+//                                                                 MainAxisSize
+//                                                                     .min,
+//                                                             children: [
+//                                                               TextField(
+//                                                                 decoration:
+//                                                                     const InputDecoration(
+//                                                                   hintText:
+//                                                                       '수정 메뉴 이름',
+//                                                                 ),
+//                                                                 onChanged:
+//                                                                     (value) {
+//                                                                   // 입력된 새로운 메뉴 이름 저장
+//                                                                 },
+//                                                               ),
+//                                                               const SizedBox(
+//                                                                   height: 16),
+//                                                               const Text(
+//                                                                 '이 메뉴를 정말 수정하시겠습니까?',
+//                                                                 textAlign:
+//                                                                     TextAlign
+//                                                                         .center,
+//                                                                 style:
+//                                                                     TextStyle(
+//                                                                   fontWeight:
+//                                                                       FontWeight
+//                                                                           .bold,
+//                                                                 ),
+//                                                               ),
+//                                                               const SizedBox(
+//                                                                   height: 16),
+//                                                               ElevatedButton(
+//                                                                 onPressed: () {
+//                                                                   // 수정된 메뉴 이름(newMenuName)과 기존의 다른 정보들을 이용하여 수정 로직 호출
+//                                                                   // 다이얼로그 닫기
+//                                                                 },
+//                                                                 child:
+//                                                                     const Text(
+//                                                                   '네, 수정하겠습니다.',
+//                                                                 ),
+//                                                               ),
+//                                                             ],
+//                                                           ),
+//                                                         );
+//                                                       },
+//                                                     );
+//                                                   },
+//                                                   icon: const Icon(
+//                                                     Icons.change_circle,
+//                                                     size: 30,
+//                                                     color: Color(0xFFFFB800),
+//                                                   ),
+//                                                 ),
 //                                               ],
 //                                             ),
 //                                           ),
