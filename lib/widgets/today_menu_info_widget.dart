@@ -66,14 +66,14 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   void initState() {
     super.initState();
     cafeteriaId = widget.cafeteriaName == "명진당" ? 1 : 2;
-    _loadDiet(); // 메뉴 데이터 로드
+    // _loadDiet(); // 메뉴 데이터 로드
   }
 
-  void _loadDiet() async {
-    final menus = await getDietsInMain(
-        widget.cafeteriaName == "학생회관" ? 'BREAKFAST' : 'LUNCH');
-    lunchMenuList = menus; // 상태 업데이트
-  }
+  // void _loadDiet() async {
+  //   final menus = await getDietsInMain(
+  //       widget.cafeteriaName == "학생회관" ? 'BREAKFAST' : 'LUNCH');
+  //   lunchMenuList = menus; // 상태 업데이트
+  // }
 
   List<String> getMealOptions() {
     // widget.cafeteriaName 값을 확인하여 해당 식당에 대한 옵션 목록을 반환합니다.
@@ -430,13 +430,13 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                       Text(
                         '메뉴 사진 보기',
                         style: TextStyle(
-                          color: Theme.of(context).primaryColorLight,
+                          color: Theme.of(context).primaryColor,
                           fontSize: 8,
                         ),
                       ),
                       Icon(
                         Icons.arrow_forward_ios_rounded,
-                        color: Theme.of(context).primaryColorLight,
+                        color: Theme.of(context).cardColor,
                       ),
                     ],
                   ),
