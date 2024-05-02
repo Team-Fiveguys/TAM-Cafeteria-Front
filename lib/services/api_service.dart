@@ -292,7 +292,7 @@ class ApiService {
     // 디코드된 문자열을 JSON으로 파싱합니다.
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
     if (response.statusCode == 200) {
-      print('putDiets : $jsonResponse');
+      print('deleteDiet : $jsonResponse');
     } else {
       print('putDiets : $jsonResponse');
     }
@@ -581,7 +581,8 @@ class ApiService {
 
     if (response.statusCode == 200) {
       // print('ApiService : getCongestionStatus : $jsonResponse');
-      print('${jsonResponse['result']['dayOff']}');
+      print(
+          'ApiService : pathDayOffStatus ${jsonResponse['result']['dayOff']}');
     } else {
       print(jsonResponse);
     }
@@ -921,8 +922,8 @@ class ApiService {
     String breakfastEnd = "";
     String lunchStart = "";
     String lunchEnd = "";
-    if (breakfastTime != null) {
-      String start = breakfastTime.split("~")[0];
+    if (runBreakfast) {
+      String start = breakfastTime!.split("~")[0];
 
       breakfastStart = "$start:00"; // hour 변수의 값을 할당합니다.
 
@@ -930,8 +931,8 @@ class ApiService {
       // second는 0을 할당합니다.
       breakfastEnd = "$end:00";
     }
-    if (lunchTime != null) {
-      String start = lunchTime.split("~")[0];
+    if (runLunch) {
+      String start = lunchTime!.split("~")[0];
       // second는 0을 할당합니다.
       lunchStart = "$start:00";
 

@@ -103,6 +103,8 @@ class _AdminPageState extends State<AdminPage> {
                   setState(() {
                     selectedMeals = newValue; // 선택된 항목을 상태로 저장
                   });
+                  Navigator.of(context).pop(); // 이미지를 선택한 후 팝업 창을 닫습니다.
+                  _showImagePicker();
                 },
                 items: <String>[
                   '중식',
@@ -267,13 +269,21 @@ class _AdminPageState extends State<AdminPage> {
             onChanged: (String? newValue) {
               setState(() {
                 selectedItem = newValue;
-                cafateriaId = newValue == "명진당" ? 1 : 2;
+                if (newValue == "명진당") {
+                  cafateriaId = 1;
+                } else if (newValue == "학생회관") {
+                  cafateriaId = 2;
+                } else {
+                  cafateriaId = 4;
+                }
+                cafeteriaName = selectedItem!;
               });
               print('$selectedItem');
             },
             items: <String>[
               '명진당',
               '학생회관',
+              '명분이네',
             ] // 선택 가능한 항목 리스트
                 .map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(

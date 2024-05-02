@@ -17,12 +17,14 @@ class MainScreen extends StatelessWidget {
     final Map<String, dynamic> myongjin = {
       'name': '명진당',
       'lunch_hour': "11:30 ~ 14:30",
+      'id': 1,
     };
 
     final Map<String, dynamic> hakgwan = {
       'name': '학생회관',
       'breakfast_hour': "08:00 ~ 09:00",
       'lunch_hour': "10:00 ~ 15:00",
+      'id': 2,
     };
 
     Cafeteria cafeteriaMyongjin = Cafeteria.fromJson(myongjin);

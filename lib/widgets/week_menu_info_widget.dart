@@ -94,7 +94,7 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
     Map<String?, Diet> totalWeek = {};
     try {
       final thisWeek = await ApiService.getWeekDiets(
-        1,
+        widget.cafeteria.id,
         today.year,
         thisWeekMap["month"]!,
         thisWeekMap["weekOfMonth"]!,
@@ -102,7 +102,7 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
       );
 
       final nextWeek = await ApiService.getWeekDiets(
-        1,
+        widget.cafeteria.id,
         todayAfterSevenDays.year,
         nextWeekMap["month"]!,
         nextWeekMap["weekOfMonth"]!,
@@ -110,7 +110,7 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
       );
 
       final lastWeek = await ApiService.getWeekDiets(
-        1,
+        widget.cafeteria.id,
         todayBeforeSevenDays.year,
         lastWeekMap["month"]!,
         lastWeekMap["weekOfMonth"]!,
@@ -321,11 +321,10 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
                                         ),
                                       )
                                     else if (weekDietBreakfastList[date]!
-                                        .names
-                                        .isEmpty)
+                                        .dayOff)
                                       const Center(
                                         child: Text(
-                                          "미등록",
+                                          "미운영",
                                           style: TextStyle(
                                             color: Color(0xFF5A5A5A),
                                             fontSize: 15,
@@ -333,10 +332,11 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
                                         ),
                                       )
                                     else if (weekDietBreakfastList[date]!
-                                        .dayOff)
+                                        .names
+                                        .isEmpty)
                                       const Center(
                                         child: Text(
-                                          "미운영",
+                                          "미등록",
                                           style: TextStyle(
                                             color: Color(0xFF5A5A5A),
                                             fontSize: 15,
@@ -523,22 +523,22 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
                                         ),
                                       ),
                                     )
-                                  else if (weekDietLunchList[date]!
-                                      .names
-                                      .isEmpty)
+                                  else if (weekDietLunchList[date]!.dayOff)
                                     const Center(
                                       child: Text(
-                                        "미등록",
+                                        "미운영",
                                         style: TextStyle(
                                           color: Color(0xFF5A5A5A),
                                           fontSize: 15,
                                         ),
                                       ),
                                     )
-                                  else if (weekDietLunchList[date]!.dayOff)
+                                  else if (weekDietLunchList[date]!
+                                      .names
+                                      .isEmpty)
                                     const Center(
                                       child: Text(
-                                        "미운영",
+                                        "미등록",
                                         style: TextStyle(
                                           color: Color(0xFF5A5A5A),
                                           fontSize: 15,

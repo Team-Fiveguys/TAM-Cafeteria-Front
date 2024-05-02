@@ -41,6 +41,7 @@ class _WeekDietState extends State<WeekDiet> {
   Map<String, List<String>> weekMenus = {};
   Map<String, bool?> operationalDays = {};
   String? searchText;
+  String selectedMeals = "LUNCH";
   late String selectedDay;
   int selectedDayIndex = DateTime.now().weekday - 1;
 
@@ -57,13 +58,17 @@ class _WeekDietState extends State<WeekDiet> {
 
     menuNameController.addListener(filteringMenus);
     selectedDay = dateFormat.format(now);
+    initDietList();
+  }
+
+  void initDietList() {
     DateTime currentDate = firstDay;
     while (currentDate.isBefore(lastDay.add(const Duration(days: 1)))) {
       // lastDay를 포함하기 위해 1일 추가
       String formattedDate = dateFormat.format(currentDate);
       Future.delayed(Duration.zero, () async {
         Diet? todayDiets = await ApiService.getDiets(
-            formattedDate, "LUNCH", widget.cafeteriaId);
+            formattedDate, selectedMeals, widget.cafeteriaId);
         if (todayDiets != null) {
           weekMenus[formattedDate] = todayDiets.names;
           operationalDays[formattedDate] = todayDiets.dayOff;
@@ -95,16 +100,17 @@ class _WeekDietState extends State<WeekDiet> {
   }
 
   void registeringDiets() async {
-    await ApiService.postDiets(weekMenus[selectedDay]!, selectedDay, "LUNCH", 1,
-        operationalDays[selectedDay]!);
+    await ApiService.postDiets(weekMenus[selectedDay]!, selectedDay,
+        selectedMeals, widget.cafeteriaId, operationalDays[selectedDay]!);
+    setState(() {});
   }
 
   void registeringOneMenuInDiets(String menuName) async {
     await ApiService.putDiets(
       menuName,
       selectedDay,
-      "LUNCH",
-      1,
+      selectedMeals,
+      widget.cafeteriaId,
     );
     setState(() {});
   }
@@ -113,8 +119,8 @@ class _WeekDietState extends State<WeekDiet> {
     await ApiService.deleteDiets(
       menuName,
       selectedDay,
-      "LUNCH",
-      1,
+      selectedMeals,
+      widget.cafeteriaId,
     );
     setState(() {});
   }
@@ -274,8 +280,9 @@ class _WeekDietState extends State<WeekDiet> {
   }
 
   Future<void> loadDiets() async {
-    Diet? todayDiets =
-        await ApiService.getDiets(selectedDay, "LUNCH", widget.cafeteriaId);
+    initDietList();
+    Diet? todayDiets = await ApiService.getDiets(
+        selectedDay, selectedMeals, widget.cafeteriaId);
 
     if (todayDiets != null) {
       weekMenus[selectedDay] = todayDiets.names;
@@ -367,10 +374,17 @@ class _WeekDietState extends State<WeekDiet> {
                   height: 2,
                   color: Colors.black,
                 ),
-                onChanged: (String? newValue) {
+                onChanged: (String? newValue) async {
                   setState(() {
+                    if (newValue == "중식") {
+                      selectedMeals = "LUNCH";
+                    }
+                    if (newValue == "조식") {
+                      selectedMeals = "BREAKFAST";
+                    }
                     selectedItem = newValue; // 선택된 항목을 상태로 저장
                   });
+                  await loadDiets();
                 },
                 items: <String>[
                   '중식',
@@ -439,7 +453,7 @@ class _WeekDietState extends State<WeekDiet> {
                             value: operationalDays[selectedDay] ?? false,
                             onChanged: (bool? value) async {
                               await ApiService.patchDayOffStatus(
-                                  1, selectedDay);
+                                  widget.cafeteriaId, selectedDay);
                               setState(() {
                                 operationalDays[selectedDay] = value;
                               });
@@ -489,34 +503,35 @@ class _WeekDietState extends State<WeekDiet> {
                     const SizedBox(
                       height: 30,
                     ),
-                    Container(
-                      decoration: operationalDays[selectedDay] ?? false
-                          ? null
-                          : const BoxDecoration(), // 배경 조건에 따른 처리
-                      foregroundDecoration:
-                          operationalDays[selectedDay] ?? false
-                              ? const BoxDecoration(
-                                  color: Colors.grey,
-                                  backgroundBlendMode: BlendMode.saturation,
-                                )
-                              : null,
-                      child: AbsorbPointer(
-                        absorbing: operationalDays[selectedDay] ?? false,
-                        child: Column(
-                          children: [
-                            FutureBuilder<void>(
-                              future: loadDiets(), // 미리 정의한 비동기 함수
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  // 데이터 로딩 중인 경우
-                                  return const CircularProgressIndicator(); // 로딩 인디케이터 표시
-                                } else if (snapshot.hasError) {
-                                  // 에러 발생 시
-                                  return Text('Error: ${snapshot.error}');
-                                } else {
-                                  // 데이터 로딩 완료
-                                  return ListView.builder(
+                    FutureBuilder<void>(
+                      future: loadDiets(), // 미리 정의한 비동기 함수
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          // 데이터 로딩 중인 경우
+                          return const CircularProgressIndicator(); // 로딩 인디케이터 표시
+                        } else if (snapshot.hasError) {
+                          // 에러 발생 시
+                          return Text('Error: ${snapshot.error}');
+                        } else {
+                          // 데이터 로딩 완료
+                          return Container(
+                            decoration: operationalDays[selectedDay] ?? false
+                                ? null
+                                : const BoxDecoration(), // 배경 조건에 따른 처리
+                            foregroundDecoration:
+                                operationalDays[selectedDay] ?? false
+                                    ? const BoxDecoration(
+                                        color: Colors.grey,
+                                        backgroundBlendMode:
+                                            BlendMode.saturation,
+                                      )
+                                    : null,
+                            child: AbsorbPointer(
+                              absorbing: operationalDays[selectedDay] ?? false,
+                              child: Column(
+                                children: [
+                                  ListView.builder(
                                     itemCount:
                                         weekMenus[selectedDay]?.length ?? 0,
                                     itemBuilder: (context, index) {
@@ -573,39 +588,40 @@ class _WeekDietState extends State<WeekDiet> {
                                     shrinkWrap: true, // 여기에 추가
                                     physics:
                                         const ClampingScrollPhysics(), // 스크롤 동작을 추가로 제어할 수 있음
-                                  );
-                                }
-                              },
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFD9D9D9),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              height: 50,
-                              child: TextButton(
-                                //TODO: 금주 식단 등록 추가 버튼 구현
-                                onPressed: () => showDietAddDialog(),
-                                child: const Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add,
-                                      color: Color(0xFF5A5A5A),
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFD9D9D9),
+                                      borderRadius: BorderRadius.circular(15),
                                     ),
-                                    Text(
-                                      '추가',
-                                      style: TextStyle(
-                                        color: Color(0xFF5A5A5A),
+                                    height: 50,
+                                    child: TextButton(
+                                      //TODO: 금주 식단 등록 추가 버튼 구현
+                                      onPressed: () => showDietAddDialog(),
+                                      child: const Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.add,
+                                            color: Color(0xFF5A5A5A),
+                                          ),
+                                          Text(
+                                            '추가',
+                                            style: TextStyle(
+                                              color: Color(0xFF5A5A5A),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
