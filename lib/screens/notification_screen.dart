@@ -192,7 +192,11 @@ class _NotificationCenterState extends State<NotificationCenter> {
                                 horizontal: 15, vertical: 5),
                             child: ListTile(
                               title: Text(data[index].title),
-                              subtitle: Text(data[index].content),
+                              subtitle: Text(
+                                data[index].content,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                               onTap: () {
                                 if (!data[index].isRead) {
                                   readNotification(data[index]);
