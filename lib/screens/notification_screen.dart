@@ -94,7 +94,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        scrolledUnderElevation: 3,
+        scrolledUnderElevation: 0,
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
         title: Row(
@@ -123,6 +123,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: AppBar(
+                scrolledUnderElevation: 0,
                 backgroundColor: Theme.of(context).canvasColor,
                 automaticallyImplyLeading: false, // 기본 뒤로 가기 버튼을 비활성화
                 leading: IconButton(
