@@ -10,6 +10,29 @@ import 'package:tam_cafeteria_front/provider/token_manager.dart';
 // import 'package:tam_cafeteria_front/models/menu_model.dart';
 import 'package:intl/intl.dart';
 
+class User {
+  final int id;
+  final String name;
+  final String email;
+  final String role;
+
+  User({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.role,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'],
+      name: json['name'] ?? '', // null이면 빈 문자열로 처리
+      email: json['email'] ?? '', // null이면 빈 문자열로 처리
+      role: json['role'] ?? '', // null이면 빈 문자열로 처리
+    );
+  }
+}
+
 class ApiService {
   static const String baseUrl = "dev.tam-cafeteria.site";
 
@@ -297,6 +320,42 @@ class ApiService {
       print('putDiets : $jsonResponse');
     }
   }
+
+//식단수정 c
+  // static Future<void> updateDiets(
+  //     String menuName, String date, String meals, int cafeteriaId) async {
+  //   final accessToken = await TokenManagerWithSP.loadToken();
+  //   final path = "/admin/diets/menus/$cafeteriaId"; // 업데이트할 메뉴의 ID를 엔드포인트에 추가
+  //   final url = Uri.http(baseUrl, path);
+
+  //   final response = await http.put(
+  //     // PUT 메소드 사용
+  //     url,
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
+  //       'Authorization': 'Bearer $accessToken',
+  //     },
+  //     body: jsonEncode(
+  //       {
+  //         'menuName': menuName,
+  //         'localDate': date,
+  //         'meals': meals,
+  //         // 'cafeteriaId': '$cafeteriaId', // PUT 메소드에서는 엔드포인트에 ID를 추가하므로 body에서 제거
+  //       },
+  //     ),
+  //   );
+
+  //   final String decodedResponse = utf8.decode(response.bodyBytes);
+
+  //   // 디코드된 문자열을 JSON으로 파싱합니다.
+  //   final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+  //   if (response.statusCode == 200) {
+  //     print('updateDiets : $jsonResponse');
+  //   } else {
+  //     print('updateDiets : $jsonResponse');
+  //   }
+  // }
 
   static Future<String?> postKakaoLogin(
       String idToken, String accessToken) async {
@@ -852,7 +911,7 @@ class ApiService {
       print('ApiService : deleteAllNotification : $jsonResponse');
     } else {
       print(jsonResponse);
-      // return jsonResponse['message'];
+      return jsonResponse['message'];
     }
   }
 
@@ -882,7 +941,98 @@ class ApiService {
     }
   }
 
-  static Future<void> readAllNotification() async {
+  ///admin user 조회 api 연동
+
+  static Future<List<User>> getUsers(int page) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      if (accessToken == null) {
+        throw Exception('Access token is null');
+      }
+      final url = Uri.http(baseUrl, '/admin', {'page': page.toString()});
+
+      final response = await http.get(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken', // 여기에서 중복된 'Bearer'를 제거했습니다.
+      });
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data =
+            jsonDecode(utf8.decode(response.bodyBytes));
+        List<User> users = List<User>.from(
+            data["result"]["userList"].map((x) => User.fromJson(x)));
+        return users;
+      } else {
+        print(
+            'API Service: getUsers: Error with status code: ${response.statusCode}');
+        throw Exception('Failed to load users');
+      }
+    } catch (e) {
+      print('API Service: getUsers: Exception caught: $e');
+      rethrow; // 예외를 다시 던지도록 변경
+    }
+  }
+
+  static Future<void> revokeAdminRole(int userId) async {
+    try {
+      final url = Uri.http(baseUrl, '/admin/users/$userId/role/user');
+      final accessToken =
+          await TokenManagerWithSP.loadToken(); // 토큰 로드 로직 구현 필요
+      if (accessToken == null) {
+        throw Exception('Access token is null');
+      }
+
+      final response = await http.patch(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      });
+
+      if (response.statusCode == 200) {
+        print('관리자 권한 회수 성공: ${response.body}');
+      } else {
+        print('관리자 권한 회수 실패: ${response.statusCode}');
+        throw Exception('Failed to revoke admin role');
+      }
+    } catch (e) {
+      print('관리자 권한 회수 중 예외 발생: $e');
+      rethrow;
+    }
+  }
+
+  static Future<bool> grantAdminRole(int userId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final url = Uri.http(baseUrl, '/admin/users/$userId/role/admin');
+
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    // 응답 상태 코드와 응답 본문을 출력합니다.
+    // 응답 상태 코드와 응답 본문을 출력합니다.
+    print('Status code: ${response.statusCode}');
+    print('Response body: ${utf8.decode(response.bodyBytes)}');
+
+    if (response.statusCode == 200) {
+      final responseBody = json.decode(utf8.decode(response.bodyBytes));
+
+      // 'isSuccess' 키의 존재 여부와 값을 확인합니다.
+      if (responseBody.containsKey('isSuccess') && responseBody['isSuccess']) {
+        return true;
+      } else {
+        // 'isSuccess'가 false이거나 키가 없는 경우, 실패 사유를 로그로 남깁니다.
+        print(
+            'Failed to grant admin role. Response: ${utf8.decode(response.bodyBytes)}');
+        return false;
+      }
+    } else {
+      // 오류 처리를 위한 예외를 던집니다. 응답 상태 코드를 포함시켜 구체적인 오류 사유를 알 수 있게 합니다.
+      throw Exception(
+          'Failed to grant admin role. Status code: ${response.statusCode}');
+      static Future<void> readAllNotification() async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notifications/read";
     final url = Uri.http(baseUrl, path);
@@ -941,9 +1091,8 @@ class ApiService {
       lunchEnd = "$end:00";
     }
 
-    final response = await http.post(
-      url,
-      headers: {
+    final response = await http.post(url,
+                                      headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
       },

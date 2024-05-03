@@ -482,6 +482,7 @@ class _AppState extends ConsumerState<App> {
               return IconButton(
                 onPressed: () async {
                   // ApiService.delAutoLogin();
+
                   bool result = await Navigator.push(
                       context,
                       MaterialPageRoute(

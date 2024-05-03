@@ -9,8 +9,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
+import 'package:tam_cafeteria_front/screens/daily_diet_modify_screen.dart';
 import 'package:tam_cafeteria_front/screens/add_cafeteria_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_send_screen.dart';
+import 'package:tam_cafeteria_front/screens/user_manage_screen.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
@@ -464,10 +466,23 @@ class _AdminPageState extends State<AdminPage> {
                                 width: 3,
                               ),
                               Text('메뉴수정'),
-                              Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                color: Colors.amber,
-                              ),
+                              // IconButton(
+                              //   onPressed: () {
+                              //     Navigator.push(
+                              //       context,
+                              //       MaterialPageRoute(
+                              //         builder: (context) => dailydiet(
+                              //           cafeteriaName: cafeteriaName,
+                              //           cafeteriaId: cafateriaId,
+                              //         ),
+                              //       ),
+                              //     );
+                              //   },
+                              //   icon: const Icon(
+                              //     Icons.arrow_forward_ios_rounded,
+                              //     color: Colors.amber,
+                              //   ),
+                              // )
                             ],
                           ),
                         ],
@@ -544,7 +559,7 @@ class _AdminPageState extends State<AdminPage> {
                                                   const EdgeInsets.fromLTRB(
                                                       10, 0, 0, 0),
                                               child: Text(
-                                                '.${snapshot.data![index]}',
+                                                snapshot.data![index],
                                                 style: const TextStyle(
                                                     fontSize: 16),
                                               ),
@@ -647,7 +662,15 @@ class _AdminPageState extends State<AdminPage> {
                             ],
                           ),
                         ),
-                      )
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Center(
+                          child: Text(
+                            '품절',
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1020,7 +1043,14 @@ class _AdminPageState extends State<AdminPage> {
                           horizontal: 10,
                         ),
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const UserManageScreen(),
+                              ),
+                            );
+                          },
                           child: const Center(
                             child: Text(
                               "유저 관리",
