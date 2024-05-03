@@ -42,6 +42,7 @@ class _AdminPageState extends State<AdminPage> {
   int? currentWaitingTime = 5;
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
+  bool _isSoldOut = false;
 
   final List<String> menuList = [
     "마제소바",
@@ -575,6 +576,14 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                         ),
                       ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Center(
+                          child: Text(
+                            '품절',
+                          ),
+                        ),
+                      ),
                       const SizedBox(
                         height: 15,
                       ),
@@ -663,13 +672,29 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Center(
-                          child: Text(
-                            '품절',
-                          ),
-                        ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final service = ApiService();
+                          final success = await ApiService.toggleMealSoldOut(
+                              117, '2024-05-04', !_isSoldOut);
+
+                          if (success) {
+                            setState(() {
+                              _isSoldOut = !_isSoldOut; // 상태 업데이트
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(_isSoldOut
+                                      ? "식사가 품절로 변경되었습니다."
+                                      : "식사가 다시 판매 가능합니다.")),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("상태 변경에 실패했습니다.")),
+                            );
+                          }
+                        },
+                        child: Text(_isSoldOut ? "품절 해제" : "품절 설정"),
                       ),
                     ],
                   ),
