@@ -26,9 +26,27 @@ class _WaitingIndicatorState extends State<WaitingIndicator> {
   void setWaitingStatus() async {
     print(
         'WaitingIndicator : setWaitingStatus : waitingStatus ${widget.waitingStatus}');
-    await ApiService.postCongestionStatus(
-        widget.waitingStatus, widget.cafeteriaId); // TODO : cafeteriaId 수정하기
-    widget.onStatusChanged(widget.waitingStatus);
+    try {
+      await ApiService.postCongestionStatus(
+          widget.waitingStatus, widget.cafeteriaId); // TODO : cafeteriaId 수정하기
+      widget.onStatusChanged(widget.waitingStatus);
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   @override

@@ -29,7 +29,21 @@ class _UserManageScreenState extends State<UserManageScreen> {
       _refreshUserList(); // Refresh user list after revoking admin role.
     } catch (e) {
       // Error handling
-      print("Failed to revoke admin role: $e");
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -40,7 +54,21 @@ class _UserManageScreenState extends State<UserManageScreen> {
       _refreshUserList(); // Refresh user list after granting admin role.
     } catch (e) {
       // Error handling
-      print("Failed to grant admin role: $e");
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
     }
   }
 

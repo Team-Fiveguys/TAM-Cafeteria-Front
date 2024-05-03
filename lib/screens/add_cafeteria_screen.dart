@@ -28,13 +28,31 @@ class _AddCafeteriaState extends State<AddCafeteria> {
     } else if (!isRunLunch && lunchController.text.isEmpty) {
       msg = "중식 운영시간을 입력하세요";
     } else {
-      await ApiService.postAddCafeteria(
-          nameController.text,
-          locationController.text,
-          !isRunBreakfast,
-          !isRunLunch,
-          breakfastController.text,
-          lunchController.text);
+      try {
+        await ApiService.postAddCafeteria(
+            nameController.text,
+            locationController.text,
+            !isRunBreakfast,
+            !isRunLunch,
+            breakfastController.text,
+            lunchController.text);
+      } on Exception catch (e) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('에러'),
+            content: Text(e.toString()),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('확인'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      }
     }
     showModalBottomSheet(
       context: context,

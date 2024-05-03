@@ -34,7 +34,7 @@ class _AdminPageState extends State<AdminPage> {
   final DateTime now = DateTime.now();
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
 
-  int cafateriaId = 1;
+  int cafeteriaId = 1;
   String serverWaitingStatus = '여유';
   String? selectedItem = '명진당';
   String? selectedMeals = '중식';
@@ -156,13 +156,54 @@ class _AdminPageState extends State<AdminPage> {
               child: const Text("취소"),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_image != null) {
                   final meals = selectedMeals == "중식" ? "LUNCH" : "BREAKFAST";
-                  ApiService.postDietPhoto(
-                      _image!, dateFormat.format(now), meals, cafateriaId);
+                  try {
+                    await ApiService.postDietPhoto(
+                        _image!, dateFormat.format(now), meals, cafeteriaId);
+                  } on Exception catch (e) {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('에러'),
+                        content: Text(e.toString()),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('확인'),
+                            onPressed: () {
+                              Navigator.of(ctx).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+                  try {
+                    await ApiService.postNotificationToSubscriber(
+                        "[$cafeteriaName] [$selectedMeals] 사진 등록",
+                        "$cafeteriaName $selectedMeals 사진 등록되었어요. 확인해보세요!",
+                        cafeteriaId.toString(),
+                        "diet_photo_enroll");
+                  } on Exception catch (e) {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('에러'),
+                        content: Text(e.toString()),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('확인'),
+                            onPressed: () {
+                              Navigator.of(ctx).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                 }
-                // 이미지 업로드 로직 추가
+
                 Navigator.of(context).pop();
               },
               child: const Text("등록"),
@@ -186,7 +227,7 @@ class _AdminPageState extends State<AdminPage> {
     String formattedDate = DateFormat('yyyy-MM-dd').format(now);
     // 학생회관의 점심 메뉴를 불러옵니다.
     Diet? menu =
-        await ApiService.getDiets(formattedDate, 'BREAKFAST', cafateriaId);
+        await ApiService.getDiets(formattedDate, 'BREAKFAST', cafeteriaId);
     if (menu != null) {
       // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
       return menu.names;
@@ -202,7 +243,7 @@ class _AdminPageState extends State<AdminPage> {
     // 날짜를 yyyy-MM-dd 형식의 문자열로 변환합니다.
     String formattedDate = DateFormat('yyyy-MM-dd').format(now);
     // 학생회관의 점심 메뉴를 불러옵니다.
-    Diet? menu = await ApiService.getDiets(formattedDate, 'LUNCH', cafateriaId);
+    Diet? menu = await ApiService.getDiets(formattedDate, 'LUNCH', cafeteriaId);
     if (menu != null) {
       // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
       return menu.names;
@@ -213,7 +254,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Future<void> getCongestionStatus() async {
-    serverWaitingStatus = await ApiService.getCongestionStatus(cafateriaId);
+    serverWaitingStatus = await ApiService.getCongestionStatus(cafeteriaId);
     currentWaitingStatus = serverWaitingStatus;
     print(currentWaitingStatus);
   }
@@ -296,11 +337,11 @@ class _AdminPageState extends State<AdminPage> {
                   setState(() {
                     selectedItem = newValue;
                     if (newValue == "명진당") {
-                      cafateriaId = 1;
+                      cafeteriaId = 1;
                     } else if (newValue == "학생회관") {
-                      cafateriaId = 2;
+                      cafeteriaId = 2;
                     } else {
-                      cafateriaId = 4;
+                      cafeteriaId = 4;
                     }
                     cafeteriaName = selectedItem!;
                   });
@@ -398,7 +439,7 @@ class _AdminPageState extends State<AdminPage> {
                                         imageUrl: waitingImageList[i],
                                         waitingStatus: waitingStatusList[i],
                                         currentStatus: currentWaitingStatus,
-                                        cafeteriaId: cafateriaId,
+                                        cafeteriaId: cafeteriaId,
                                         onStatusChanged: updateCurrentStatus,
                                       ),
                                   ],
@@ -854,7 +895,7 @@ class _AdminPageState extends State<AdminPage> {
                               MaterialPageRoute(
                                 builder: (context) => WeekDiet(
                                   cafeteriaName: cafeteriaName,
-                                  cafeteriaId: cafateriaId,
+                                  cafeteriaId: cafeteriaId,
                                 ),
                               ),
                             );
@@ -904,7 +945,7 @@ class _AdminPageState extends State<AdminPage> {
                         ),
                         child: TextButton(
                           onPressed: () =>
-                              showMenuInput(context, setState, cafateriaId),
+                              showMenuInput(context, setState, cafeteriaId),
                           child: const Center(
                               child: Text(
                             "메뉴 입력",
@@ -948,7 +989,8 @@ class _AdminPageState extends State<AdminPage> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => NotificationSendPage(
-                                  cafeteriaId: cafateriaId,
+                                  cafeteriaId: cafeteriaId,
+                                  cafeteriaName: cafeteriaName,
                                 ),
                               ),
                             );

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
@@ -100,6 +101,7 @@ class ApiService {
       // 실패한 경우의 응답 본문을 읽습니다.
       String responseText = await response.stream.bytesToString();
       print('Response body: $responseText');
+      throw Exception(jsonDecode(responseText)['message']);
     }
   }
 
@@ -128,6 +130,7 @@ class ApiService {
       print('postMenu : $jsonResponse');
     } else {
       print('postMenu : $jsonResponse');
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -253,6 +256,7 @@ class ApiService {
       print('postDiets : $jsonResponse');
     } else {
       print('postDiets : $jsonResponse');
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -287,6 +291,7 @@ class ApiService {
       print('putDiets : $jsonResponse');
     } else {
       print('putDiets : $jsonResponse');
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -318,6 +323,7 @@ class ApiService {
       print('deleteDiet : $jsonResponse');
     } else {
       print('putDiets : $jsonResponse');
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -388,8 +394,8 @@ class ApiService {
     } else {
       print(jsonResponse);
       // return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
-    throw Error();
   }
 
   static Future<String> postEmailAuthCode(String email) async {
@@ -419,7 +425,7 @@ class ApiService {
       return 'true';
     } else {
       print(jsonResponse);
-      return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -474,14 +480,17 @@ class ApiService {
             'authCode': authcode,
           },
         ));
+    final String decodedResponse = utf8.decode(response.bodyBytes);
 
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
     if (response.statusCode == 200) {
       print(response.body);
       return true;
     } else {
       print(response.body);
+      throw Exception(jsonResponse['message']);
     }
-    throw Error();
   }
 
   static Future<String?> postSignIn(String email, String password) async {
@@ -513,8 +522,8 @@ class ApiService {
     } else {
       print(jsonResponse);
       // return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
-    throw Error();
   }
 
   static Future<void> postCongestionStatus(
@@ -544,6 +553,7 @@ class ApiService {
     } else {
       print(jsonResponse);
       // return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -610,8 +620,8 @@ class ApiService {
     } else {
       print(jsonResponse);
       // return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
-    throw Error();
   }
 
   static Future<void> patchDayOffStatus(int cafeteriaId, String date) async {
@@ -644,6 +654,7 @@ class ApiService {
           'ApiService : pathDayOffStatus ${jsonResponse['result']['dayOff']}');
     } else {
       print(jsonResponse);
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -730,7 +741,7 @@ class ApiService {
       print('ApiService : postNotificationToSubscriber : $jsonResponse');
     } else {
       print(jsonResponse);
-      // return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -762,7 +773,7 @@ class ApiService {
       print('ApiService : postNotificationSet : $jsonResponse');
     } else {
       print(jsonResponse);
-      // return jsonResponse['message'];
+      // throw Exception(jsonResponse['message']);
     }
   }
 
@@ -793,7 +804,7 @@ class ApiService {
       print('ApiService : postNotificationToAllUser : $jsonResponse');
     } else {
       print(jsonResponse);
-      // return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -859,7 +870,7 @@ class ApiService {
       print('ApiService : postNotificationToServer : $jsonResponse');
     } else {
       print(jsonResponse);
-      // return jsonResponse['message'];
+      // throw Exception(jsonResponse['message']);
     }
   }
 
@@ -885,7 +896,7 @@ class ApiService {
       print('ApiService : postNotificationToServer : $jsonResponse');
     } else {
       print(jsonResponse);
-      // return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -911,7 +922,7 @@ class ApiService {
       print('ApiService : deleteAllNotification : $jsonResponse');
     } else {
       print(jsonResponse);
-      return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -937,7 +948,6 @@ class ApiService {
       print('ApiService : deleteAllNotification : $jsonResponse');
     } else {
       print(jsonResponse);
-      // return jsonResponse['message'];
     }
   }
 
@@ -1054,10 +1064,10 @@ class ApiService {
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      print('ApiService : deleteAllNotification : $jsonResponse');
+      print('ApiService : readAllNotification : $jsonResponse');
     } else {
       print(jsonResponse);
-      // return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -1123,7 +1133,7 @@ class ApiService {
       print('ApiService : postAddCafeteria : $jsonResponse');
     } else {
       print(jsonResponse);
-      // return jsonResponse['message'];
+      throw Exception(jsonResponse['message']);
     }
   }
 }

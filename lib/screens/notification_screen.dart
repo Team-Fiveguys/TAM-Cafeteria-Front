@@ -16,11 +16,47 @@ class _NotificationCenterState extends State<NotificationCenter> {
       ApiService.getNotifications();
 
   void deleteNotification(String id) async {
-    await ApiService.deleteOneNotification(id);
+    try {
+      await ApiService.deleteOneNotification(id);
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Future<void> deleteAllNotification() async {
-    await ApiService.deleteAllNotification();
+    try {
+      await ApiService.deleteAllNotification();
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void readNotification(NotificationModel notification) async {
@@ -131,10 +167,28 @@ class _NotificationCenterState extends State<NotificationCenter> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    await deleteAllNotification();
-                    setState(() {
-                      notificationList = ApiService.getNotifications();
-                    });
+                    try {
+                      await deleteAllNotification();
+                      setState(() {
+                        notificationList = ApiService.getNotifications();
+                      });
+                    } on Exception catch (e) {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('에러'),
+                          content: Text(e.toString()),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('확인'),
+                              onPressed: () {
+                                Navigator.of(ctx).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                   },
                   child: Text(
                     '전부 삭제',

@@ -100,29 +100,83 @@ class _WeekDietState extends State<WeekDiet> {
   }
 
   void registeringDiets() async {
-    await ApiService.postDiets(weekMenus[selectedDay]!, selectedDay,
-        selectedMeals, widget.cafeteriaId, operationalDays[selectedDay]!);
-    setState(() {});
+    try {
+      await ApiService.postDiets(weekMenus[selectedDay]!, selectedDay,
+          selectedMeals, widget.cafeteriaId, operationalDays[selectedDay]!);
+      setState(() {});
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void registeringOneMenuInDiets(String menuName) async {
-    await ApiService.putDiets(
-      menuName,
-      selectedDay,
-      selectedMeals,
-      widget.cafeteriaId,
-    );
-    setState(() {});
+    try {
+      await ApiService.putDiets(
+        menuName,
+        selectedDay,
+        selectedMeals,
+        widget.cafeteriaId,
+      );
+      setState(() {});
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void removeOneMenuInDiets(String menuName) async {
-    await ApiService.deleteDiets(
-      menuName,
-      selectedDay,
-      selectedMeals,
-      widget.cafeteriaId,
-    );
-    setState(() {});
+    try {
+      await ApiService.deleteDiets(
+        menuName,
+        selectedDay,
+        selectedMeals,
+        widget.cafeteriaId,
+      );
+      setState(() {});
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void showDietAddDialog() async {
@@ -452,11 +506,29 @@ class _WeekDietState extends State<WeekDiet> {
                             activeColor: Colors.blue,
                             value: operationalDays[selectedDay] ?? false,
                             onChanged: (bool? value) async {
-                              await ApiService.patchDayOffStatus(
-                                  widget.cafeteriaId, selectedDay);
-                              setState(() {
-                                operationalDays[selectedDay] = value;
-                              });
+                              try {
+                                await ApiService.patchDayOffStatus(
+                                    widget.cafeteriaId, selectedDay);
+                                setState(() {
+                                  operationalDays[selectedDay] = value;
+                                });
+                              } on Exception catch (e) {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('에러'),
+                                    content: Text(e.toString()),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('확인'),
+                                        onPressed: () {
+                                          Navigator.of(ctx).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
                             },
                           ),
                         ),
