@@ -315,7 +315,7 @@ class ApiService {
     // 디코드된 문자열을 JSON으로 파싱합니다.
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
     if (response.statusCode == 200) {
-      print('putDiets : $jsonResponse');
+      print('deleteDiet : $jsonResponse');
     } else {
       print('putDiets : $jsonResponse');
     }
@@ -566,14 +566,14 @@ class ApiService {
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      // print('ApiService : getCongestionStatus : $jsonResponse');
+      print('ApiService : getCongestionStatus : $jsonResponse');
       if (jsonResponse['result']['congestion'] != null) {
         return jsonResponse['result']['congestion'];
       }
     } else {
       print(jsonResponse);
     }
-    return "선택 안함";
+    return "운영안함";
   }
 
   //
@@ -640,7 +640,8 @@ class ApiService {
 
     if (response.statusCode == 200) {
       // print('ApiService : getCongestionStatus : $jsonResponse');
-      print('${jsonResponse['result']['dayOff']}');
+      print(
+          'ApiService : pathDayOffStatus ${jsonResponse['result']['dayOff']}');
     } else {
       print(jsonResponse);
     }
@@ -1031,6 +1032,94 @@ class ApiService {
       // 오류 처리를 위한 예외를 던집니다. 응답 상태 코드를 포함시켜 구체적인 오류 사유를 알 수 있게 합니다.
       throw Exception(
           'Failed to grant admin role. Status code: ${response.statusCode}');
+      static Future<void> readAllNotification() async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/users/notifications/read";
+    final url = Uri.http(baseUrl, path);
+
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : deleteAllNotification : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
+    }
+  }
+
+  static Future<void> postAddCafeteria(
+      String name,
+      String location,
+      bool runBreakfast,
+      bool runLunch,
+      String? breakfastTime,
+      String? lunchTime) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/admin/cafeterias";
+    final url = Uri.http(baseUrl, path);
+    String breakfastStart = "";
+    String breakfastEnd = "";
+    String lunchStart = "";
+    String lunchEnd = "";
+    if (runBreakfast) {
+      String start = breakfastTime!.split("~")[0];
+
+      breakfastStart = "$start:00"; // hour 변수의 값을 할당합니다.
+
+      String end = breakfastTime.split("~")[1];
+      // second는 0을 할당합니다.
+      breakfastEnd = "$end:00";
+    }
+    if (runLunch) {
+      String start = lunchTime!.split("~")[0];
+      // second는 0을 할당합니다.
+      lunchStart = "$start:00";
+
+      String end = lunchTime.split("~")[1];
+      // second는 0을 할당합니다.
+      lunchEnd = "$end:00";
+    }
+
+    final response = await http.post(url,
+                                      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode(
+        {
+          "name": name,
+          "location": location,
+          'runBreakfast': runBreakfast,
+          'runLunch': runLunch,
+          "breakfastStartTime": breakfastStart,
+          "breakfastEndTime": breakfastEnd,
+          "lunchStartTime": lunchStart,
+          "lunchEndTime": lunchEnd,
+        },
+      ),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postAddCafeteria : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      // return jsonResponse['message'];
     }
   }
 }

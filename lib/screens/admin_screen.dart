@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/screens/daily_diet_modify_screen.dart';
+import 'package:tam_cafeteria_front/screens/add_cafeteria_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_send_screen.dart';
 import 'package:tam_cafeteria_front/screens/user_manage_screen.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
@@ -18,7 +19,12 @@ import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class AdminPage extends StatefulWidget {
-  const AdminPage({super.key});
+  const AdminPage(
+      {super.key, required this.testValue, required this.switchMypage});
+
+  final Function switchMypage;
+
+  final int testValue;
 
   @override
   State<AdminPage> createState() => _AdminPageState();
@@ -31,6 +37,7 @@ class _AdminPageState extends State<AdminPage> {
   int cafateriaId = 1;
   String serverWaitingStatus = '여유';
   String? selectedItem = '명진당';
+  String? selectedMeals = '중식';
   String currentWaitingStatus = '선택 안함';
   int? currentWaitingTime = 5;
   XFile? _image;
@@ -59,6 +66,7 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   final List<String> waitingStatusList = [
+    // "운영안함",
     "여유",
     "보통",
     "혼잡",
@@ -66,6 +74,7 @@ class _AdminPageState extends State<AdminPage> {
   ];
 
   final List<String> waitingImageList = [
+    // 'assets/images/dayOff.png'
     'assets/images/easy.png',
     'assets/images/normal.png',
     'assets/images/busy.png',
@@ -77,7 +86,44 @@ class _AdminPageState extends State<AdminPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("이미지 업로드"),
+          title: Row(
+            children: [
+              const Text("이미지 업로드"),
+              DropdownButton<String>(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
+                ),
+                value: selectedMeals, // 현재 선택된 항목
+                icon: const Icon(Icons.arrow_drop_down_sharp), // 아래 화살표 아이콘
+                iconSize: 24,
+                elevation: 20,
+                dropdownColor: Colors.white,
+                style: const TextStyle(color: Colors.black), // 텍스트 스타일
+                underline: Container(
+                  height: 2,
+                  color: Colors.black,
+                ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedMeals = newValue; // 선택된 항목을 상태로 저장
+                  });
+                  Navigator.of(context).pop(); // 이미지를 선택한 후 팝업 창을 닫습니다.
+                  _showImagePicker();
+                },
+                items: <String>[
+                  '중식',
+                  '조식',
+                ] // 선택 가능한 항목 리스트
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -112,8 +158,9 @@ class _AdminPageState extends State<AdminPage> {
             TextButton(
               onPressed: () {
                 if (_image != null) {
+                  final meals = selectedMeals == "중식" ? "LUNCH" : "BREAKFAST";
                   ApiService.postDietPhoto(
-                      _image!, dateFormat.format(now), "LUNCH", cafateriaId);
+                      _image!, dateFormat.format(now), meals, cafateriaId);
                 }
                 // 이미지 업로드 로직 추가
                 Navigator.of(context).pop();
@@ -174,6 +221,7 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     print("admin screen : build");
+    print('testValue in admin ${widget.testValue}');
     return Column(
       children: [
         //관리자 페이지
@@ -203,43 +251,75 @@ class _AdminPageState extends State<AdminPage> {
           ),
         ),
         //명진당 (식당 선택 리스트)
-        Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-          ),
-          alignment: Alignment.centerRight,
-          child: DropdownButton<String>(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 20,
-              vertical: 5,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+                onPressed: () => widget.switchMypage(),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Theme.of(context).canvasColor,
+                      size: 15,
+                    ),
+                    Text(
+                      '마이페이지',
+                      style: TextStyle(
+                        color: Theme.of(context).canvasColor,
+                        fontSize: 12,
+                      ),
+                    )
+                  ],
+                )),
+            Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+              ),
+              alignment: Alignment.centerRight,
+              child: DropdownButton<String>(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 5,
+                ),
+                value: selectedItem, // 현재 선택된 항목
+                icon: const Icon(Icons.arrow_drop_down_sharp), // 아래 화살표 아이콘
+                iconSize: 24,
+                elevation: 20,
+                dropdownColor: Colors.white,
+                style: const TextStyle(color: Colors.black), // 텍스트 스타일
+                underline: Container(
+                  height: 2,
+                  color: Colors.black,
+                ),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedItem = newValue;
+                    if (newValue == "명진당") {
+                      cafateriaId = 1;
+                    } else if (newValue == "학생회관") {
+                      cafateriaId = 2;
+                    } else {
+                      cafateriaId = 4;
+                    }
+                    cafeteriaName = selectedItem!;
+                  });
+                  print('$selectedItem');
+                },
+                items: <String>[
+                  '명진당',
+                  '학생회관',
+                  '명분이네',
+                ] // 선택 가능한 항목 리스트
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
             ),
-            value: selectedItem, // 현재 선택된 항목
-            icon: const Icon(Icons.arrow_drop_down_sharp), // 아래 화살표 아이콘
-            iconSize: 24,
-            elevation: 20,
-            dropdownColor: Colors.white,
-            style: const TextStyle(color: Colors.black), // 텍스트 스타일
-            underline: Container(
-              height: 2,
-              color: Colors.black,
-            ),
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedItem = newValue; // 선택된 항목을 상태로 저장
-              });
-              print('$selectedItem');
-            },
-            items: <String>[
-              '명진당',
-              '학생회관',
-            ] // 선택 가능한 항목 리스트
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          ),
+          ],
         ),
         //대기열 관리
         Padding(
@@ -600,109 +680,109 @@ class _AdminPageState extends State<AdminPage> {
                 height: 30,
               ),
               //식수 관리
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadiusDirectional.circular(20),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3), // 그림자 위치 조정
-                    ),
-                  ],
-                ),
-                height: 220,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: 10,
-                  ),
-                  child: Column(
-                    children: [
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            '식수 관리',
-                            style: TextStyle(
-                              color: Color(0xFF282828),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0xFF999999),
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              height: 130,
-                              child: const Column(
-                                children: [
-                                  Text(
-                                    '예상 식수',
-                                    style: TextStyle(
-                                      color: Color(0xFF999999),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0xFF999999),
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              height: 130,
-                              child: const Column(
-                                children: [
-                                  Text(
-                                    '실제 식수',
-                                    style: TextStyle(
-                                      color: Color(0xFF999999),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Container(
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadiusDirectional.circular(20),
+              //     color: Colors.white,
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.grey.withOpacity(0.5),
+              //         spreadRadius: 1,
+              //         blurRadius: 5,
+              //         offset: const Offset(0, 3), // 그림자 위치 조정
+              //       ),
+              //     ],
+              //   ),
+              //   height: 220,
+              //   child: Padding(
+              //     padding: const EdgeInsets.symmetric(
+              //       vertical: 15,
+              //       horizontal: 10,
+              //     ),
+              //     child: Column(
+              //       children: [
+              //         const Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //           children: [
+              //             Text(
+              //               '식수 관리',
+              //               style: TextStyle(
+              //                 color: Color(0xFF282828),
+              //                 fontSize: 20,
+              //                 fontWeight: FontWeight.bold,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //         const SizedBox(
+              //           height: 15,
+              //         ),
+              //         Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //           children: [
+              //             Expanded(
+              //               child: Container(
+              //                 padding: const EdgeInsets.all(10),
+              //                 decoration: BoxDecoration(
+              //                   border: Border.all(
+              //                     color: const Color(0xFF999999),
+              //                     width: 1,
+              //                   ),
+              //                   borderRadius: BorderRadius.circular(20),
+              //                 ),
+              //                 height: 130,
+              //                 child: const Column(
+              //                   children: [
+              //                     Text(
+              //                       '예상 식수',
+              //                       style: TextStyle(
+              //                         color: Color(0xFF999999),
+              //                         fontSize: 20,
+              //                         fontWeight: FontWeight.bold,
+              //                       ),
+              //                     ),
+              //                   ],
+              //                 ),
+              //               ),
+              //             ),
+              //             const SizedBox(
+              //               width: 10,
+              //             ),
+              //             Expanded(
+              //               child: Container(
+              //                 padding: const EdgeInsets.all(10),
+              //                 decoration: BoxDecoration(
+              //                   border: Border.all(
+              //                     color: const Color(0xFF999999),
+              //                     width: 1,
+              //                   ),
+              //                   borderRadius: BorderRadius.circular(20),
+              //                 ),
+              //                 height: 130,
+              //                 child: const Column(
+              //                   children: [
+              //                     Text(
+              //                       '실제 식수',
+              //                       style: TextStyle(
+              //                         color: Color(0xFF999999),
+              //                         fontSize: 20,
+              //                         fontWeight: FontWeight.bold,
+              //                       ),
+              //                     ),
+              //                   ],
+              //                 ),
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
 
-              const SizedBox(
-                height: 30,
-              ),
+              // const SizedBox(
+              //   height: 30,
+              // ),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -917,7 +997,14 @@ class _AdminPageState extends State<AdminPage> {
                           horizontal: 10,
                         ),
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AddCafeteria(),
+                              ),
+                            );
+                          },
                           child: const Center(
                               child: Text(
                             "식당 등록",

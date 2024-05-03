@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
@@ -26,17 +27,27 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
 
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
   int cafeteriaId = 1;
-  bool isSoldOut = false;
-  bool isDayOff = false;
+  bool lunchIsSoldOut = false;
+  bool lunchIsDayOff = false;
+  bool breakfastIsSoldOut = false;
+  bool breakfastIsDayOff = false;
+  bool myeongBunIsSoldOut = false;
+  bool myeongBunIsDayOff = false;
   String currentCongestionStatus = "보통";
 
-  String? imageUrl;
+  String? lunchImageUrl;
+  String? breakfastImageUrl;
+
+  String? selectedMeals = "중식";
 
   ValueNotifier<int> refreshNotifier = ValueNotifier(0);
 
-  List<String> menuList = [];
+  List<String> myeongBunMenuList = [];
+  List<String> lunchMenuList = [];
+  List<String> breakfastMenuList = [];
 
   final Map<String, String> congestionImage = {
+    '운영안함': 'assets/images/dayOff.png',
     '여유': 'assets/images/easy.png',
     '보통': 'assets/images/normal.png',
     '혼잡': 'assets/images/busy.png',
@@ -44,6 +55,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   };
 
   final Map<String, String> congestionTime = {
+    '운영안함': '',
     '여유': '약 0~5분',
     '보통': '약 5분~10분',
     '혼잡': '약 10분~20분',
@@ -53,13 +65,25 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   @override
   void initState() {
     super.initState();
-    _loadDiet(); // 메뉴 데이터 로드
+    cafeteriaId = widget.cafeteriaName == "명진당" ? 1 : 2;
+    // _loadDiet(); // 메뉴 데이터 로드
   }
 
-  void _loadDiet() async {
-    final menus = await getDietsInMain(
-        widget.cafeteriaName == "학생회관" ? 'BREAKFAST' : 'LUNCH');
-    menuList = menus; // 상태 업데이트
+  // void _loadDiet() async {
+  //   final menus = await getDietsInMain(
+  //       widget.cafeteriaName == "학생회관" ? 'BREAKFAST' : 'LUNCH');
+  //   lunchMenuList = menus; // 상태 업데이트
+  // }
+
+  List<String> getMealOptions() {
+    // widget.cafeteriaName 값을 확인하여 해당 식당에 대한 옵션 목록을 반환합니다.
+    if (widget.cafeteriaName == '명진당') {
+      return ['중식']; // '명진당'은 '중식'만 표시
+    } else if (widget.cafeteriaName == '학생회관') {
+      return ['중식', '조식']; // '학생회관'은 '조식'과 '중식' 모두 표시
+    } else {
+      return []; // 다른 값이 있을 경우 빈 리스트를 반환
+    }
   }
 
   void popUpMenuImage(BuildContext context) {
@@ -77,6 +101,12 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
             horizontalPadding = 10;
           }
         }
+        final isSoldOut =
+            selectedMeals == "조식" ? breakfastIsSoldOut : lunchIsSoldOut;
+        final isDayOff =
+            selectedMeals == "조식" ? breakfastIsDayOff : lunchIsDayOff;
+        final menuList =
+            selectedMeals == "조식" ? breakfastMenuList : lunchMenuList;
 
         return Dialog(
           child: SizedBox(
@@ -86,20 +116,56 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
               padding: EdgeInsets.all(allPading),
               child: Column(
                 children: <Widget>[
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: const Icon(Icons.close), // X 아이콘
-                      onPressed: () {
-                        Navigator.of(context).pop(); // 팝업 닫기
-                      },
-                    ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start, // 자식을 상단 정렬
+                    children: [
+                      DropdownButton<String>(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 5,
+                        ),
+                        value: selectedMeals, // 현재 선택된 항목
+                        icon: const Icon(
+                            Icons.arrow_drop_down_sharp), // 아래 화살표 아이콘
+                        iconSize: 24,
+                        elevation: 20,
+                        dropdownColor: Colors.white,
+                        style: const TextStyle(color: Colors.black), // 텍스트 스타일
+                        underline: Container(
+                          height: 2,
+                          color: Colors.black,
+                        ),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedMeals = newValue; // 선택된 항목을 상태로 저장
+                          });
+                          Navigator.of(context).pop();
+                          popUpMenuImage(context);
+                        },
+                        items: getMealOptions()
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                      const Spacer(), // `DropdownButton` 양쪽에 `Spacer`를 배치하여 중앙에 위치시킴
+                      IconButton(
+                        icon: const Icon(Icons.close), // X 아이콘
+                        onPressed: () {
+                          Navigator.of(context).pop(); // 팝업 닫기
+                        },
+                      ),
+                    ],
                   ),
                   SizedBox(
                     width: 270,
                     height: 210,
                     child: Image.network(
-                      imageUrl ?? "",
+                      selectedMeals == "중식"
+                          ? lunchImageUrl ?? ""
+                          : breakfastImageUrl ?? "",
                       loadingBuilder: (BuildContext context, Widget child,
                           ImageChunkEvent? loadingProgress) {
                         if (loadingProgress == null) return child;
@@ -132,7 +198,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                     ),
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 10,
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(
@@ -281,8 +347,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   }
 
   Future<void> getCongestionStatus() async {
-    currentCongestionStatus = await ApiService.getCongestionStatus(
-        widget.cafeteriaName == "명진당" ? 1 : 1); // TODO : 학생회관 Id 설정하기
+    currentCongestionStatus = await ApiService.getCongestionStatus(cafeteriaId);
   }
 
   Future<List<String>> getDietsInMain(String meals) async {
@@ -293,10 +358,33 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
     );
     print('today menu info : getDietsInMain $meals,${menus?.names}');
     if (menus != null) {
-      imageUrl = menus.imageUrl;
-      menuList = menus.names;
-      isSoldOut = menus.soldOut;
-      isDayOff = menus.dayOff;
+      if (meals == "BREAKFAST") {
+        breakfastImageUrl = menus.imageUrl;
+        breakfastMenuList = menus.names;
+        breakfastIsSoldOut = menus.soldOut;
+        breakfastIsDayOff = menus.dayOff;
+      } else {
+        lunchImageUrl = menus.imageUrl;
+        lunchMenuList = menus.names;
+        lunchIsSoldOut = menus.soldOut;
+        lunchIsDayOff = menus.dayOff;
+      }
+      return menus.names;
+    }
+    return [];
+  }
+
+  Future<List<String>> getDietsMyeongBun() async {
+    Diet? menus = await ApiService.getDiets(
+      dateFormat.format(now),
+      "LUNCH",
+      4,
+    );
+    if (menus != null) {
+      myeongBunMenuList = menus.names;
+      myeongBunIsSoldOut = menus.soldOut;
+      myeongBunIsDayOff = menus.dayOff;
+
       return menus.names;
     }
     return [];
@@ -304,7 +392,6 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
 
   @override
   Widget build(BuildContext context) {
-    print('today menu info : build ');
     return Container(
       height: 230,
       decoration: BoxDecoration(
@@ -343,13 +430,13 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                       Text(
                         '메뉴 사진 보기',
                         style: TextStyle(
-                          color: Theme.of(context).primaryColorLight,
+                          color: Theme.of(context).primaryColor,
                           fontSize: 8,
                         ),
                       ),
                       Icon(
                         Icons.arrow_forward_ios_rounded,
-                        color: Theme.of(context).primaryColorLight,
+                        color: Theme.of(context).cardColor,
                       ),
                     ],
                   ),
@@ -387,6 +474,15 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                     ? 'BREAKFAST'
                                     : 'LUNCH'),
                             builder: (context, snapshot) {
+                              final isSoldOut = widget.cafeteriaName == "학생회관"
+                                  ? breakfastIsSoldOut
+                                  : lunchIsSoldOut;
+                              final isDayOff = widget.cafeteriaName == "학생회관"
+                                  ? breakfastIsDayOff
+                                  : lunchIsDayOff;
+                              final menuList = widget.cafeteriaName == "학생회관"
+                                  ? breakfastMenuList
+                                  : lunchMenuList;
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return const Center(
@@ -455,6 +551,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                   width: 8,
                 ),
                 Expanded(
+                  //TODO : 명분이네 작업하기
                   flex: 1,
                   child: Column(
                     children: [
@@ -480,11 +577,19 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                         child: Center(
                           child: SingleChildScrollView(
                             child: FutureBuilder(
-                              future: getDietsInMain(
-                                  widget.cafeteriaName == "학생회관"
-                                      ? 'BREAKFAST'
-                                      : 'LUNCH'),
+                              future: widget.cafeteriaName == "학생회관"
+                                  ? getDietsInMain('LUNCH')
+                                  : getDietsMyeongBun(),
                               builder: (context, snapshot) {
+                                final isSoldOut = widget.cafeteriaName == "학생회관"
+                                    ? lunchIsSoldOut
+                                    : myeongBunIsSoldOut;
+                                final isDayOff = widget.cafeteriaName == "학생회관"
+                                    ? lunchIsDayOff
+                                    : myeongBunIsDayOff;
+                                final menuList = widget.cafeteriaName == "학생회관"
+                                    ? lunchMenuList
+                                    : myeongBunMenuList;
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return const Center(
@@ -585,6 +690,11 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                         return const Center(
                                           child: CircularProgressIndicator(),
                                         );
+                                      } else if (congestionImage[
+                                              currentCongestionStatus] ==
+                                          null) {
+                                        // 에러 발생 시
+                                        return Text('Error: ${snapshot.error}');
                                       } else if (snapshot.hasError) {
                                         // 에러 발생 시
                                         return Text('Error: ${snapshot.error}');
@@ -602,14 +712,15 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                                 fit: BoxFit.contain,
                                               ),
                                             ),
-                                            // 널 체크
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
                                             Text(
                                               currentCongestionStatus,
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
-
                                             Text(
                                               congestionTime[
                                                   currentCongestionStatus]!,

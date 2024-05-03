@@ -47,6 +47,13 @@ class _NotificationCenterState extends State<NotificationCenter> {
     );
   }
 
+  void readAllNoti() async {
+    await ApiService.readAllNotification();
+    setState(() {
+      notificationList = ApiService.getNotifications();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,7 +92,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
                 leading: IconButton(
                   // leading 위치에 아이콘 버튼 배치
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pop(context, true);
                   },
                   icon: const Icon(
                     Icons.arrow_back_ios,
@@ -112,7 +119,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
               children: [
                 TextButton(
                   onPressed: () {
-                    // 전부 읽기 로직 구현
+                    readAllNoti();
                   },
                   child: Text(
                     '전부 읽기',
@@ -185,7 +192,11 @@ class _NotificationCenterState extends State<NotificationCenter> {
                                 horizontal: 15, vertical: 5),
                             child: ListTile(
                               title: Text(data[index].title),
-                              subtitle: Text(data[index].content),
+                              subtitle: Text(
+                                data[index].content,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                               onTap: () {
                                 if (!data[index].isRead) {
                                   readNotification(data[index]);

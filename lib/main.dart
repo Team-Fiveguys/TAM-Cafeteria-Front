@@ -21,6 +21,8 @@ import 'package:tam_cafeteria_front/screens/my_page_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -98,9 +100,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final String? initialToken =
       await TokenManagerWithSP.loadToken(); // SharedPreferences에서 토큰 로드
-
-  const yourNativeAppKey = 'bb9947b8eee4ce125f6b8f4c94ed878c';
-  const yourJavascriptAppKey = '46db4c796ce7d09bbbbe0fd7d628ef4b';
+  await dotenv.load(fileName: 'assets/config/.env');
+  final yourNativeAppKey = dotenv.env['NATIVE_APP_KEY']!; // .env에서 AppKey 로드
+  final yourJavascriptAppKey =
+      dotenv.env['JAVASCRIPT_APP_KEY']!; // .env에서 AppKey 로드
   KakaoSdk.init(
     nativeAppKey: yourNativeAppKey,
     javaScriptAppKey: yourJavascriptAppKey,
@@ -165,6 +168,8 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   bool isAdmin = false;
   int _selectedIndex = 0; // 현재 선택된 탭의 인덱스
+  bool switchOn = false;
+  int testValue = 1;
 
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _isVisible = ValueNotifier(true);
@@ -175,6 +180,21 @@ class _AppState extends ConsumerState<App> {
     const MenuBoardScreen(),
     const MyPage(),
   ];
+
+  void switchMypage() {
+    //어드민에서 호출
+    setState(() {
+      switchOn = true;
+      isAdmin = false;
+    });
+  }
+
+  void switchAdminPage() {
+    //마이페이지에서 호출
+    setState(() {
+      switchOn = false;
+    });
+  }
 
   void decodeJwt(String? token) {
     if (token == null) {
@@ -212,7 +232,15 @@ class _AppState extends ConsumerState<App> {
         _widgetOptions = <Widget>[
           MainScreen(),
           const MenuBoardScreen(),
-          isAdmin ? const AdminPage() : const MyPage(),
+          isAdmin
+              ? AdminPage(
+                  testValue: testValue,
+                  switchMypage: switchMypage,
+                )
+              : MyPage(
+                  switchOn: switchOn,
+                  switchAdmin: switchAdminPage,
+                ),
         ];
       });
     } else {
@@ -222,7 +250,15 @@ class _AppState extends ConsumerState<App> {
         _widgetOptions = <Widget>[
           MainScreen(),
           const MenuBoardScreen(),
-          isAdmin ? const AdminPage() : const MyPage(),
+          isAdmin
+              ? AdminPage(
+                  testValue: testValue,
+                  switchMypage: switchMypage,
+                )
+              : MyPage(
+                  switchOn: switchOn,
+                  switchAdmin: switchAdminPage,
+                ),
         ];
       });
     }
@@ -248,16 +284,17 @@ class _AppState extends ConsumerState<App> {
     _widgetOptions = <Widget>[
       MainScreen(),
       const MenuBoardScreen(),
-      isAdmin ? const AdminPage() : const MyPage(),
+      isAdmin
+          ? AdminPage(
+              testValue: testValue,
+              switchMypage: switchMypage,
+            )
+          : MyPage(
+              switchOn: switchOn,
+              switchAdmin: switchAdminPage,
+            ),
     ];
   }
-
-  // void _permissionWithNotification() async {
-  //   if (await Permission.notification.isDenied &&
-  //       !await Permission.notification.isPermanentlyDenied) {
-  //     await [Permission.notification].request();
-  //   }
-  // }
 
   @override
   void dispose() {
@@ -290,19 +327,44 @@ class _AppState extends ConsumerState<App> {
     }
   }
 
+  Future<int> getNotificationLength() async {
+    final isLoggedIn = ref.watch(loginStateProvider);
+    if (isLoggedIn) {
+      final list = await ApiService.getNotifications();
+      int count = 0;
+      for (var noti in list) {
+        if (!noti.isRead) {
+          count++;
+        }
+      }
+      return count;
+    }
+    return 0;
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     // print('build :: ${ref.watch(loginStateProvider)}');
     final accessToken = ref.watch(accessTokenProvider);
-    decodeJwt(accessToken);
+    if (!switchOn) {
+      decodeJwt(accessToken);
+    }
 
     // print("main App :: build: accessToken $accessToken");
-    // print("main App :: build: isAdmin $isAdmin");
+    print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
       const MenuBoardScreen(),
-      isAdmin ? const AdminPage() : const MyPage(),
+      isAdmin
+          ? AdminPage(
+              testValue: testValue,
+              switchMypage: switchMypage,
+            )
+          : MyPage(
+              switchOn: switchOn,
+              switchAdmin: switchAdminPage,
+            ),
     ];
     return MaterialApp(
       theme: ThemeData(
@@ -402,8 +464,15 @@ class _AppState extends ConsumerState<App> {
               return IconButton(
                 icon: const Icon(Icons.menu),
                 onPressed: () {
-                  FirebaseMessaging.instance.subscribeToTopic('1');
-                  FirebaseMessaging.instance.subscribeToTopic('today_diet');
+                  // FirebaseMessaging.instance.subscribeToTopic('1');
+                  // FirebaseMessaging.instance.subscribeToTopic('today_diet');
+                  ref.read(loginStateProvider.notifier).logout();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(), //알람 버튼
+                    ),
+                  );
                 }, // 아무것도 하지 않음
               );
             }),
@@ -411,17 +480,42 @@ class _AppState extends ConsumerState<App> {
           actions: [
             Builder(builder: (context) {
               return IconButton(
-                onPressed: () {
+                onPressed: () async {
                   // ApiService.delAutoLogin();
-                  ref.read(loginStateProvider.notifier).logout();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationCenter(), //알람 버튼
-                    ),
-                  );
+
+                  bool result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const NotificationCenter()));
+
+                  if (result == true) {
+                    // 필요한 상태 업데이트나 리렌더링 로직
+                    setState(() {
+                      getNotificationLength();
+                    });
+                  }
                 },
-                icon: const Icon(Icons.notifications),
+                icon: FutureBuilder(
+                    future: getNotificationLength(),
+                    builder: (context, snapshot) {
+                      if (snapshot.data == null || snapshot.data == 0) {
+                        return const Icon(Icons.notifications);
+                      }
+                      return badges.Badge(
+                        badgeContent: Text(
+                          snapshot.data!.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                          ),
+                        ),
+                        position: badges.BadgePosition.topEnd(
+                          top: -8,
+                          end: -3,
+                        ),
+                        child: const Icon(Icons.notifications),
+                      );
+                    }),
               );
             }),
           ],
@@ -443,7 +537,9 @@ class _AppState extends ConsumerState<App> {
         ),
         body: RefreshIndicator(
           onRefresh: () async {
-            setState(() {});
+            setState(() {
+              testValue = 2;
+            });
           },
           child: SingleChildScrollView(
             controller: _scrollController,

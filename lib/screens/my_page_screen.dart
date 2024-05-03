@@ -8,7 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 
 class MyPage extends StatefulWidget {
-  const MyPage({Key? key}) : super(key: key);
+  const MyPage({Key? key, this.switchOn, this.switchAdmin}) : super(key: key);
+
+  final bool? switchOn;
+  final Function? switchAdmin;
 
   @override
   State<MyPage> createState() => _MyPageState();
@@ -20,9 +23,7 @@ class _MyPageState extends State<MyPage> {
   bool featureAlarm = false;
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     return Column(
       children: [
         Container(
@@ -48,9 +49,30 @@ class _MyPageState extends State<MyPage> {
             ),
           ),
         ),
-        const SizedBox(
-          height: 30,
-        ),
+        if (widget.switchOn ?? false)
+          TextButton(
+            onPressed: () => widget.switchAdmin!(),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Theme.of(context).canvasColor,
+                  size: 15,
+                ),
+                Text(
+                  '관리자 페이지',
+                  style: TextStyle(
+                    color: Theme.of(context).canvasColor,
+                    fontSize: 12,
+                  ),
+                )
+              ],
+            ),
+          )
+        else
+          const SizedBox(
+            height: 30,
+          ),
         Container(
           margin: const EdgeInsets.all(11),
           padding: const EdgeInsets.all(35),
@@ -133,8 +155,12 @@ class _MyPageState extends State<MyPage> {
                           // 로그아웃 버튼을 눌렀을 때 실행되는 로그아웃 기능
                           ref.read(loginStateProvider.notifier).logout();
                           // 로그아웃 후의 추가 작업
-                          Navigator.pushReplacementNamed(
-                              context, '/loginScreen'); // 로그인 화면으로 이동
+                          // Navigator.pushReplacementNamed(
+                          //     context, '/loginScreen'); // 로그인 화면으로 이동
+                          if (widget.switchOn ?? false) {
+                            widget.switchAdmin!();
+                          }
+                          setState(() {});
                         },
                         child: const Text(
                           '로그아웃',
