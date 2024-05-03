@@ -1032,7 +1032,10 @@ class ApiService {
       // 오류 처리를 위한 예외를 던집니다. 응답 상태 코드를 포함시켜 구체적인 오류 사유를 알 수 있게 합니다.
       throw Exception(
           'Failed to grant admin role. Status code: ${response.statusCode}');
-      static Future<void> readAllNotification() async {
+    }
+  }
+
+  static Future<void> readAllNotification() async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notifications/read";
     final url = Uri.http(baseUrl, path);
@@ -1091,8 +1094,9 @@ class ApiService {
       lunchEnd = "$end:00";
     }
 
-    final response = await http.post(url,
-                                      headers: {
+    final response = await http.post(
+      url,
+      headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
       },
