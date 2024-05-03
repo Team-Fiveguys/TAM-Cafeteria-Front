@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
+import 'package:tam_cafeteria_front/models/cafeteria_model.dart';
 import 'package:tam_cafeteria_front/models/notification_model.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
 // import 'package:tam_cafeteria_front/models/menu_model.dart';
@@ -514,7 +515,7 @@ class ApiService {
       print(jsonResponse);
       // return jsonResponse['message'];
     }
-    throw Error();
+    return null;
   }
 
   static Future<void> postCongestionStatus(
@@ -1126,4 +1127,40 @@ class ApiService {
       // return jsonResponse['message'];
     }
   }
+
+  //1. 식당을 조회해서 이제 그 유저관리 페이지 다이얼로그에 띄운다.
+  Future<List<Cafeteria>> getCafeteriaList() async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken(); // 토큰 관리 로직 추가
+      final Uri url = Uri.http(baseUrl, '/admin/me/cafeterias');
+
+      print('Fetching cafeteria list from: $url'); // API 호출하는 URL 출력
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      print('Response status code: ${response.statusCode}'); // 응답 상태 코드 출력
+      print(
+          'Response body: ${utf8.decode(response.bodyBytes)}'); // UTF-8로 디코딩된 응답 본문 출력
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes))['result']
+            ['queryCafeteriaList'] as List<dynamic>;
+        return data.map((item) => Cafeteria.fromJson(item)).toList();
+      } else {
+        throw Exception('Failed to fetch cafeteria list');
+      }
+    } catch (e) {
+      print('Error fetching cafeteria list: $e'); // 오류 발생 시 출력
+      rethrow;
+    }
+  }
 }
+  //2. 로그인 화면에서 입력했는데 잘못된 아이디거나 여튼 뭐 일 때 잘못된 아이디나 비밀번호 입니다. 출력하는 거
+  
+

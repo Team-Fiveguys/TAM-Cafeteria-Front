@@ -165,50 +165,60 @@ class LoginScreen extends ConsumerWidget {
     bool success = false;
     String msg = "";
     String? accessToken;
-    if (_idController.text.isEmpty) {
+
+    // 이메일과 비밀번호를 가져옴
+    String email = _idController.text;
+    String password = _passwordController.text;
+
+    // 이메일과 비밀번호가 빈 문자열인지 확인
+    if (email.isEmpty) {
       msg = "이메일을 입력하세요";
-    } else if (_passwordController.text.isEmpty) {
+    } else if (password.isEmpty) {
       msg = "비밀번호를 입력하세요";
     } else {
-      accessToken = await ApiService.postSignIn(
-          _idController.text, _passwordController.text);
+      // 서버로부터 받은 응답을 통해 로그인이 성공했는지 확인
+      accessToken = await ApiService.postSignIn(email, password);
       success = accessToken != null ? true : false;
-      if (await TokenManagerWithSP.loadToken() != null) {
-        tokenProvider.clearToken();
+
+      // 로그인이 실패한 경우 메시지 설정
+      if (!success) {
+        msg = "로그인 정보가 시스템에 있는 계정정보와 틀립니다";
       }
-      if (accessToken != null) {
+
+      // 로그인이 성공했을 때만 토큰을 저장하고 로그인 상태를 변경
+      if (success) {
+        if (await TokenManagerWithSP.loadToken() != null) {
+          tokenProvider.clearToken();
+        }
         tokenProvider.setToken(accessToken);
         loginProvier.login();
-        //  ref.read(loginStateProvider.state).state = true;
       }
     }
+
+    // 결과 메시지 출력
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: Colors.white,
+          ),
           height: 200,
-          color: Colors.white,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(msg),
-                ElevatedButton(
-                  child: const Text('닫기'),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    if (success) {
-                      Navigator.pop(context, "login success");
-                    }
-                  },
-                )
               ],
             ),
           ),
         );
       },
     );
+
+    // 로그인 성공 시 화면 닫기
     if (success) {
       Navigator.pop(context);
       Navigator.pop(context, "login success");
