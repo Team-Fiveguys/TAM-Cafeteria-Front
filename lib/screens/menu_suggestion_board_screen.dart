@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 
 //태그 달고
-//폰트 줄이고 짜글이 좀 좌우 상하 길이 맞추고 좋아요 icon가져오고 숫자 늘어나게 만들고
+//폰트 줄이고 메뉴A 좀 좌우 상하 길이 맞추고 좋아요 icon가져오고 숫자 늘어나게 만들고
 //일반 게시물 만들고 이거 약간 일반 게시물 hot게시물 선정할수 있게
 //글쓰기 아이콘 가져와서 넣고 글쓰기 페이지 만들기
 class MenuBoardScreen extends StatefulWidget {
@@ -15,12 +15,27 @@ class MenuBoardScreen extends StatefulWidget {
 }
 
 class _MenuBoardScreenState extends State<MenuBoardScreen> {
-  int _likeCount = 0; // 처음에는 30으로 시작
+  final int _likeCount = 0; // 처음에는 30으로 시작
 
   void _incrementLikeCount() {
-    setState(() {
-      _likeCount++; // 숫자를 1씩 증가
-    });
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('알림'),
+        content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('확인'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          ),
+        ],
+      ),
+    );
+    // setState(() {
+    //   _likeCount++; // 숫자를 1씩 증가
+    // });
   }
 
   @override
@@ -67,14 +82,12 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
             ),
             child: Column(
               children: [
-                Positioned(
-                  child: Container(
-                    alignment: Alignment.topLeft,
-                    child: const Text(
-                      'HOT 게시판',
-                      style: TextStyle(
-                        fontSize: 20,
-                      ),
+                Container(
+                  alignment: Alignment.topLeft,
+                  child: const Text(
+                    'HOT 게시판',
+                    style: TextStyle(
+                      fontSize: 20,
                     ),
                   ),
                 ),
@@ -111,25 +124,22 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                             children: [
                               const Padding(
                                 padding: EdgeInsets.fromLTRB(20, 11, 0, 10),
-                                child: Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '짜글이',
-                                        style: TextStyle(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '메뉴A',
+                                      style: TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                      SizedBox(height: 8.0),
-                                      Text(
-                                        '짜글이...',
-                                        style: TextStyle(fontSize: 14.0),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                    SizedBox(height: 8.0),
+                                    Text(
+                                      '개발중...',
+                                      style: TextStyle(fontSize: 14.0),
+                                    ),
+                                  ],
                                 ),
                               ),
                               Expanded(
@@ -186,24 +196,22 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                         children: [
                           const Padding(
                             padding: EdgeInsets.fromLTRB(20, 11, 0, 10),
-                            child: Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '짜글이',
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '메뉴A',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  SizedBox(height: 8.0),
-                                  Text(
-                                    '짜글이...',
-                                    style: TextStyle(fontSize: 14.0),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                SizedBox(height: 8.0),
+                                Text(
+                                  '개발중...',
+                                  style: TextStyle(fontSize: 14.0),
+                                ),
+                              ],
                             ),
                           ),
                           Expanded(
@@ -258,24 +266,22 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                         children: [
                           const Padding(
                             padding: EdgeInsets.fromLTRB(20, 11, 0, 10),
-                            child: Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '짜글이',
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '메뉴A',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  SizedBox(height: 8.0),
-                                  Text(
-                                    '짜글이...',
-                                    style: TextStyle(fontSize: 14.0),
-                                  ),
-                                ],
-                              ),
+                                ),
+                                SizedBox(height: 8.0),
+                                Text(
+                                  '개발중...',
+                                  style: TextStyle(fontSize: 14.0),
+                                ),
+                              ],
                             ),
                           ),
                           Expanded(
@@ -348,24 +354,22 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                     children: [
                       const Padding(
                         padding: EdgeInsets.fromLTRB(20, 11, 0, 10),
-                        child: Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '짜글이',
-                                style: TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '메뉴A',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
                               ),
-                              SizedBox(height: 8.0),
-                              Text(
-                                '짜글이...',
-                                style: TextStyle(fontSize: 14.0),
-                              ),
-                            ],
-                          ),
+                            ),
+                            SizedBox(height: 8.0),
+                            Text(
+                              '개발중...',
+                              style: TextStyle(fontSize: 14.0),
+                            ),
+                          ],
                         ),
                       ),
                       Expanded(

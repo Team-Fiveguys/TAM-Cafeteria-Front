@@ -221,7 +221,6 @@ class LoginScreen extends ConsumerWidget {
     } else if (password.isEmpty) {
       msg = "비밀번호를 입력하세요";
     } else {
-
       try {
         accessToken = await ApiService.postSignIn(
             _idController.text, _passwordController.text);
@@ -387,7 +386,24 @@ class LoginScreen extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text('알림'),
+                                        content: const Text(
+                                            '아직 개발 중인 기능입니다. 죄송합니다.'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text('확인'),
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                   child: const Text(
                                     '아이디 찾기',
                                     style: TextStyle(
@@ -401,7 +417,24 @@ class LoginScreen extends ConsumerWidget {
                                 ),
                                 const SizedBox(width: 5.0),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text('알림'),
+                                        content: const Text(
+                                            '아직 개발 중인 기능입니다. 죄송합니다.'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text('확인'),
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                   child: const Text(
                                     '비밀번호 찾기',
                                     style: TextStyle(
@@ -435,7 +468,24 @@ class LoginScreen extends ConsumerWidget {
                                   child: IconButton(
                                     icon: Image.asset(
                                         'assets/images/google_login_logo.png'),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('알림'),
+                                          content: const Text(
+                                              '아직 개발 중인 기능입니다. 죄송합니다.'),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: const Text('확인'),
+                                              onPressed: () {
+                                                Navigator.of(ctx).pop();
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                                 SizedBox(
@@ -444,7 +494,24 @@ class LoginScreen extends ConsumerWidget {
                                   child: IconButton(
                                     icon: Image.asset(
                                         'assets/images/naver_login_logo.png'),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('알림'),
+                                          content: const Text(
+                                              '아직 개발 중인 기능입니다. 죄송합니다.'),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: const Text('확인'),
+                                              onPressed: () {
+                                                Navigator.of(ctx).pop();
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                                 SizedBox(

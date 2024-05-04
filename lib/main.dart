@@ -436,17 +436,32 @@ class _AppState extends ConsumerState<App> {
                 return FloatingActionButton.extended(
                   onPressed: () {
                     // FloatingActionButton을 누를 때 수행할 작업
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const WriteMenuScreen(),
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('알림'),
+                        content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('확인'),
+                            onPressed: () {
+                              Navigator.of(ctx).pop();
+                            },
+                          ),
+                        ],
                       ),
                     );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => const WriteMenuScreen(),
+                    //   ),
+                    // );
                   },
                   icon: Image.asset(
                     'assets/images/write_board_icon.png',
-                    width: 100, // 이미지의 너비 조절
-                    height: 100, // 이미지의 높이 조절
+                    width: 70, // 이미지의 너비 조절
+                    height: 70, // 이미지의 높이 조절
                   ),
                   label: const Text(''), // 라벨은 비워둠
                   backgroundColor: Colors.black, // 배경색을 투명으로 설정하여 이미지만 보이도록 함
