@@ -58,16 +58,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } else if (!isVerified) {
       msg = "메일을 인증해주세요";
     } else {
-      success = await ApiService.postSignUp(
-          nameController.text,
-          _passwordController.text,
-          _selectedGender!,
-          emailController.text,
-          checkEmailVerifiyControlloer.text);
-      if (success) {
-        msg = "회원가입 성공";
-      } else {
-        msg = "회원가입 실패";
+      try {
+        success = await ApiService.postSignUp(
+            nameController.text,
+            _passwordController.text,
+            _selectedGender!,
+            emailController.text,
+            checkEmailVerifiyControlloer.text);
+        if (success) {
+          msg = "회원가입 성공";
+        } else {
+          msg = "회원가입 실패";
+        }
+      } on Exception catch (e) {
+        msg = e.toString();
       }
     }
     showModalBottomSheet(
@@ -101,35 +105,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void sendEmailCode(BuildContext context) async {
     String email = emailController.text;
-    String message = await ApiService.postEmailAuthCode(email);
-    if (message == 'true') {
-      startTimer();
-      if (mounted) {
-        setState(() {
-          isSendCode = true;
-        });
+    String message = "";
+    try {
+      message = await ApiService.postEmailAuthCode(email);
+      if (message == 'true') {
+        startTimer();
+        if (mounted) {
+          setState(() {
+            isSendCode = true;
+          });
+        }
+      } else {
+        _timer?.cancel();
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text("알림"),
+                content: Text(message),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('확인'),
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Alert Dialog 창을 닫습니다.
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
       }
-    } else {
-      _timer?.cancel();
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("알림"),
-              content: Text(message),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('확인'),
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Alert Dialog 창을 닫습니다.
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      }
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
     }
   }
 

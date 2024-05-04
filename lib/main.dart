@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -113,6 +114,7 @@ void main() async {
 
   initializeNotification();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(
     ProviderScope(
       overrides: [
@@ -482,17 +484,21 @@ class _AppState extends ConsumerState<App> {
               return IconButton(
                 onPressed: () async {
                   // ApiService.delAutoLogin();
+                  final isLoggedIn = ref.watch(loginStateProvider);
+                  if (!isLoggedIn) {
+                    navigateToLoginScreen(context);
+                  } else {
+                    bool result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const NotificationCenter()));
 
-                  bool result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const NotificationCenter()));
-
-                  if (result == true) {
-                    // 필요한 상태 업데이트나 리렌더링 로직
-                    setState(() {
-                      getNotificationLength();
-                    });
+                    if (result == true) {
+                      // 필요한 상태 업데이트나 리렌더링 로직
+                      setState(() {
+                        getNotificationLength();
+                      });
+                    }
                   }
                 },
                 icon: FutureBuilder(

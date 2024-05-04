@@ -16,11 +16,47 @@ class _NotificationCenterState extends State<NotificationCenter> {
       ApiService.getNotifications();
 
   void deleteNotification(String id) async {
-    await ApiService.deleteOneNotification(id);
+    try {
+      await ApiService.deleteOneNotification(id);
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   Future<void> deleteAllNotification() async {
-    await ApiService.deleteAllNotification();
+    try {
+      await ApiService.deleteAllNotification();
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void readNotification(NotificationModel notification) async {
@@ -58,7 +94,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        scrolledUnderElevation: 3,
+        scrolledUnderElevation: 0,
         backgroundColor: Colors.white,
         automaticallyImplyLeading: false,
         title: Row(
@@ -87,6 +123,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: AppBar(
+                scrolledUnderElevation: 0,
                 backgroundColor: Theme.of(context).canvasColor,
                 automaticallyImplyLeading: false, // 기본 뒤로 가기 버튼을 비활성화
                 leading: IconButton(
@@ -131,10 +168,28 @@ class _NotificationCenterState extends State<NotificationCenter> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    await deleteAllNotification();
-                    setState(() {
-                      notificationList = ApiService.getNotifications();
-                    });
+                    try {
+                      await deleteAllNotification();
+                      setState(() {
+                        notificationList = ApiService.getNotifications();
+                      });
+                    } on Exception catch (e) {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('에러'),
+                          content: Text(e.toString()),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('확인'),
+                              onPressed: () {
+                                Navigator.of(ctx).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                   },
                   child: Text(
                     '전부 삭제',

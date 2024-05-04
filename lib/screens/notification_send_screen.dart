@@ -6,8 +6,10 @@ class NotificationSendPage extends StatefulWidget {
   const NotificationSendPage({
     super.key,
     required this.cafeteriaId,
+    required this.cafeteriaName,
   });
   final int cafeteriaId;
+  final String cafeteriaName;
 
   @override
   State<NotificationSendPage> createState() => _NotificationSendPageState();
@@ -15,8 +17,29 @@ class NotificationSendPage extends StatefulWidget {
 
 class _NotificationSendPageState extends State<NotificationSendPage> {
   void pushNotification() async {
-    await ApiService.postNotificationToSubscriber(
-        "알림 테스트", "내용", widget.cafeteriaId.toString(), "today_diet");
+    try {
+      await ApiService.postNotificationToSubscriber(
+          "[${widget.cafeteriaName}] 주간 식당 등록",
+          "${widget.cafeteriaName} 주간 식단표가 등록되었어요. 확인해보세요!",
+          widget.cafeteriaId.toString(),
+          "week_diet_enroll");
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void showSendNotification() async {
@@ -63,9 +86,27 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
             ),
             TextButton(
               onPressed: () async {
-                await ApiService.postNotificationToAllUser(
-                    titleController.text, contentController.text);
-                Navigator.of(context).pop();
+                try {
+                  await ApiService.postNotificationToAllUser(
+                      titleController.text, contentController.text);
+                  Navigator.of(context).pop();
+                } on Exception catch (e) {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('에러'),
+                      content: Text(e.toString()),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('확인'),
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                }
               },
               child: const Text("등록"),
             ),
@@ -208,16 +249,14 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
                               horizontal: 10,
                             ),
                             child: TextButton(
-                              onPressed: () {},
-                              child: const Center(
-                                child: Text(
-                                  "주간 식단\n수정 완료",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Color(0xFF282828),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              onPressed: showSendNotification,
+                              child: const Text(
+                                "직접 알림\n보내기",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Color(0xFF282828),
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
@@ -228,41 +267,6 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
                   ),
                   const SizedBox(
                     height: 30,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadiusDirectional.circular(20),
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 1,
-                          blurRadius: 5,
-                          offset: const Offset(0, 3), // 그림자 위치 조정
-                        ),
-                      ],
-                    ),
-                    height: 150,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 15,
-                        horizontal: 10,
-                      ),
-                      child: Center(
-                        child: TextButton(
-                          onPressed: showSendNotification,
-                          child: const Text(
-                            "직접 알림\n보내기",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xFF282828),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
                 ],
               ),

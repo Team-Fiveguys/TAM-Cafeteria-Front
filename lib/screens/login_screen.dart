@@ -74,6 +74,21 @@ class LoginScreen extends ConsumerWidget {
           print('카카오계정으로 로그인 성공');
         } catch (error) {
           print('카카오계정으로 로그인 실패 $error');
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('에러'),
+              content: Text('카카오 로그인 실패 $error'),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('확인'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+              ],
+            ),
+          );
         }
       } finally {
         Navigator.pop(context, "login success"); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
@@ -92,6 +107,21 @@ class LoginScreen extends ConsumerWidget {
         print('카카오계정으로 로그인 성공');
       } catch (error) {
         print('카카오계정으로 로그인 실패 $error');
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('에러'),
+            content: Text('카카오 로그인 실패 $error'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('확인'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              ),
+            ],
+          ),
+        );
       } finally {
         Navigator.of(context).pop(); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
       }
@@ -154,6 +184,21 @@ class LoginScreen extends ConsumerWidget {
       Navigator.pop(context, "login success");
     } catch (error) {
       print(error);
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text('애플 로그인 실패 $error'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
     } finally {
       Navigator.of(context).pop(); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
     }
@@ -176,22 +221,21 @@ class LoginScreen extends ConsumerWidget {
     } else if (password.isEmpty) {
       msg = "비밀번호를 입력하세요";
     } else {
-      // 서버로부터 받은 응답을 통해 로그인이 성공했는지 확인
-      accessToken = await ApiService.postSignIn(email, password);
-      success = accessToken != null ? true : false;
 
-      // 로그인이 실패한 경우 메시지 설정
-      if (!success) {
-        msg = "로그인 정보가 시스템에 있는 계정정보와 틀립니다";
-      }
-
-      // 로그인이 성공했을 때만 토큰을 저장하고 로그인 상태를 변경
-      if (success) {
+      try {
+        accessToken = await ApiService.postSignIn(
+            _idController.text, _passwordController.text);
+        success = accessToken != null ? true : false;
         if (await TokenManagerWithSP.loadToken() != null) {
           tokenProvider.clearToken();
         }
-        tokenProvider.setToken(accessToken);
-        loginProvier.login();
+        if (accessToken != null) {
+          tokenProvider.setToken(accessToken);
+          loginProvier.login();
+          //  ref.read(loginStateProvider.state).state = true;
+        }
+      } on Exception catch (e) {
+        msg = e.toString();
       }
     }
 

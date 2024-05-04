@@ -59,11 +59,30 @@ Future<void> showMenuInput(
                   // 여기에 메뉴 등록 로직 추가
                   print(
                       "$selectedCategory 카테고리, 메뉴명: ${menuNameController.text}");
-                  await ApiService.postMenu(
-                      menuNameController.text, cafeteriaId);
-                  selectedCategory = null;
-                  menuNameController.clear();
-                  Navigator.of(context).pop();
+                  try {
+                    await ApiService.postMenu(
+                        menuNameController.text, cafeteriaId);
+                    selectedCategory = null;
+                    menuNameController.clear();
+                    Navigator.of(context).pop();
+                  } on Exception catch (e) {
+                    // TODO
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('에러'),
+                        content: Text(e.toString()),
+                        actions: <Widget>[
+                          TextButton(
+                            child: const Text('확인'),
+                            onPressed: () {
+                              Navigator.of(ctx).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                 },
                 child: const Text("등록"),
               ),
