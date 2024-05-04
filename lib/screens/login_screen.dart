@@ -210,11 +210,18 @@ class LoginScreen extends ConsumerWidget {
     bool success = false;
     String msg = "";
     String? accessToken;
-    if (_idController.text.isEmpty) {
+
+    // 이메일과 비밀번호를 가져옴
+    String email = _idController.text;
+    String password = _passwordController.text;
+
+    // 이메일과 비밀번호가 빈 문자열인지 확인
+    if (email.isEmpty) {
       msg = "이메일을 입력하세요";
-    } else if (_passwordController.text.isEmpty) {
+    } else if (password.isEmpty) {
       msg = "비밀번호를 입력하세요";
     } else {
+
       try {
         accessToken = await ApiService.postSignIn(
             _idController.text, _passwordController.text);
@@ -231,33 +238,31 @@ class LoginScreen extends ConsumerWidget {
         msg = e.toString();
       }
     }
+
+    // 결과 메시지 출력
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: Colors.white,
+          ),
           height: 200,
-          color: Colors.white,
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(msg),
-                ElevatedButton(
-                  child: const Text('닫기'),
-                  onPressed: () {
-                    Navigator.pop(context);
-                    if (success) {
-                      Navigator.pop(context, "login success");
-                    }
-                  },
-                )
               ],
             ),
           ),
         );
       },
     );
+
+    // 로그인 성공 시 화면 닫기
     if (success) {
       Navigator.pop(context);
       Navigator.pop(context, "login success");

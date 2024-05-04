@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
+import 'package:tam_cafeteria_front/models/cafeteria_model.dart';
+//전체 페이지에 대한 user 검색
+//페이지 수 제한?
 
 class UserManageScreen extends StatefulWidget {
   const UserManageScreen({Key? key}) : super(key: key);
@@ -94,6 +97,39 @@ class _UserManageScreenState extends State<UserManageScreen> {
     }
   }
 
+  void showCafeteriaListDialog(BuildContext context) async {
+    // Cafe List를 가져오는 비동기 함수를 호출
+    final List<Cafeteria> cafeteriaList = await ApiService().getCafeteriaList();
+
+    // 다이얼로그를 표시
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('식당 목록'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: cafeteriaList.map((cafeteria) {
+                return ListTile(
+                  title: Text(cafeteria.name),
+                  // 추가적인 식당 정보를 표시하고 싶다면 이 부분에 추가
+                );
+              }).toList(),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('닫기'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,7 +166,6 @@ class _UserManageScreenState extends State<UserManageScreen> {
                 leading: IconButton(
                   // leading 위치에 아이콘 버튼 배치
                   onPressed: () {
-                    // if(initMenuListLength) TODO: 추가한 메뉴가 있을때 확인알림 해줘야할듯?
                     Navigator.pop(context);
                   },
                   icon: const Icon(
@@ -209,6 +244,26 @@ class _UserManageScreenState extends State<UserManageScreen> {
                 icon: const Icon(Icons.arrow_back),
                 onPressed: _goToPreviousPage,
               ),
+              for (int i = _currentPage; i <= _currentPage + 4; i++)
+                if (i <= 15) // Adjust the upper limit as needed
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _currentPage = i;
+                        _refreshUserList();
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        '$i',
+                        style: TextStyle(
+                          color: _currentPage == i ? Colors.blue : Colors.grey,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ),
+                  ),
               IconButton(
                 icon: const Icon(Icons.arrow_forward),
                 onPressed: _goToNextPage,

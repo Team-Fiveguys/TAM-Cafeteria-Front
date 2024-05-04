@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
+import 'package:tam_cafeteria_front/models/cafeteria_model.dart';
 import 'package:tam_cafeteria_front/models/notification_model.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
 // import 'package:tam_cafeteria_front/models/menu_model.dart';
@@ -1136,4 +1137,78 @@ class ApiService {
       throw Exception(jsonResponse['message']);
     }
   }
+
+  //1. 식당을 조회해서 이제 그 유저관리 페이지 다이얼로그에 띄운다.
+  Future<List<Cafeteria>> getCafeteriaList() async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken(); // 토큰 관리 로직 추가
+      final Uri url = Uri.http(baseUrl, '/admin/me/cafeterias');
+
+      print('Fetching cafeteria list from: $url');
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+      print('Response status code: ${response.statusCode}'); // 응답 상태 코드 출력
+      print(
+          'Response body: ${utf8.decode(response.bodyBytes)}'); // UTF-8로 디코딩된 응답 본문 출력
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(response.bodyBytes))['result']
+            ['queryCafeteriaList'] as List<dynamic>;
+        return data.map((item) => Cafeteria.fromJson(item)).toList();
+      } else {
+        throw Exception('Failed to fetch cafeteria list');
+      }
+    } catch (e) {
+      print('Error fetching cafeteria list: $e'); // 오류 발생 시 출력
+      rethrow;
+    }
+  }
+
+  //품절 api 연동
+
+  static Future<bool> toggleMealSoldOut(
+      int dietId, String date, bool soldOut) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/admin/diets/sold-out";
+    final url = Uri.http(baseUrl, path);
+
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({
+          "dietId": dietId,
+          "date": date,
+          "soldOut": soldOut,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print(
+            'Failed to update meal status: ${utf8.decode(response.bodyBytes)}');
+        return false;
+      }
+    } catch (e) {
+      print('Error making request to API: $e');
+      return false;
+    }
+  }
+
+//품절 클릭되도록 어드민 창에서 품절 버튼 구현
+// 메인페이지에서도 품절 클릭시 잘 작동하는지
+// 조식 중식 각각 구분되어야 함
+
+//알람 api
+//1. 현재 설정된 알림 항목을 업데이트 하여 보여준다.
+//2. 알림 항목에 대한 동의 여부를 bool 형식으로 받아 저장 시킨다.
 }
