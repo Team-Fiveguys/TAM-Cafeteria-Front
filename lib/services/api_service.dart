@@ -528,7 +528,7 @@ class ApiService {
   }
 
   static Future<void> postCongestionStatus(
-      String congestion, int cafeteriaId) async {
+      String? congestion, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/admin/cafeterias/$cafeteriaId/congestion";
     final url = Uri.http(baseUrl, path);

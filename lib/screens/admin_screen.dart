@@ -408,9 +408,11 @@ class _AdminPageState extends State<AdminPage> {
                 ),
                 height: 220,
                 child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 10,
+                    padding: const EdgeInsets.fromLTRB(
+                      15,
+                      5,
+                      15,
+                      15,
                     ),
                     child: FutureBuilder(
                         future: getCongestionStatus(),
@@ -424,6 +426,7 @@ class _AdminPageState extends State<AdminPage> {
                             // 에러 발생 시
                             return Text('Error: ${snapshot.error}');
                           } else {
+                            final isRun = currentWaitingStatus != "운영안함";
                             return Column(
                               children: [
                                 Row(
@@ -448,6 +451,57 @@ class _AdminPageState extends State<AdminPage> {
                                         ),
                                         minFontSize: 10,
                                         maxLines: 2,
+                                      ),
+                                    ),
+                                    TextButton.icon(
+                                      style: TextButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          shape: RoundedRectangleBorder(
+                                            // 테두리 모양을 정의
+                                            borderRadius: const BorderRadius
+                                                .all(Radius.circular(
+                                                    15)), // 테두리의 둥근 모서리 정도 설정
+                                            side: BorderSide(
+                                                color: Theme.of(context)
+                                                    .primaryColorDark,
+                                                width: 1.0), // 테두리의 색상과 두께 설정
+                                          ),
+                                          minimumSize: const Size(20, 30)),
+                                      onPressed: () async {
+                                        try {
+                                          await ApiService.postCongestionStatus(
+                                              null, cafeteriaId);
+                                          updateCurrentStatus('운영안함');
+                                        } on Exception catch (e) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (ctx) => AlertDialog(
+                                              title: const Text('에러'),
+                                              content: Text(e.toString()),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  child: const Text('확인'),
+                                                  onPressed: () {
+                                                    Navigator.of(ctx).pop();
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      icon: Icon(
+                                        Icons.power_settings_new,
+                                        size: 15,
+                                        color: isRun ? Colors.red : Colors.grey,
+                                      ),
+                                      label: Text(
+                                        "운영 종료",
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
                                       ),
                                     ),
                                   ],
