@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/screens/daily_diet_modify_screen.dart';
@@ -64,6 +65,21 @@ class _AdminPageState extends State<AdminPage> {
       cafeteriaName = selectedItem!;
     }
     print('admin initState');
+    Future.delayed(Duration.zero, () async {
+      final pref = await SharedPreferences.getInstance();
+      print('getCongestion : pref : ${pref.getString('cafeteriaName')}');
+      setState(() {
+        selectedItem = pref.getString('cafeteriaName') ?? '명진당';
+        cafeteriaName = pref.getString('cafeteriaName') ?? "명진당";
+        if (cafeteriaName == "명진당") {
+          cafeteriaId = 1;
+        } else if (cafeteriaName == "학생회관") {
+          cafeteriaId = 2;
+        } else {
+          cafeteriaId = 4;
+        }
+      });
+    });
   }
 
   final List<String> waitingStatusList = [
@@ -81,6 +97,11 @@ class _AdminPageState extends State<AdminPage> {
     'assets/images/busy.png',
     'assets/images/veryBusy.png',
   ];
+
+  void saveMyCafeteria(String cafeteria) async {
+    final pref = await SharedPreferences.getInstance();
+    await pref.setString('cafeteriaName', cafeteria);
+  }
 
   void _showImagePicker() {
     showDialog(
@@ -345,6 +366,7 @@ class _AdminPageState extends State<AdminPage> {
                       cafeteriaId = 4;
                     }
                     cafeteriaName = selectedItem!;
+                    saveMyCafeteria(newValue!);
                   });
                   print('$selectedItem');
                 },
