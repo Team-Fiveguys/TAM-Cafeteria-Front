@@ -98,6 +98,8 @@ flutter:
     - assets/images/normal.png
     - assets/images/soldOut.png
     - assets/config/.env
+    - assets/serviceTerms.txt
+    - assets/personalTerms.txt
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

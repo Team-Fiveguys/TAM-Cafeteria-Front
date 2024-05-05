@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -23,7 +24,8 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   bool _passwordVisible = false;
   bool _checkpasswordVisible = false;
-  bool _isChecked = false;
+  bool _isServiceChecked = false;
+  bool _isPersonalChecked = false;
   bool isVerified = false;
   String? _selectedGender;
   final TextEditingController nameController = TextEditingController();
@@ -43,7 +45,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   void signUp() async {
     bool success = false;
     String msg = "";
-    if (!_isChecked) {
+    if (!_isServiceChecked || !_isPersonalChecked) {
       msg = "약관 동의를 해주세요";
     } else if (nameController.text.isEmpty) {
       msg = "이름을 입력해주세요";
@@ -265,6 +267,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
+  }
+
+  Future<String> loadServiceTerms() async {
+    return await rootBundle.loadString('assets/serviceTerms.txt');
+  }
+
+  Future<String> loadPersonalTerms() async {
+    return await rootBundle.loadString('assets/personalTerms.txt');
   }
 
   @override
@@ -582,58 +592,86 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Row(
                           children: [
                             Checkbox(
-                              value: _isChecked,
+                              value: _isServiceChecked,
                               onChanged: (bool? value) {
                                 // 체크박스 상태 변경
                                 setState(() {
-                                  _isChecked = value ?? false;
+                                  _isServiceChecked = value ?? false;
+                                });
+                              },
+                            ),
+                            const Text('서비스 이용 약관 동의'),
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    width: 1,
+                                    color: Theme.of(context).primaryColorLight),
+                                borderRadius: BorderRadius.circular(15)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 5),
+                            height: 200,
+                            child: FutureBuilder<String>(
+                              future: loadServiceTerms(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<String> snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  return SingleChildScrollView(
+                                    child: Text(snapshot.data ??
+                                        'Failed to load terms.'),
+                                  );
+                                } else {
+                                  return const CircularProgressIndicator();
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _isPersonalChecked,
+                              onChanged: (bool? value) {
+                                // 체크박스 상태 변경
+                                setState(() {
+                                  _isPersonalChecked = value ?? false;
                                 });
                               },
                             ),
                             const Text('개인정보 수집 동의'),
                           ],
                         ),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _isChecked,
-                              onChanged: (bool? value) {
-                                // 체크박스 상태 변경
-                                setState(() {
-                                  _isChecked = value ?? false;
-                                });
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    width: 1,
+                                    color: Theme.of(context).primaryColorLight),
+                                borderRadius: BorderRadius.circular(15)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 5),
+                            height: 200,
+                            child: FutureBuilder<String>(
+                              future: loadPersonalTerms(),
+                              builder: (BuildContext context,
+                                  AsyncSnapshot<String> snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.done) {
+                                  return SingleChildScrollView(
+                                    child: Text(snapshot.data ??
+                                        'Failed to load terms.'),
+                                  );
+                                } else {
+                                  return const CircularProgressIndicator();
+                                }
                               },
                             ),
-                            const Text('개인정보 수집 동의'),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _isChecked,
-                              onChanged: (bool? value) {
-                                // 체크박스 상태 변경
-                                setState(() {
-                                  _isChecked = value ?? false;
-                                });
-                              },
-                            ),
-                            const Text('개인정보 수집 동의'),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _isChecked,
-                              onChanged: (bool? value) {
-                                // 체크박스 상태 변경
-                                setState(() {
-                                  _isChecked = value ?? false;
-                                });
-                              },
-                            ),
-                            const Text('개인정보 수집 동의'),
-                          ],
+                          ),
                         ),
                       ],
                     ),
