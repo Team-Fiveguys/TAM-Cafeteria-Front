@@ -1209,6 +1209,59 @@ class ApiService {
 // 조식 중식 각각 구분되어야 함
 
 //알람 api
-//1. 현재 설정된 알림 항목을 업데이트 하여 보여준다.
-//2. 알림 항목에 대한 동의 여부를 bool 형식으로 받아 저장 시킨다.
+  static Future<void> fetchNotificationSettings() async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+
+      const path = "/users/notificationSet";
+      final url = Uri.http(baseUrl, path);
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        // 필요에 따라 JSON 응답을 처리합니다.
+        print(jsonResponse);
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+      }
+    } catch (error) {
+      print('오류 발생: $error');
+    }
+  }
+
+  static Future<void> updateNotificationSettings(
+      Map<String, bool> newSettings) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+
+      const path = "/users/notificationSet";
+      final url = Uri.http(baseUrl, path);
+
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(newSettings),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        // 필요에 따라 JSON 응답을 처리합니다.
+        print(jsonResponse);
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+      }
+    } catch (error) {
+      print('오류 발생: $error');
+    }
+  }
 }
