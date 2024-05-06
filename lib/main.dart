@@ -8,7 +8,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tam_cafeteria_front/firebase_options.dart';
-import 'package:tam_cafeteria_front/notification/local_notification.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
@@ -20,7 +19,6 @@ import 'package:tam_cafeteria_front/screens/admin_screen.dart';
 import 'package:tam_cafeteria_front/screens/main_screen.dart';
 import 'package:tam_cafeteria_front/screens/my_page_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_screen.dart';
-import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -82,7 +80,12 @@ void initializeNotification() async {
               importance: Importance.max,
               color: Color(0xFFFFFFFF),
             ),
-            iOS: DarwinNotificationDetails(),
+            iOS: DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: true,
+              badgeNumber: 1,
+            ),
           ),
           payload: message.data['test_paremeter1']);
 
@@ -483,13 +486,13 @@ class _AppState extends ConsumerState<App> {
                 onPressed: () {
                   // FirebaseMessaging.instance.subscribeToTopic('1');
                   // FirebaseMessaging.instance.subscribeToTopic('today_diet');
-                  ref.read(loginStateProvider.notifier).logout();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => LoginScreen(), //알람 버튼
-                    ),
-                  );
+                  // ref.read(loginStateProvider.notifier).logout();
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => LoginScreen(), //알람 버튼
+                  //   ),
+                  // );
                 }, // 아무것도 하지 않음
               );
             }),
