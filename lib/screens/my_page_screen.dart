@@ -6,6 +6,9 @@ import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:tam_cafeteria_front/services/api_service.dart';
+import 'package:tam_cafeteria_front/widgets/notification_settings_dialog.dart';
 
 class MyPage extends StatefulWidget {
   const MyPage({Key? key, this.switchOn, this.switchAdmin}) : super(key: key);
@@ -127,11 +130,8 @@ class _MyPageState extends State<MyPage> {
                 '닉네임 수정',
               ),
               const SizedBox(height: 20),
-              // buildButtonWithDialog(context, '약관보기', '약관보기 내용'),
-              // const SizedBox(height: 20),
-              buildButtonWithAlarmDialog(
-                context,
-                '알림 설정',
+              const NotificationSettingsDialog(
+                buttonText: '알림 설정',
               ),
               const SizedBox(height: 20),
               buildButtonWithWithdrawDialog(
@@ -231,188 +231,6 @@ class _MyPageState extends State<MyPage> {
                       ),
                     ),
                   ],
-                );
-              },
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffc6c6c6),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-          ),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              buttonText,
-              style: const TextStyle(color: Colors.white),
-              textAlign: TextAlign.left,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildButtonWithAlarmDialog(BuildContext context, String buttonText) {
-    bool overallAlarm = false;
-    bool restaurantAlarm = false;
-    bool featureAlarm = false;
-    // bool studentrestaurantAlarm = false;
-    // bool libraryrestaurantAlarm = false;
-
-    return Center(
-      child: Container(
-        height: 55,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(19),
-        ),
-        child: ElevatedButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return StatefulBuilder(
-                  builder: (context, setState) {
-                    return AlertDialog(
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Overall alarm toggle
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                buttonText,
-                                style: const TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.arrow_forward_ios,
-                                  color: Colors.black54,
-                                ),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          ),
-
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('전체 알림'),
-                              Switch(
-                                value: overallAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    overallAlarm = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          // Restaurant-specific alarm toggles
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('식당 알림'),
-                              Switch(
-                                value: restaurantAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    restaurantAlarm = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  const Text('명진당'),
-                                  Switch(
-                                    value: restaurantAlarm,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        restaurantAlarm = value;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  const Text('학생회관'),
-                                  Switch(
-                                    value: restaurantAlarm,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        restaurantAlarm = value;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-
-                          // Feature-specific alarm toggles
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                '기능 알림',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text('data'),
-                                  Switch(
-                                    value: featureAlarm,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        featureAlarm = value;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      actions: <Widget>[
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xffffb800),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          child: const Text(
-                            '저장',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
                 );
               },
             );
