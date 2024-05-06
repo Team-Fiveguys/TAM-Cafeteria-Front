@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
@@ -7,6 +8,7 @@ import 'package:tam_cafeteria_front/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:tam_cafeteria_front/screens/terms_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/notification_settings_dialog.dart';
 
@@ -132,6 +134,11 @@ class _MyPageState extends State<MyPage> {
               const SizedBox(height: 20),
               const NotificationSettingsDialog(
                 buttonText: '알림 설정',
+              ),
+              const SizedBox(height: 20),
+              buildTermsWithDialog(
+                context,
+                '약관 보기',
               ),
               const SizedBox(height: 20),
               buildButtonWithWithdrawDialog(
@@ -280,6 +287,41 @@ class _MyPageState extends State<MyPage> {
                   ],
                 );
               },
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xffc6c6c6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              buttonText,
+              style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildTermsWithDialog(BuildContext context, String buttonText) {
+    return Center(
+      child: Container(
+        height: 55,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(0),
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TermsScreen(), //알람 버튼
+              ),
             );
           },
           style: ElevatedButton.styleFrom(
