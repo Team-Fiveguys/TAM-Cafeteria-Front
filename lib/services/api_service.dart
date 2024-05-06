@@ -577,7 +577,6 @@ class ApiService {
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      print('ApiService : getCongestionStatus : $jsonResponse');
       if (jsonResponse['result']['congestion'] != null) {
         return jsonResponse['result']['congestion'];
       }
@@ -828,7 +827,7 @@ class ApiService {
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      print('ApiService : getNotifications : $jsonResponse');
+      // print('ApiService : getNotifications : $jsonResponse');
       List<dynamic> resultList = jsonResponse['result']['notificationList'];
       List<NotificationModel> notificationList = [];
       for (var notification in resultList) {
