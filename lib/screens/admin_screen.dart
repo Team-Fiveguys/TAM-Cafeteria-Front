@@ -1,6 +1,4 @@
 import 'dart:io';
-// import 'package:tam_cafeteria_front/models/menu_model.dart';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,14 +8,12 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
-import 'package:tam_cafeteria_front/screens/daily_diet_modify_screen.dart';
 import 'package:tam_cafeteria_front/screens/add_cafeteria_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_send_screen.dart';
 import 'package:tam_cafeteria_front/screens/user_manage_screen.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
-import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage(
@@ -35,7 +31,7 @@ class _AdminPageState extends State<AdminPage> {
   final DateTime now = DateTime.now();
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
 
-  int cafeteriaId = 1;
+  late int? cafeteriaId;
   String serverWaitingStatus = '여유';
   String? selectedItem = '명진당';
   String? selectedMeals = '중식';
@@ -55,30 +51,35 @@ class _AdminPageState extends State<AdminPage> {
     "배추김치&추가밥",
   ];
 
-  late String cafeteriaName;
+  late String? cafeteriaName;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    initializeAsyncTask();
+  }
+
+  Future<void> initializeAsyncTask() async {
     if (selectedItem != null) {
       cafeteriaName = selectedItem!;
     }
     print('admin initState');
-    Future.delayed(Duration.zero, () async {
-      final pref = await SharedPreferences.getInstance();
-      print('getCongestion : pref : ${pref.getString('cafeteriaName')}');
-      setState(() {
-        selectedItem = pref.getString('cafeteriaName') ?? '명진당';
-        cafeteriaName = pref.getString('cafeteriaName') ?? "명진당";
-        if (cafeteriaName == "명진당") {
-          cafeteriaId = 1;
-        } else if (cafeteriaName == "학생회관") {
-          cafeteriaId = 2;
-        } else {
-          cafeteriaId = 4;
-        }
-      });
+    final pref = await SharedPreferences.getInstance();
+    print('getCongestion : pref : ${pref.getString('cafeteriaName')}');
+
+    setState(() {
+      selectedItem = pref.getString('cafeteriaName');
+      cafeteriaName = pref.getString('cafeteriaName');
+      if (cafeteriaName == "명진당") {
+        cafeteriaId = 1;
+      }
+      if (cafeteriaName == "학생회관") {
+        cafeteriaId = 2;
+      }
+      if (cafeteriaName == "명분이네") {
+        cafeteriaId = 4;
+      }
     });
   }
 
@@ -182,8 +183,10 @@ class _AdminPageState extends State<AdminPage> {
                 if (_image != null) {
                   final meals = selectedMeals == "중식" ? "LUNCH" : "BREAKFAST";
                   try {
-                    await ApiService.postDietPhoto(
-                        _image!, dateFormat.format(now), meals, cafeteriaId);
+                    if (cafeteriaId != null) {
+                      await ApiService.postDietPhoto(
+                          _image!, dateFormat.format(now), meals, cafeteriaId!);
+                    }
                   } on Exception catch (e) {
                     showDialog(
                       context: context,
@@ -240,6 +243,7 @@ class _AdminPageState extends State<AdminPage> {
     setState(() {
       currentWaitingStatus = newStatus;
     });
+    print('updateCurrentStatus $newStatus');
   }
 
   Future<List<String>> getTodayBreakfastMenu() async {
@@ -248,15 +252,16 @@ class _AdminPageState extends State<AdminPage> {
     // 날짜를 yyyy-MM-dd 형식의 문자열로 변환합니다.
     String formattedDate = DateFormat('yyyy-MM-dd').format(now);
     // 학생회관의 점심 메뉴를 불러옵니다.
-    Diet? menu =
-        await ApiService.getDiets(formattedDate, 'BREAKFAST', cafeteriaId);
-    if (menu != null) {
-      // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
-      return menu.names;
-    } else {
-      // 오류 처리 또는 기본값 반환 등을 수행할 수 있습니다.
-      return [];
+    if (cafeteriaId != null) {
+      Diet? menu =
+          await ApiService.getDiets(formattedDate, 'BREAKFAST', cafeteriaId!);
+      if (menu != null) {
+        // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
+        return menu.names;
+      }
     }
+    // 오류 처리 또는 기본값 반환 등을 수행할 수 있습니다.
+    return [];
   }
 
   Future<List<String>> getTodayLunchMenu() async {
@@ -265,20 +270,24 @@ class _AdminPageState extends State<AdminPage> {
     // 날짜를 yyyy-MM-dd 형식의 문자열로 변환합니다.
     String formattedDate = DateFormat('yyyy-MM-dd').format(now);
     // 학생회관의 점심 메뉴를 불러옵니다.
-    Diet? menu = await ApiService.getDiets(formattedDate, 'LUNCH', cafeteriaId);
-    if (menu != null) {
-      // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
-      return menu.names;
-    } else {
-      // 오류 처리 또는 기본값 반환 등을 수행할 수 있습니다.
-      return [];
+    if (cafeteriaId != null) {
+      Diet? menu =
+          await ApiService.getDiets(formattedDate, 'LUNCH', cafeteriaId!);
+      if (menu != null) {
+        // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
+        return menu.names;
+      }
     }
+    // 오류 처리 또는 기본값 반환 등을 수행할 수 있습니다.
+    return [];
   }
 
   Future<void> getCongestionStatus() async {
-    serverWaitingStatus = await ApiService.getCongestionStatus(cafeteriaId);
+    if (cafeteriaId != null) {
+      serverWaitingStatus = await ApiService.getCongestionStatus(cafeteriaId!);
+    }
     currentWaitingStatus = serverWaitingStatus;
-    print(currentWaitingStatus);
+    print('admin : getCongestion : $currentWaitingStatus');
   }
 
   @override
@@ -470,8 +479,11 @@ class _AdminPageState extends State<AdminPage> {
                                           minimumSize: const Size(20, 30)),
                                       onPressed: () async {
                                         try {
-                                          await ApiService.postCongestionStatus(
-                                              null, cafeteriaId);
+                                          if (cafeteriaId != null) {
+                                            await ApiService
+                                                .postCongestionStatus(
+                                                    null, cafeteriaId!);
+                                          }
                                           updateCurrentStatus('운영안함');
                                         } on Exception catch (e) {
                                           showDialog(
@@ -511,14 +523,15 @@ class _AdminPageState extends State<AdminPage> {
                                 ),
                                 Row(
                                   children: [
-                                    for (var i = 0; i < 4; i++)
-                                      WaitingIndicator(
-                                        imageUrl: waitingImageList[i],
-                                        waitingStatus: waitingStatusList[i],
-                                        currentStatus: currentWaitingStatus,
-                                        cafeteriaId: cafeteriaId,
-                                        onStatusChanged: updateCurrentStatus,
-                                      ),
+                                    if (cafeteriaId != null)
+                                      for (var i = 0; i < 4; i++)
+                                        WaitingIndicator(
+                                          imageUrl: waitingImageList[i],
+                                          waitingStatus: waitingStatusList[i],
+                                          currentStatus: currentWaitingStatus,
+                                          cafeteriaId: cafeteriaId!,
+                                          onStatusChanged: updateCurrentStatus,
+                                        ),
                                   ],
                                 ),
                               ],
@@ -991,15 +1004,17 @@ class _AdminPageState extends State<AdminPage> {
                         ),
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => WeekDiet(
-                                  cafeteriaName: cafeteriaName,
-                                  cafeteriaId: cafeteriaId,
+                            if (cafeteriaId != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => WeekDiet(
+                                    cafeteriaName: cafeteriaName!,
+                                    cafeteriaId: cafeteriaId!,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
                           },
                           child: const Center(
                             child: Text(
@@ -1045,8 +1060,11 @@ class _AdminPageState extends State<AdminPage> {
                           horizontal: 10,
                         ),
                         child: TextButton(
-                          onPressed: () =>
-                              showMenuInput(context, setState, cafeteriaId),
+                          onPressed: () {
+                            if (cafeteriaId != null) {
+                              showMenuInput(context, setState, cafeteriaId!);
+                            }
+                          },
                           child: const Center(
                               child: Text(
                             "메뉴 입력",
@@ -1086,15 +1104,17 @@ class _AdminPageState extends State<AdminPage> {
                         ),
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => NotificationSendPage(
-                                  cafeteriaId: cafeteriaId,
-                                  cafeteriaName: cafeteriaName,
+                            if (cafeteriaId != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => NotificationSendPage(
+                                    cafeteriaId: cafeteriaId!,
+                                    cafeteriaName: cafeteriaName!,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
                           },
                           child: const Center(
                             child: Text(
