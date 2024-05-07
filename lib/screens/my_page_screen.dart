@@ -26,6 +26,15 @@ class _MyPageState extends State<MyPage> {
   bool overallAlarm = false;
   bool restaurantAlarm = false;
   bool featureAlarm = false;
+  String? name;
+  String? email;
+  Future<void> getMyInfo() async {
+    final info = await ApiService.getUserInfo();
+    if (info != null) {
+      name = info['name'];
+      email = info['email'];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,28 +107,42 @@ class _MyPageState extends State<MyPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              const Row(
-                children: [
-                  Icon(
-                    Icons.person,
-                    size: 90,
-                  ), // Assuming you want a person icon
-                  SizedBox(width: 8), // Adjust as needed for spacing
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '안녕하세요 00님',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+              FutureBuilder(
+                future: getMyInfo(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    // 에러 발생 시
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    return Row(
+                      children: [
+                        const Icon(
+                          Icons.person,
+                          size: 90,
+                        ), // Assuming you want a person icon
+                        const SizedBox(
+                            width: 8), // Adjust as needed for spacing
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '안녕하세요 $name님',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text('$email'),
+                          ],
                         ),
-                      ),
-                      Text('sssss@naver.com'),
-                      Text('성별'),
-                    ],
-                  ),
-                ],
+                      ],
+                    );
+                  }
+                },
               ),
               const SizedBox(height: 20),
               buildButtonWithPasswordDialog(
