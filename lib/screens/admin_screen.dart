@@ -37,6 +37,10 @@ class _AdminPageState extends State<AdminPage> {
   String? selectedMeals = '중식';
   String currentWaitingStatus = '선택 안함';
   int? currentWaitingTime = 5;
+
+  String? lunchImageUrl;
+  String? breakfastImageUrl;
+
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
   bool _isSoldOut = false;
@@ -104,10 +108,11 @@ class _AdminPageState extends State<AdminPage> {
     await pref.setString('cafeteriaName', cafeteria);
   }
 
+//이미지 업로드에 기존 이미지 있으면 불러와서 재업로드 put 사용하기
   void _showImagePicker() {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (imagePickerContext) {
         return AlertDialog(
           title: Row(
             children: [
@@ -131,7 +136,8 @@ class _AdminPageState extends State<AdminPage> {
                   setState(() {
                     selectedMeals = newValue; // 선택된 항목을 상태로 저장
                   });
-                  Navigator.of(context).pop(); // 이미지를 선택한 후 팝업 창을 닫습니다.
+                  Navigator.of(imagePickerContext)
+                      .pop(); // 이미지를 선택한 후 팝업 창을 닫습니다.
                   _showImagePicker();
                 },
                 items: <String>[
@@ -153,7 +159,45 @@ class _AdminPageState extends State<AdminPage> {
               children: [
                 _image != null
                     ? Image.file(File(_image!.path))
-                    : Container(height: 50),
+                    : SizedBox(
+                        width: 270,
+                        height: 210,
+                        child: Image.network(
+                          selectedMeals == "중식"
+                              ? lunchImageUrl ?? ""
+                              : breakfastImageUrl ?? "",
+                          loadingBuilder: (BuildContext context, Widget child,
+                              ImageChunkEvent? loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (BuildContext context, Object exception,
+                              StackTrace? stackTrace) {
+                            // 에러 발생 시 표시될 위젯
+                            return const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.hourglass_empty),
+                                  SizedBox(
+                                    height: 40,
+                                  ),
+                                  Text('식단 사진이 등록 전입니다.'),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                 TextButton(
                   onPressed: () async {
                     final XFile? pickedImage =
@@ -163,7 +207,8 @@ class _AdminPageState extends State<AdminPage> {
                         _image = pickedImage;
                       });
                     }
-                    Navigator.of(context).pop(); // 이미지를 선택한 후 팝업 창을 닫습니다.
+                    Navigator.of(imagePickerContext)
+                        .pop(); // 이미지를 선택한 후 팝업 창을 닫습니다.
                     _showImagePicker(); // 선택한 이미지를 반영하기 위해 다시 팝업 창을 엽니다.
                   },
                   child: const Text("이미지 선택"),
@@ -174,7 +219,8 @@ class _AdminPageState extends State<AdminPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(imagePickerContext).pop();
+                _image = null;
               },
               child: const Text("취소"),
             ),
@@ -184,33 +230,28 @@ class _AdminPageState extends State<AdminPage> {
                   final meals = selectedMeals == "중식" ? "LUNCH" : "BREAKFAST";
                   try {
                     if (cafeteriaId != null) {
-                      await ApiService.postDietPhoto(
-                          _image!, dateFormat.format(now), meals, cafeteriaId!);
+                      if ((meals == "LUNCH" &&
+                              lunchImageUrl != null &&
+                              lunchImageUrl != "사진이 등록되어있지 않습니다.") ||
+                          (meals == "BREAKFAST" &&
+                              breakfastImageUrl != null &&
+                              breakfastImageUrl != "사진이 등록되어있지 않습니다.")) {
+                        await ApiService.putDietPhoto(_image!,
+                            dateFormat.format(now), meals, cafeteriaId!);
+                      } else {
+                        await ApiService.postDietPhoto(_image!,
+                            dateFormat.format(now), meals, cafeteriaId!);
+                      }
+                      await ApiService.postNotificationToSubscriber(
+                          "[$cafeteriaName] [$selectedMeals] 사진 등록",
+                          "$cafeteriaName $selectedMeals 사진 등록되었어요. 확인해보세요!",
+                          cafeteriaId.toString(),
+                          "dietPhotoEnroll");
+
+                      Navigator.of(imagePickerContext).pop();
                     }
                   } on Exception catch (e) {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        title: const Text('에러'),
-                        content: Text(e.toString()),
-                        actions: <Widget>[
-                          TextButton(
-                            child: const Text('확인'),
-                            onPressed: () {
-                              Navigator.of(ctx).pop();
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                  try {
-                    await ApiService.postNotificationToSubscriber(
-                        "[$cafeteriaName] [$selectedMeals] 사진 등록",
-                        "$cafeteriaName $selectedMeals 사진 등록되었어요. 확인해보세요!",
-                        cafeteriaId.toString(),
-                        "diet_photo_enroll");
-                  } on Exception catch (e) {
+                    print('_showImagePicker $e');
                     showDialog(
                       context: context,
                       builder: (ctx) => AlertDialog(
@@ -228,8 +269,8 @@ class _AdminPageState extends State<AdminPage> {
                     );
                   }
                 }
-
-                Navigator.of(context).pop();
+                _image = null;
+                //
               },
               child: const Text("등록"),
             ),
@@ -257,6 +298,7 @@ class _AdminPageState extends State<AdminPage> {
           await ApiService.getDiets(formattedDate, 'BREAKFAST', cafeteriaId!);
       if (menu != null) {
         // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
+        breakfastImageUrl = menu.imageUrl;
         return menu.names;
       }
     }
@@ -275,6 +317,7 @@ class _AdminPageState extends State<AdminPage> {
           await ApiService.getDiets(formattedDate, 'LUNCH', cafeteriaId!);
       if (menu != null) {
         // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
+        lunchImageUrl = menu.imageUrl;
         return menu.names;
       }
     }
@@ -966,7 +1009,7 @@ class _AdminPageState extends State<AdminPage> {
                           onPressed: () => _showImagePicker(),
                           child: const Center(
                             child: Text(
-                              "메뉴 사진 \n등록",
+                              "식단 사진 \n등록",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Color(0xFF282828),
@@ -1003,9 +1046,9 @@ class _AdminPageState extends State<AdminPage> {
                           horizontal: 10,
                         ),
                         child: TextButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (cafeteriaId != null) {
-                              Navigator.push(
+                              bool result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => WeekDiet(
@@ -1014,6 +1057,9 @@ class _AdminPageState extends State<AdminPage> {
                                   ),
                                 ),
                               );
+                              if (result == true) {
+                                setState(() {});
+                              }
                             }
                           },
                           child: const Center(
