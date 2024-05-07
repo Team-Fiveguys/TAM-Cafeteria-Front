@@ -42,7 +42,7 @@ class ApiService {
       XFile image, String date, String meals, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = '/diets/dietPhoto';
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
 // 파일의 MIME 타입을 결정합니다.
     String? mimeType = lookupMimeType(image.path);
@@ -111,7 +111,7 @@ class ApiService {
       XFile image, String date, String meals, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = '/diets/dietPhoto';
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
 // 파일의 MIME 타입을 결정합니다.
     String? mimeType = lookupMimeType(image.path);
@@ -179,7 +179,7 @@ class ApiService {
   static Future<void> postMenu(String name, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/menus";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(url,
         headers: {
@@ -208,7 +208,7 @@ class ApiService {
   static Future<Diet> getMenu(int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/menus";
-    final url = Uri.http(baseUrl, path, {'cafeteriaId': '$cafeteriaId'});
+    final url = Uri.https(baseUrl, path, {'cafeteriaId': '$cafeteriaId'});
 
     final response = await http.get(url, headers: {
       'Content-Type': 'application/json; charset=UTF-8',
@@ -247,7 +247,7 @@ class ApiService {
     final accessToken = await TokenManagerWithSP.loadToken();
 
     const path = "/diets";
-    final url = Uri.http(
+    final url = Uri.https(
       baseUrl,
       path,
       {
@@ -302,7 +302,7 @@ class ApiService {
       String meals, int cafeteriaId, bool dayOff) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(url,
         headers: {
@@ -335,7 +335,7 @@ class ApiService {
       String menuName, String date, String meals, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets/menus";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.put(
       url,
@@ -370,7 +370,7 @@ class ApiService {
       String menuName, String date, String meals, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets/menus";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.delete(url,
         headers: {
@@ -403,7 +403,7 @@ class ApiService {
   //     String menuName, String date, String meals, int cafeteriaId) async {
   //   final accessToken = await TokenManagerWithSP.loadToken();
   //   final path = "/admin/diets/menus/$cafeteriaId"; // 업데이트할 메뉴의 ID를 엔드포인트에 추가
-  //   final url = Uri.http(baseUrl, path);
+  //   final url = Uri.https(baseUrl, path);
 
   //   final response = await http.put(
   //     // PUT 메소드 사용
@@ -437,7 +437,7 @@ class ApiService {
   static Future<String?> postKakaoLogin(
       String idToken, String accessToken) async {
     const path = '/oauth2/kakao/token/validate';
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(
       url,
@@ -471,7 +471,7 @@ class ApiService {
 
   static Future<String> postEmailAuthCode(String email) async {
     const path = '/auth/email';
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(
       url,
@@ -503,7 +503,7 @@ class ApiService {
   static Future<bool> postEmailVerification(
       String email, String authCode) async {
     const path = '/auth/email/verification';
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(
       url,
@@ -535,7 +535,7 @@ class ApiService {
   static Future<bool> postSignUp(String name, String password, String sex,
       String email, String authcode) async {
     const path = "/sign-up";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(url,
         headers: {
@@ -566,7 +566,7 @@ class ApiService {
 
   static Future<String?> postSignIn(String email, String password) async {
     const path = "/auth/email/sign-in";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(url,
         headers: {
@@ -601,7 +601,7 @@ class ApiService {
       String? congestion, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/admin/cafeterias/$cafeteriaId/congestion";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(url,
         headers: {
@@ -631,7 +631,7 @@ class ApiService {
   static Future<String> getCongestionStatus(int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/cafeterias/$cafeteriaId/congestion";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.get(
       url,
@@ -661,7 +661,7 @@ class ApiService {
   static Future<String?> postAppleLogin(
       String? socialId, String? identityToken, String authorizationCode) async {
     const path = '/oauth2/apple/token/validate';
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(
       url,
@@ -698,7 +698,7 @@ class ApiService {
       int cafeteriaId, String date, String meals) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets/dayOff";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.patch(
       url,
@@ -730,6 +730,43 @@ class ApiService {
     }
   }
 
+  static Future<bool> patchSoldOutStatus(
+      int cafeteriaId, String date, String meals) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/admin/diets/sold-out";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.patch(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode(
+        {
+          'cafeteriaId': cafeteriaId.toString(),
+          'localDate': date,
+          'meals': meals,
+        },
+      ),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      // print('ApiService : getCongestionStatus : $jsonResponse');
+      print(
+          'ApiService : pathSoldOutStatus ${jsonResponse['result']['soldOut']}');
+      return jsonResponse['result']['soldOut'];
+    } else {
+      print(jsonResponse);
+      throw Exception(jsonResponse['message']);
+    }
+  }
+
   static Future<Map<String?, Diet>> getWeekDiets(
       int cafeteriaId, int year, int month, int weekNum, String meals) async {
     final accessToken = await TokenManagerWithSP.loadToken();
@@ -743,7 +780,7 @@ class ApiService {
     };
 
     // Uri 생성 시 queryParameters를 전달합니다.
-    final url = Uri.http(baseUrl, path, queryParameters);
+    final url = Uri.https(baseUrl, path, queryParameters);
 
     final response = await http.get(
       url,
@@ -788,7 +825,7 @@ class ApiService {
       String cafeteriaName, String notificationType) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/notifications/topic/subscriber";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(url,
         headers: {
@@ -820,7 +857,7 @@ class ApiService {
   static Future<void> postNotificationSet(String registrationToken) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notificationSet";
-    final url = Uri.http(
+    final url = Uri.https(
       baseUrl,
       path,
       {
@@ -853,7 +890,7 @@ class ApiService {
       String title, String content) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/notifications/general/users";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(url,
         headers: {
@@ -883,7 +920,7 @@ class ApiService {
   static Future<List<NotificationModel>> getNotifications() async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notifications";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.get(
       url,
@@ -923,7 +960,7 @@ class ApiService {
   static Future<void> postNotificationToServer(String notificationId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/users/notifications/$notificationId";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.post(
       url,
@@ -949,7 +986,7 @@ class ApiService {
   static Future<void> deleteOneNotification(String notificationId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/users/notifications/$notificationId";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.delete(
       url,
@@ -975,7 +1012,7 @@ class ApiService {
   static Future<void> deleteAllNotification() async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notifications";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.delete(
       url,
@@ -1001,7 +1038,7 @@ class ApiService {
   static Future<void> readOneNotification(String notificationId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/users/notifications/$notificationId/read";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.patch(
       url,
@@ -1031,7 +1068,7 @@ class ApiService {
       if (accessToken == null) {
         throw Exception('Access token is null');
       }
-      final url = Uri.http(baseUrl, '/admin', {'page': page.toString()});
+      final url = Uri.https(baseUrl, '/admin', {'page': page.toString()});
 
       final response = await http.get(url, headers: {
         'Content-Type': 'application/json',
@@ -1057,7 +1094,7 @@ class ApiService {
 
   static Future<void> revokeAdminRole(int userId) async {
     try {
-      final url = Uri.http(baseUrl, '/admin/users/$userId/role/user');
+      final url = Uri.https(baseUrl, '/admin/users/$userId/role/user');
       final accessToken =
           await TokenManagerWithSP.loadToken(); // 토큰 로드 로직 구현 필요
       if (accessToken == null) {
@@ -1083,7 +1120,7 @@ class ApiService {
 
   static Future<bool> grantAdminRole(int userId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
-    final url = Uri.http(baseUrl, '/admin/users/$userId/role/admin');
+    final url = Uri.https(baseUrl, '/admin/users/$userId/role/admin');
 
     final response = await http.patch(
       url,
@@ -1120,7 +1157,7 @@ class ApiService {
   static Future<void> readAllNotification() async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notifications/read";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.patch(
       url,
@@ -1152,7 +1189,7 @@ class ApiService {
       String? lunchTime) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/cafeterias";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
     String breakfastStart = "";
     String breakfastEnd = "";
     String lunchStart = "";
@@ -1213,7 +1250,7 @@ class ApiService {
   Future<List<Cafeteria>> getCafeteriaList() async {
     try {
       final accessToken = await TokenManagerWithSP.loadToken(); // 토큰 관리 로직 추가
-      final Uri url = Uri.http(baseUrl, '/admin/me/cafeterias');
+      final Uri url = Uri.https(baseUrl, '/admin/me/cafeterias');
 
       print('Fetching cafeteria list from: $url');
       final response = await http.get(
@@ -1240,51 +1277,12 @@ class ApiService {
     }
   }
 
-  //품절 api 연동
-
-  static Future<bool> toggleMealSoldOut(
-      int dietId, String date, bool soldOut) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
-    const path = "/admin/diets/sold-out";
-    final url = Uri.http(baseUrl, path);
-
-    try {
-      final response = await http.patch(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode({
-          "dietId": dietId,
-          "date": date,
-          "soldOut": soldOut,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        print(
-            'Failed to update meal status: ${utf8.decode(response.bodyBytes)}');
-        return false;
-      }
-    } catch (e) {
-      print('Error making request to API: $e');
-      return false;
-    }
-  }
-
-//품절 클릭되도록 어드민 창에서 품절 버튼 구현
-// 메인페이지에서도 품절 클릭시 잘 작동하는지
-// 조식 중식 각각 구분되어야 함
-
 //알람 api
   static Future<dynamic> getNotificationSettings() async {
     final accessToken = await TokenManagerWithSP.loadToken();
 
     const path = "/users/notificationSet";
-    final url = Uri.http(baseUrl, path);
+    final url = Uri.https(baseUrl, path);
 
     final response = await http.get(
       url,
@@ -1315,7 +1313,7 @@ class ApiService {
       final accessToken = await TokenManagerWithSP.loadToken();
 
       const path = "/users/notificationSet";
-      final url = Uri.http(baseUrl, path);
+      final url = Uri.https(baseUrl, path);
 
       final response = await http.put(
         url,
@@ -1340,5 +1338,34 @@ class ApiService {
     } catch (error) {
       print('오류 발생: $error');
     }
+  }
+
+  static Future<dynamic> getUserInfo() async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+
+    const path = "/users/me";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      // 필요에 따라 JSON 응답을 처리합니다.
+      print(jsonResponse);
+      return jsonResponse['result'];
+    } else {
+      print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+    }
+    return null;
   }
 }

@@ -43,7 +43,8 @@ class _AdminPageState extends State<AdminPage> {
 
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
-  bool _isSoldOut = false;
+  bool? _breakfastisSoldOut;
+  bool? _lunchisSoldOut;
 
   final List<String> menuList = [
     "마제소바",
@@ -288,17 +289,16 @@ class _AdminPageState extends State<AdminPage> {
   }
 
   Future<List<String>> getTodayBreakfastMenu() async {
-    // 현재 날짜를 가져옵니다.
-    DateTime now = DateTime.now();
-    // 날짜를 yyyy-MM-dd 형식의 문자열로 변환합니다.
-    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
-    // 학생회관의 점심 메뉴를 불러옵니다.
+    final formattedDate = dateFormat.format(now);
+
     if (cafeteriaId != null) {
       Diet? menu =
           await ApiService.getDiets(formattedDate, 'BREAKFAST', cafeteriaId!);
       if (menu != null) {
         // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
         breakfastImageUrl = menu.imageUrl;
+        _breakfastisSoldOut = menu.soldOut;
+
         return menu.names;
       }
     }
@@ -308,16 +308,15 @@ class _AdminPageState extends State<AdminPage> {
 
   Future<List<String>> getTodayLunchMenu() async {
     // 현재 날짜를 가져옵니다.
-    DateTime now = DateTime.now();
-    // 날짜를 yyyy-MM-dd 형식의 문자열로 변환합니다.
-    String formattedDate = DateFormat('yyyy-MM-dd').format(now);
-    // 학생회관의 점심 메뉴를 불러옵니다.
+    final formattedDate = dateFormat.format(now);
     if (cafeteriaId != null) {
       Diet? menu =
           await ApiService.getDiets(formattedDate, 'LUNCH', cafeteriaId!);
       if (menu != null) {
         // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
         lunchImageUrl = menu.imageUrl;
+        _lunchisSoldOut = menu.soldOut;
+        print('getTodayLunchMenu : soldOut $_lunchisSoldOut');
         return menu.names;
       }
     }
@@ -749,13 +748,73 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Center(
-                          child: Text(
-                            '품절',
-                          ),
-                        ),
+                      FutureBuilder(
+                        future: getTodayBreakfastMenu(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            // 데이터를 기다리는 동안 로딩 표시를 표시합니다.
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            // 에러가 발생한 경우 에러 메시지를 표시합니다.
+                            return Center(
+                              child: Text('Error: ${snapshot.error}'),
+                            );
+                          } else {
+                            return ElevatedButton(
+                              onPressed: () async {
+                                try {
+                                  if (cafeteriaId != null) {
+                                    final channel = cafeteriaId == 1
+                                        ? "myeongJin"
+                                        : cafeteriaId == 2
+                                            ? "hakGwan"
+                                            : cafeteriaId == 4
+                                                ? "myeongBun"
+                                                : "";
+                                    final result =
+                                        await ApiService.patchSoldOutStatus(
+                                            cafeteriaId!,
+                                            dateFormat.format(now),
+                                            "BREAKFAST");
+                                    if (result) {
+                                      await ApiService.postNotificationToSubscriber(
+                                          "[$cafeteriaName] [조식]품절",
+                                          "금일 $cafeteriaName 조식 품절되었습니다. 다음에 또 봐요!",
+                                          channel,
+                                          "dietSoldOut");
+                                    }
+                                    setState(() {
+                                      // _lunchisSoldOut =
+                                      //     !(_lunchisSoldOut ?? false);
+                                    });
+                                  }
+                                } on Exception catch (e) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: const Text('에러'),
+                                      content: Text(e.toString()),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: const Text('확인'),
+                                          onPressed: () {
+                                            Navigator.of(ctx).pop();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text(_breakfastisSoldOut ?? false
+                                  ? "품절 해제"
+                                  : "품절 설정"),
+                            );
+                          }
+                        },
                       ),
                       const SizedBox(
                         height: 15,
@@ -845,29 +904,72 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed: () async {
-                          final service = ApiService();
-                          final success = await ApiService.toggleMealSoldOut(
-                              117, '2024-05-04', !_isSoldOut);
-
-                          if (success) {
-                            setState(() {
-                              _isSoldOut = !_isSoldOut; // 상태 업데이트
-                            });
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(_isSoldOut
-                                      ? "식사가 품절로 변경되었습니다."
-                                      : "식사가 다시 판매 가능합니다.")),
+                      FutureBuilder(
+                        future: getTodayLunchMenu(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            // 데이터를 기다리는 동안 로딩 표시를 표시합니다.
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            // 에러가 발생한 경우 에러 메시지를 표시합니다.
+                            return Center(
+                              child: Text('Error: ${snapshot.error}'),
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("상태 변경에 실패했습니다.")),
+                            return ElevatedButton(
+                              onPressed: () async {
+                                try {
+                                  if (cafeteriaId != null) {
+                                    final channel = cafeteriaId == 1
+                                        ? "myeongJin"
+                                        : cafeteriaId == 2
+                                            ? "hakGwan"
+                                            : cafeteriaId == 4
+                                                ? "myeongBun"
+                                                : "";
+                                    final result =
+                                        await ApiService.patchSoldOutStatus(
+                                            cafeteriaId!,
+                                            dateFormat.format(now),
+                                            "LUNCH");
+                                    if (result) {
+                                      await ApiService.postNotificationToSubscriber(
+                                          "[$cafeteriaName] [중식]품절",
+                                          "금일 $cafeteriaName 중식 품절되었습니다. 다음에 또 봐요!",
+                                          channel,
+                                          "dietSoldOut");
+                                    }
+                                    setState(() {
+                                      // _lunchisSoldOut =
+                                      //     !(_lunchisSoldOut ?? false);
+                                    });
+                                  }
+                                } on Exception catch (e) {
+                                  showDialog(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: const Text('에러'),
+                                      content: Text(e.toString()),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          child: const Text('확인'),
+                                          onPressed: () {
+                                            Navigator.of(ctx).pop();
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text(
+                                  _lunchisSoldOut ?? false ? "품절 해제" : "품절 설정"),
                             );
                           }
                         },
-                        child: Text(_isSoldOut ? "품절 해제" : "품절 설정"),
                       ),
                     ],
                   ),
