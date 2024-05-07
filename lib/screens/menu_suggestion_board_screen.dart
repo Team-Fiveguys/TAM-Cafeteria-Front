@@ -128,7 +128,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '메뉴A',
+                                      '순대국밥',
                                       style: TextStyle(
                                         fontSize: 18.0,
                                         fontWeight: FontWeight.bold,
@@ -136,7 +136,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                     ),
                                     SizedBox(height: 8.0),
                                     Text(
-                                      '개발중...',
+                                      '너무 먹고싶어요',
                                       style: TextStyle(fontSize: 14.0),
                                     ),
                                   ],
@@ -153,7 +153,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                       },
                                       icon: const Icon(Icons.thumb_up),
                                     ),
-                                    Text('$_likeCount'),
+                                    const Text('153'),
                                     const SizedBox(
                                       width: 15,
                                     )
@@ -200,7 +200,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '메뉴A',
+                                  '삼겹살구이',
                                   style: TextStyle(
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.bold,
@@ -208,7 +208,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                 ),
                                 SizedBox(height: 8.0),
                                 Text(
-                                  '개발중...',
+                                  '고기가 최고야',
                                   style: TextStyle(fontSize: 14.0),
                                 ),
                               ],
@@ -225,7 +225,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                   },
                                   icon: const Icon(Icons.thumb_up),
                                 ),
-                                Text('$_likeCount'),
+                                const Text('144'),
                                 const SizedBox(
                                   width: 15,
                                 )
@@ -270,7 +270,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '메뉴A',
+                                  '김치찌개',
                                   style: TextStyle(
                                     fontSize: 18.0,
                                     fontWeight: FontWeight.bold,
@@ -278,7 +278,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                 ),
                                 SizedBox(height: 8.0),
                                 Text(
-                                  '개발중...',
+                                  '돼지고기가 들어간 김치찌개!',
                                   style: TextStyle(fontSize: 14.0),
                                 ),
                               ],
@@ -295,7 +295,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                   },
                                   icon: const Icon(Icons.thumb_up),
                                 ),
-                                Text('$_likeCount'),
+                                const Text('99'),
                                 const SizedBox(
                                   width: 15,
                                 )
@@ -358,7 +358,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              '메뉴A',
+                              '김치피자탕수육',
                               style: TextStyle(
                                 fontSize: 18.0,
                                 fontWeight: FontWeight.bold,
@@ -366,7 +366,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                             ),
                             SizedBox(height: 8.0),
                             Text(
-                              '개발중...',
+                              '김피탕 먹고싶어요',
                               style: TextStyle(fontSize: 14.0),
                             ),
                           ],
@@ -383,7 +383,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                               },
                               icon: const Icon(Icons.thumb_up),
                             ),
-                            Text('$_likeCount'),
+                            const Text('1'),
                             const SizedBox(
                               width: 15,
                             )

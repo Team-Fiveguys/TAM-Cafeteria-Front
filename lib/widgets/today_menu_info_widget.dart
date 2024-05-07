@@ -280,7 +280,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                                 "• $menu",
                                                 style: const TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: 13,
+                                                  fontSize: 11,
                                                 ),
                                                 minFontSize: 10,
                                               )
@@ -533,7 +533,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                                 style: TextStyle(
                                                   color: Theme.of(context)
                                                       .primaryColorDark,
-                                                  fontSize: 13,
+                                                  fontSize: 11,
                                                 ),
                                                 minFontSize: 10,
                                               )
@@ -561,7 +561,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                               lunchHour: widget.lunchHour,
                             )
                           : const TimeIndicator(
-                              name: "명분이네",
+                              name: "명돈이네",
                               lunchHour: "11:00 ~ 15:00",
                             ),
                       const SizedBox(
@@ -641,7 +641,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                                   style: TextStyle(
                                                     color: Theme.of(context)
                                                         .primaryColorDark,
-                                                    fontSize: 13,
+                                                    fontSize: 11,
                                                   ),
                                                   minFontSize: 10,
                                                 )

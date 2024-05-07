@@ -73,15 +73,15 @@ class _AdminPageState extends State<AdminPage> {
     print('getCongestion : pref : ${pref.getString('cafeteriaName')}');
 
     setState(() {
-      selectedItem = pref.getString('cafeteriaName');
-      cafeteriaName = pref.getString('cafeteriaName');
+      selectedItem = pref.getString('cafeteriaName') ?? '명진당';
+      cafeteriaName = pref.getString('cafeteriaName') ?? '명진당';
       if (cafeteriaName == "명진당") {
         cafeteriaId = 1;
       }
       if (cafeteriaName == "학생회관") {
         cafeteriaId = 2;
       }
-      if (cafeteriaName == "명분이네") {
+      if (cafeteriaName == "명돈이네") {
         cafeteriaId = 4;
       }
     });
@@ -425,7 +425,7 @@ class _AdminPageState extends State<AdminPage> {
                 items: <String>[
                   '명진당',
                   '학생회관',
-                  '명분이네',
+                  '명돈이네',
                 ] // 선택 가능한 항목 리스트
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
