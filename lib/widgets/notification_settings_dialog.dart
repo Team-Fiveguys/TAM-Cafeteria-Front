@@ -17,6 +17,7 @@ class _NotificationSettingsDialogState
     extends State<NotificationSettingsDialog> {
   late bool allAlarm;
   late bool myeongjinAlarm;
+  late bool myeongbunAlarm;
   late bool hakgwanAlarm;
   late bool todaydietAlarm;
   late bool dietphotoenrollAlarm;
@@ -34,22 +35,27 @@ class _NotificationSettingsDialogState
   // 서버에서 받은 설정으로 초기화
   // 서버에서 받은 설정으로 초기화
 // 서버에서 받은 설정으로 초기화
-  void initializeSettings() {
+  Future<void> initializeSettings() async {
     // 서버에서 받은 설정 데이터. 예시로 하드코딩했으나 실제로는 ApiService를 사용하여 가져와야 합니다.
-    ApiService.fetchNotificationSettings().then((receivedSettings) {
-      // 서버에서 받은 설정을 각 변수에 할당
-      allAlarm = true;
-      myeongjinAlarm = true;
-      hakgwanAlarm = true;
-      todaydietAlarm = true;
-      dietphotoenrollAlarm = true;
-      weekdietenrollAlarm = true;
-      dietsoldoutAlarm = true;
-      dietchangeAlarm = true;
-    }).catchError((error) {
-      // 에러 처리
-      print("설정을 불러오는 도중 오류가 발생했습니다: $error");
-    });
+    final settings = await ApiService.getNotificationSettings();
+    if (settings.isNotEmpty) {
+      myeongjinAlarm = settings['myeongJin'] ?? false;
+      hakgwanAlarm = settings['hakGwan'] ?? false;
+      myeongbunAlarm = settings['myeongBun'] ?? false;
+      todaydietAlarm = settings['todayDiet'] ?? false;
+      dietphotoenrollAlarm = settings['dietPhotoEnroll'] ?? false;
+      weekdietenrollAlarm = settings['weekDietEnroll'] ?? false;
+      dietsoldoutAlarm = settings['dietSoldOut'] ?? false;
+      dietchangeAlarm = settings['dietChange'] ?? false;
+      allAlarm = myeongjinAlarm ||
+          hakgwanAlarm ||
+          myeongbunAlarm ||
+          todaydietAlarm ||
+          dietphotoenrollAlarm ||
+          weekdietenrollAlarm ||
+          dietsoldoutAlarm ||
+          dietchangeAlarm;
+    }
   }
 
   void saveSettings() async {
@@ -57,6 +63,7 @@ class _NotificationSettingsDialogState
       Map<String, bool> newSettings = {
         'hakGwan': hakgwanAlarm,
         'myeongJin': myeongjinAlarm,
+        'myeongBun': myeongbunAlarm,
         'todayDiet': todaydietAlarm,
         'dietPhotoEnroll': dietphotoenrollAlarm,
         'weekDietEnroll': weekdietenrollAlarm,
@@ -78,29 +85,35 @@ class _NotificationSettingsDialogState
       if (!myeongjinAlarm) {
         FirebaseMessaging.instance.unsubscribeFromTopic('myeongJin');
       }
+      if (myeongbunAlarm) {
+        FirebaseMessaging.instance.subscribeToTopic('myeongBun');
+      }
+      if (!myeongbunAlarm) {
+        FirebaseMessaging.instance.unsubscribeFromTopic('myeongBun');
+      }
       if (todaydietAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('today_diet');
+        FirebaseMessaging.instance.subscribeToTopic('todayDiet');
       }
       if (!todaydietAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('today_diet');
+        FirebaseMessaging.instance.unsubscribeFromTopic('todayDiet');
       }
       if (dietphotoenrollAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('diet_photo_enroll');
+        FirebaseMessaging.instance.subscribeToTopic('dietPhotoEnroll');
       }
       if (!dietphotoenrollAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('diet_photo_enroll');
+        FirebaseMessaging.instance.unsubscribeFromTopic('dietPhotoEnroll');
       }
       if (weekdietenrollAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('week_diet_enroll');
+        FirebaseMessaging.instance.subscribeToTopic('weekDietEnroll');
       }
       if (!weekdietenrollAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('week_diet_enroll');
+        FirebaseMessaging.instance.unsubscribeFromTopic('weekDietEnroll');
       }
       if (dietsoldoutAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('diet_sold_out');
+        FirebaseMessaging.instance.subscribeToTopic('dietSoldOut');
       }
       if (!dietsoldoutAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('diet_sold_out');
+        FirebaseMessaging.instance.unsubscribeFromTopic('dietSoldOut');
       }
       // 저장 완료 메시지 출력
       print("Notification settings saved successfully.");
@@ -173,6 +186,7 @@ class _NotificationSettingsDialogState
                                     // 전체 알림 스위치 상태가 변경될 때 각 알림 항목 스위치도 동일하게 변경
                                     myeongjinAlarm = value;
                                     hakgwanAlarm = value;
+                                    myeongbunAlarm = value;
                                     todaydietAlarm = value;
                                     dietphotoenrollAlarm = value;
                                     weekdietenrollAlarm = value;
@@ -215,6 +229,20 @@ class _NotificationSettingsDialogState
                                 onChanged: (value) {
                                   setState(() {
                                     hakgwanAlarm = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('명분이네'),
+                              Switch(
+                                value: myeongbunAlarm,
+                                onChanged: (value) {
+                                  setState(() {
+                                    myeongbunAlarm = value;
                                   });
                                 },
                               ),

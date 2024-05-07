@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/firebase_options.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
@@ -141,25 +142,29 @@ Future<void> initiallizingFCM() async {
     await Permission.notification.request();
   }
   // await initializeNotifications();
-  NotificationSettings settings =
-      await FirebaseMessaging.instance.requestPermission(
-    badge: true,
-    alert: true,
-    sound: true,
-  );
 
-  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-    // 사용자가 알림 권한을 허용했을 때
-    // 여기에서 API 호출 로직을 추가하세요.
-    if (fcmToken != null) {
-      await ApiService.postNotificationSet(fcmToken);
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool hasPrompted = prefs.getBool('hasPromptedForNotification') ?? false;
+
+  if (!hasPrompted) {
+    // 알림 권한 요청
+    NotificationSettings settings =
+        await FirebaseMessaging.instance.requestPermission(
+      badge: true,
+      alert: true,
+      sound: true,
+    );
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      // 사용자가 알림을 허용했을 때의 처리
+      // 예: 서버에 API 호출
+      if (fcmToken != null) {
+        await ApiService.postNotificationSet(fcmToken);
+      }
     }
-  } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
-    // 사용자가 잠정적으로 알림을 허용했을 때
-    // 필요한 경우 여기에 로직을 추가하세요.
-  } else {
-    // 사용자가 알림 권한을 거부했을 때
-    // 필요한 경우 여기에 로직을 추가하세요.
+
+    // 알림 설정 프롬프트가 표시되었음을 저장
+    await prefs.setBool('hasPromptedForNotification', true);
   }
 }
 

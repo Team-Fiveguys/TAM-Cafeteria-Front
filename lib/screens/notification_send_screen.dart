@@ -22,7 +22,7 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
           "[${widget.cafeteriaName}] 주간 식당 등록",
           "${widget.cafeteriaName} 주간 식단표가 등록되었어요. 확인해보세요!",
           widget.cafeteriaId.toString(),
-          "week_diet_enroll");
+          "weekDietEnroll");
     } on Exception catch (e) {
       showDialog(
         context: context,
