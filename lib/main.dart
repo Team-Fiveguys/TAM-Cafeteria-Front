@@ -377,6 +377,7 @@ class _AppState extends ConsumerState<App> {
             ),
     ];
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
           dialogBackgroundColor: Colors.white,
           // colorScheme: ColorScheme.fromSwatch().copyWith(

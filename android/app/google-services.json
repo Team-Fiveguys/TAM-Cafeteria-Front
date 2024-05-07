@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:257167473366:android:eadb2922abdba693132777",
+        "mobilesdk_app_id": "1:257167473366:android:224e2cf2f95a9f2f132777",
         "android_client_info": {
-          "package_name": "com.example.tam_cafeteria_front"
+          "package_name": "com.tam_cafeteria.app"
         }
       },
       "oauth_client": [],
