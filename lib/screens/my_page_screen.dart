@@ -141,6 +141,11 @@ class _MyPageState extends State<MyPage> {
                 '약관 보기',
               ),
               const SizedBox(height: 20),
+              buildLicensesWithDialog(
+                context,
+                '오픈소스 라이센스 보기',
+              ),
+              const SizedBox(height: 20),
               buildButtonWithWithdrawDialog(
                 context,
                 '회원 탈퇴',
@@ -320,8 +325,49 @@ class _MyPageState extends State<MyPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const TermsScreen(), //알람 버튼
+                builder: (context) => const TermsScreen(),
               ),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xffc6c6c6),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              buttonText,
+              style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildLicensesWithDialog(BuildContext context, String buttonText) {
+    return Center(
+      child: Container(
+        height: 55,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(0),
+        ),
+        child: ElevatedButton(
+          onPressed: () {
+            showLicensePage(
+              context: context,
+              // 필요한 경우 applicationName, applicationVersion 등을 설정할 수 있음
+              applicationName: '탐식당',
+              applicationVersion: '1.0.0',
+              applicationIcon: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset('assets/images/app_logo.png',
+                    width: 100, height: 100),
+              ),
+              applicationLegalese: '© 2024 탐나는 식탁',
             );
           },
           style: ElevatedButton.styleFrom(
