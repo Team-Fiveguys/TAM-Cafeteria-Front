@@ -388,7 +388,7 @@ class _WeekDietState extends State<WeekDiet> {
                     // leading 위치에 아이콘 버튼 배치
                     onPressed: () {
                       // if(initMenuListLength) TODO: 추가한 메뉴가 있을때 확인알림 해줘야할듯?
-                      Navigator.pop(context);
+                      Navigator.pop(context, true);
                     },
                     icon: const Icon(
                       Icons.arrow_back_ios,
@@ -508,7 +508,9 @@ class _WeekDietState extends State<WeekDiet> {
                             onChanged: (bool? value) async {
                               try {
                                 await ApiService.patchDayOffStatus(
-                                    widget.cafeteriaId, selectedDay);
+                                    widget.cafeteriaId,
+                                    selectedDay,
+                                    selectedMeals);
                                 setState(() {
                                   operationalDays[selectedDay] = value;
                                 });
