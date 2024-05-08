@@ -132,16 +132,16 @@ class _MyPageState extends State<MyPage> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
-              buildButtonWithPasswordDialog(
-                context,
-                '비밀번호 변경',
-              ),
-              const SizedBox(height: 20),
-              buildButtonWithNicknameDialog(
-                context,
-                '닉네임 수정',
-              ),
+              // const SizedBox(height: 20),
+              // buildButtonWithPasswordDialog(
+              //   context,
+              //   '비밀번호 변경',
+              // ),
+              // const SizedBox(height: 20),
+              // buildButtonWithNicknameDialog(
+              //   context,
+              //   '닉네임 수정',
+              // ),
               const SizedBox(height: 20),
               const NotificationSettingsDialog(
                 buttonText: '알림 설정',

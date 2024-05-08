@@ -18,10 +18,17 @@ class NotificationSendPage extends StatefulWidget {
 class _NotificationSendPageState extends State<NotificationSendPage> {
   void pushNotification() async {
     try {
+      final channel = widget.cafeteriaId == 1
+          ? "myeongJin"
+          : widget.cafeteriaId == 2
+              ? "hakGwan"
+              : widget.cafeteriaId == 4
+                  ? "myeongBun"
+                  : "";
       await ApiService.postNotificationToSubscriber(
           "[${widget.cafeteriaName}] 주간 식당 등록",
           "${widget.cafeteriaName} 주간 식단표가 등록되었어요. 확인해보세요!",
-          widget.cafeteriaId.toString(),
+          channel,
           "weekDietEnroll");
     } on Exception catch (e) {
       showDialog(
@@ -45,6 +52,7 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
   void showSendNotification() async {
     TextEditingController titleController = TextEditingController();
     TextEditingController contentController = TextEditingController();
+    titleController.text = "[${widget.cafeteriaName}]";
     showDialog(
       context: context,
       builder: (context) {

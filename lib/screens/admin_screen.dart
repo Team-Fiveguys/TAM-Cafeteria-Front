@@ -780,6 +780,7 @@ class _AdminPageState extends State<AdminPage> {
                                             dateFormat.format(now),
                                             "BREAKFAST");
                                     if (result) {
+                                      print(channel);
                                       await ApiService.postNotificationToSubscriber(
                                           "[$cafeteriaName] [조식]품절",
                                           "금일 $cafeteriaName 조식 품절되었습니다. 다음에 또 봐요!",
