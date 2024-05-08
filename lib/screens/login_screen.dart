@@ -12,7 +12,7 @@ import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
 import 'package:tam_cafeteria_front/screens/sign_up_screen.dart';
-import 'package:tam_cafeteria_front/services/api_service.dart'; // SignUpScreen 파일 import
+import 'package:tam_cafeteria_front/services/api_service.dart';
 
 //아직회원이 아니신가요? 회원가입> 안 붙음
 class LoginScreen extends ConsumerWidget {
@@ -56,7 +56,6 @@ class LoginScreen extends ConsumerWidget {
         if (e is PlatformException && e.code == 'CANCELED') {
           return;
         }
-        // TODO
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
@@ -76,37 +75,24 @@ class LoginScreen extends ConsumerWidget {
         Navigator.pop(context, "login success");
       }
     } else {
-      // try {
-      //   OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-      //   final accessToken =
-      //       await ApiService.postKakaoLogin(token.idToken!, token.accessToken);
-      //   if (accessToken != null) {
-      //     tokenProvider.setToken(accessToken);
-      //     loginProvier.login();
-      //     //  ref.read(loginStateProvider.state).state = true;
-      //   }
-      //   Navigator.of(context).pop(true);
-      //   print('카카오계정으로 로그인 성공');
-      // } catch (error) {
-      //   print('카카오계정으로 로그인 실패 $error');
-      //   showDialog(
-      //     context: context,
-      //     builder: (ctx) => AlertDialog(
-      //       title: const Text('에러'),
-      //       content: Text('카카오 로그인 실패 $error'),
-      //       actions: <Widget>[
-      //         TextButton(
-      //           child: const Text('확인'),
-      //           onPressed: () {
-      //             Navigator.of(ctx).pop();
-      //           },
-      //         ),
-      //       ],
-      //     ),
-      //   );
-      // } finally {
-      // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
-      // }
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("카카오톡 설치"),
+            content: const Text("카카오톡이 설치되어 있지 않습니다. 카카오톡 설치 후 다시 이용해주세요"),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("취소"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
