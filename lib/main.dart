@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/firebase_options.dart';
@@ -140,6 +142,7 @@ class _AppState extends ConsumerState<App> {
   bool switchOn = false;
   int testValue = 1;
   bool isLoading = false;
+  DateTime? currentBackPressTime;
 
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _isVisible = ValueNotifier(true);
@@ -371,6 +374,27 @@ class _AppState extends ConsumerState<App> {
     return 0;
   }
 
+  Future<bool> onWillPop() async {
+    DateTime currentTime = DateTime.now();
+
+    //Statement 1 Or statement2
+    if (currentBackPressTime == null ||
+        currentTime.difference(currentBackPressTime!) >
+            const Duration(seconds: 2)) {
+      currentBackPressTime = currentTime;
+      Fluttertoast.showToast(
+          msg: "'뒤로' 버튼을 한번 더 누르시면 종료됩니다.",
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: const Color(0xff6E6E6E),
+          fontSize: 15,
+          toastLength: Toast.LENGTH_SHORT);
+      return false;
+    }
+    return true;
+
+    // SystemNavigator.pop();
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -597,15 +621,18 @@ class _AppState extends ConsumerState<App> {
                 ],
               ),
             ),
-            body: RefreshIndicator(
-              onRefresh: () async {
-                setState(() {
-                  testValue = 2;
-                });
-              },
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: _widgetOptions.elementAt(_selectedIndex),
+            body: WillPopScope(
+              onWillPop: onWillPop,
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  setState(() {
+                    testValue = 2;
+                  });
+                },
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: _widgetOptions.elementAt(_selectedIndex),
+                ),
               ),
             ),
           ),
