@@ -39,6 +39,7 @@ class _MyPageState extends State<MyPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           alignment: Alignment.center,
@@ -87,62 +88,49 @@ class _MyPageState extends State<MyPage> {
           const SizedBox(
             height: 30,
           ),
-        Container(
-          margin: const EdgeInsets.all(11),
-          padding: const EdgeInsets.all(35),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(19),
-            border: Border.all(
-              color: Colors.white,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.4),
-                spreadRadius: 2.0,
-                blurRadius: 1.0,
-              ),
-            ],
-          ),
+        Padding(
+          padding: const EdgeInsets.all(15),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              FutureBuilder(
-                future: getMyInfo(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    // 에러 발생 시
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    return Row(
-                      children: [
-                        const Icon(
-                          Icons.person,
-                          size: 90,
-                        ), // Assuming you want a person icon
-                        const SizedBox(
-                            width: 8), // Adjust as needed for spacing
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '안녕하세요 $name님',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+              SizedBox(
+                height: 90,
+                child: FutureBuilder(
+                  future: getMyInfo(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      // 에러 발생 시
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return Row(
+                        children: [
+                          const Icon(
+                            Icons.person,
+                            size: 90,
+                          ), // Assuming you want a person icon
+                          const SizedBox(
+                              width: 8), // Adjust as needed for spacing
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '안녕하세요 $name님',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
-                            Text('$email'),
-                          ],
-                        ),
-                      ],
-                    );
-                  }
-                },
+                              Text('$email'),
+                            ],
+                          ),
+                        ],
+                      );
+                    }
+                  },
+                ),
               ),
               const SizedBox(height: 20),
               buildButtonWithPasswordDialog(

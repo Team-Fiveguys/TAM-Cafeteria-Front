@@ -881,8 +881,8 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : postNotificationSet : $jsonResponse');
     } else {
-      print(jsonResponse);
-      // throw Exception(jsonResponse['message']);
+      print('ApiService : postNotificationSet : $jsonResponse');
+      throw Exception(jsonResponse['message']);
     }
   }
 
@@ -1302,7 +1302,7 @@ class ApiService {
       print(jsonResponse);
       return jsonResponse['result'];
     } else {
-      print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+      print('getNotificationSetting : ${jsonResponse['message']}');
     }
     throw Exception(jsonResponse['message']);
   }

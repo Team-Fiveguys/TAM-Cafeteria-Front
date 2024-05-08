@@ -29,7 +29,7 @@ class _NotificationSettingsDialogState
   void initState() {
     super.initState();
     // 초기 설정을 서버에서 받은 값으로 초기화
-    initializeSettings();
+    // initializeSettings();
   }
 
   // 서버에서 받은 설정으로 초기화
@@ -135,219 +135,242 @@ class _NotificationSettingsDialogState
           onPressed: () {
             showDialog(
               context: context,
-              builder: (context) {
-                return StatefulBuilder(
-                  builder: (BuildContext context, StateSetter setState) {
-                    return AlertDialog(
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                widget.buttonText,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
+              builder: (ctx) {
+                return FutureBuilder(
+                  future: initializeSettings(),
+                  builder: (futureContext, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      // 에러 발생 시
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return StatefulBuilder(
+                        builder: (BuildContext context_, StateSetter setState) {
+                          return AlertDialog(
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      widget.buttonText,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 20.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.close,
+                                        color: Colors.black54,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.of(context_).pop();
+                                      },
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: Colors.black54,
+                                const SizedBox(
+                                  height: 10,
                                 ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      '전체 알림',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Switch(
+                                      value: allAlarm,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          allAlarm = value;
+                                          // 전체 알림 스위치 상태가 변경될 때 각 알림 항목 스위치도 동일하게 변경
+                                          myeongjinAlarm = value;
+                                          hakgwanAlarm = value;
+                                          myeongbunAlarm = value;
+                                          todaydietAlarm = value;
+                                          dietphotoenrollAlarm = value;
+                                          weekdietenrollAlarm = value;
+                                          dietsoldoutAlarm = value;
+                                          dietchangeAlarm = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  '식당 알림',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('명진당'),
+                                    Switch(
+                                      value: myeongjinAlarm,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          myeongjinAlarm = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('학생회관'),
+                                    Switch(
+                                      value: hakgwanAlarm,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          hakgwanAlarm = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('명분이네'),
+                                    Switch(
+                                      value: myeongbunAlarm,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          myeongbunAlarm = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  '기능 알림',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('오늘의 식단'),
+                                    Switch(
+                                      value: todaydietAlarm,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          todaydietAlarm = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('식단 사진 등록'),
+                                    Switch(
+                                      value: dietphotoenrollAlarm,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          dietphotoenrollAlarm = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('주간 식단 등록'),
+                                    Switch(
+                                      value: weekdietenrollAlarm,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          weekdietenrollAlarm = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('품절'),
+                                    Switch(
+                                      value: dietsoldoutAlarm,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          dietsoldoutAlarm = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                // Row(
+                                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                //   children: [
+                                //     const Text('식단 변경'),
+                                //     Switch(
+                                //       value: dietchangeAlarm,
+                                //       onChanged: (value) {
+                                //         setState(() {
+                                //           dietchangeAlarm = value;
+                                //         });
+                                //       },
+                                //     ),
+                                //   ],
+                                // ),
+                              ],
+                            ),
+                            actions: <Widget>[
+                              ElevatedButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop();
+                                  // 변경된 알림 설정을 저장
+                                  saveSettings();
+                                  Navigator.of(context_).pop();
                                 },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                '전체 알림',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xffffb800),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                                child: const Text(
+                                  '저장',
+                                  style: TextStyle(color: Colors.white),
                                 ),
                               ),
-                              Switch(
-                                value: allAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    allAlarm = value;
-                                    // 전체 알림 스위치 상태가 변경될 때 각 알림 항목 스위치도 동일하게 변경
-                                    myeongjinAlarm = value;
-                                    hakgwanAlarm = value;
-                                    myeongbunAlarm = value;
-                                    todaydietAlarm = value;
-                                    dietphotoenrollAlarm = value;
-                                    weekdietenrollAlarm = value;
-                                    dietsoldoutAlarm = value;
-                                    dietchangeAlarm = value;
-                                  });
-                                },
-                              ),
                             ],
-                          ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            '식당 알림',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('명진당'),
-                              Switch(
-                                value: myeongjinAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    myeongjinAlarm = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('학생회관'),
-                              Switch(
-                                value: hakgwanAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    hakgwanAlarm = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('명분이네'),
-                              Switch(
-                                value: myeongbunAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    myeongbunAlarm = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            '기능 알림',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('오늘의 식단'),
-                              Switch(
-                                value: todaydietAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    todaydietAlarm = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('식단 사진 등록'),
-                              Switch(
-                                value: dietphotoenrollAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    dietphotoenrollAlarm = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('주간 식단 등록'),
-                              Switch(
-                                value: weekdietenrollAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    weekdietenrollAlarm = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text('품절'),
-                              Switch(
-                                value: dietsoldoutAlarm,
-                                onChanged: (value) {
-                                  setState(() {
-                                    dietsoldoutAlarm = value;
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          // Row(
-                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          //   children: [
-                          //     const Text('식단 변경'),
-                          //     Switch(
-                          //       value: dietchangeAlarm,
-                          //       onChanged: (value) {
-                          //         setState(() {
-                          //           dietchangeAlarm = value;
-                          //         });
-                          //       },
-                          //     ),
-                          //   ],
-                          // ),
-                        ],
-                      ),
-                      actions: <Widget>[
-                        ElevatedButton(
-                          onPressed: () {
-                            // 변경된 알림 설정을 저장
-                            saveSettings();
-                            Navigator.of(context).pop();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xffffb800),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                          ),
-                          child: const Text(
-                            '저장',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ],
-                    );
+                          );
+                        },
+                      );
+                    }
                   },
                 );
               },

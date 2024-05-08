@@ -31,7 +31,7 @@ class LoginScreen extends ConsumerWidget {
       barrierDismissible:
           false, // 사용자가 다이얼로그 바깥을 터치하거나 뒤로가기를 눌러 다이얼로그를 닫지 못하게 함
       builder: (builderContext) => const PopScope(
-        canPop: false, // Android 뒤로가기 버튼으로도 닫지 못하게 함
+        canPop: true, // Android 뒤로가기 버튼으로도 닫지 못하게 함
         child: Center(
           child: CircularProgressIndicator(), // 로딩 인디케이터
         ),
@@ -47,71 +47,21 @@ class LoginScreen extends ConsumerWidget {
         if (accessToken != null) {
           tokenProvider.setToken(accessToken);
           loginProvier.login();
+          Navigator.pop(context, "login success");
           //  ref.read(loginStateProvider.state).state = true;
         }
-        Navigator.pop(context, "login success");
-        // message == "true" ? Navigator.of(context).pop(true) : print(message);
-      } catch (error) {
-        print('카카오톡으로 로그인 실패 $error');
 
-        // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
-        // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
-        if (error is PlatformException && error.code == 'CANCELED') {
+        // message == "true" ? Navigator.of(context).pop(true) : print(message);
+      } on Exception catch (e) {
+        if (e is PlatformException && e.code == 'CANCELED') {
           return;
         }
-        // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
-        try {
-          OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-          final accessToken = await ApiService.postKakaoLogin(
-              token.idToken!, token.accessToken);
-          print('카카오톡으로 로그인 성공');
-          if (accessToken != null) {
-            tokenProvider.setToken(accessToken);
-            loginProvier.login();
-            //  ref.read(loginStateProvider.state).state = true;
-          }
-          Navigator.pop(context, "login success");
-          print('카카오계정으로 로그인 성공');
-        } catch (error) {
-          print('카카오계정으로 로그인 실패 $error');
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text('에러'),
-              content: Text('카카오 로그인 실패 $error'),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text('확인'),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                ),
-              ],
-            ),
-          );
-        }
-      } finally {
-        Navigator.pop(context, "login success"); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
-      }
-    } else {
-      try {
-        OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
-        final accessToken =
-            await ApiService.postKakaoLogin(token.idToken!, token.accessToken);
-        if (accessToken != null) {
-          tokenProvider.setToken(accessToken);
-          loginProvier.login();
-          //  ref.read(loginStateProvider.state).state = true;
-        }
-        Navigator.of(context).pop(true);
-        print('카카오계정으로 로그인 성공');
-      } catch (error) {
-        print('카카오계정으로 로그인 실패 $error');
+        // TODO
         showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
             title: const Text('에러'),
-            content: Text('카카오 로그인 실패 $error'),
+            content: Text(e.toString()),
             actions: <Widget>[
               TextButton(
                 child: const Text('확인'),
@@ -123,8 +73,40 @@ class LoginScreen extends ConsumerWidget {
           ),
         );
       } finally {
-        Navigator.of(context).pop(); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
+        Navigator.pop(context, "login success");
       }
+    } else {
+      // try {
+      //   OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+      //   final accessToken =
+      //       await ApiService.postKakaoLogin(token.idToken!, token.accessToken);
+      //   if (accessToken != null) {
+      //     tokenProvider.setToken(accessToken);
+      //     loginProvier.login();
+      //     //  ref.read(loginStateProvider.state).state = true;
+      //   }
+      //   Navigator.of(context).pop(true);
+      //   print('카카오계정으로 로그인 성공');
+      // } catch (error) {
+      //   print('카카오계정으로 로그인 실패 $error');
+      //   showDialog(
+      //     context: context,
+      //     builder: (ctx) => AlertDialog(
+      //       title: const Text('에러'),
+      //       content: Text('카카오 로그인 실패 $error'),
+      //       actions: <Widget>[
+      //         TextButton(
+      //           child: const Text('확인'),
+      //           onPressed: () {
+      //             Navigator.of(ctx).pop();
+      //           },
+      //         ),
+      //       ],
+      //     ),
+      //   );
+      // } finally {
+      // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
+      // }
     }
   }
 
