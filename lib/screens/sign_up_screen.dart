@@ -557,13 +557,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: _buildGenderButton('남자'),
+                        child: _buildGenderButton('남성'),
                       ),
                       const SizedBox(
                         width: 10,
                       ),
                       Expanded(
-                        child: _buildGenderButton('여자'),
+                        child: _buildGenderButton('여성'),
                       ),
                     ],
                   ),

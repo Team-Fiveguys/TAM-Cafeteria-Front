@@ -209,67 +209,95 @@ class _MyPageState extends State<MyPage> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(19),
         ),
-        child: ElevatedButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text(buttonText),
-                  content: const Text('정말로 탈퇴하시겠습니까?'),
-                  actions: <Widget>[
-                    ElevatedButton(
-                      onPressed: () {
-                        // Implement logic for withdrawal here
-                        // This is just a placeholder for demonstration
-                        print('회원 탈퇴 처리');
+        child: Consumer(
+          builder: (context, ref, child) => ElevatedButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text(buttonText),
+                    content: const Text('정말로 탈퇴하시겠습니까?'),
+                    actions: <Widget>[
+                      ElevatedButton(
+                        onPressed: () async {
+                          print('회원 탈퇴 처리');
+                          try {
+                            await ApiService.deleteUser();
 
-                        // Close the dialog
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xffffb800),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                            ref.read(loginStateProvider.notifier).logout();
+                            // 로그아웃 후의 추가 작업
+                            // Navigator.pushReplacementNamed(
+                            //     context, '/loginScreen'); // 로그인 화면으로 이동
+                            if (widget.switchOn ?? false) {
+                              widget.switchAdmin!();
+                            }
+                            Navigator.of(context).pop();
+                            setState(() {});
+                          } on Exception catch (e) {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('에러'),
+                                content: Text(e.toString()),
+                                actions: <Widget>[
+                                  TextButton(
+                                    child: const Text('확인'),
+                                    onPressed: () {
+                                      Navigator.of(ctx).pop();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                          // Close the dialog
+                          // Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffffb800),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        child: const Text(
+                          '네',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: const Text(
-                        '네',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0x00000000),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0x00000000),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        child: const Text(
+                          '아니요',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: const Text(
-                        '아니요',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffc6c6c6),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
+                    ],
+                  );
+                },
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xffc6c6c6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
             ),
-          ),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              buttonText,
-              style: const TextStyle(color: Colors.white),
-              textAlign: TextAlign.left,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                buttonText,
+                style: const TextStyle(color: Colors.white),
+                textAlign: TextAlign.left,
+              ),
             ),
           ),
         ),

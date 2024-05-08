@@ -13,6 +13,6 @@ class TokenManagerWithSP {
 
   static Future<void> removeToken() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('accessToken');
+    await prefs.clear();
   }
 }
