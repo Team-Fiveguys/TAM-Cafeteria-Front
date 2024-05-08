@@ -186,10 +186,14 @@ class _AppState extends ConsumerState<App> {
         print('이녀석은 되냐?');
         // 사용자가 알림을 허용했을 때의 처리
         // 예: 서버에 API 호출
-        if (fcmToken != null) {
+        // 매 로그인마다 post 호출 -> 알림 설정 초기화
+        // 초기화 안되려면? get을 호출해서 있으면 post 안하고
+        final hasSetting = await ApiService.getNotificationSettings();
+
+        if (hasSetting == null && fcmToken != null) {
           await ApiService.postNotificationSet(fcmToken);
-          await prefs.setBool('hasPromptedForNotification', true);
         }
+        await prefs.setBool('hasPromptedForNotification', true);
       }
 
       // 알림 설정 프롬프트가 표시되었음을 저장

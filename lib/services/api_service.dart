@@ -1304,7 +1304,7 @@ class ApiService {
     } else {
       print('getNotificationSetting : ${jsonResponse['message']}');
     }
-    throw Exception(jsonResponse['message']);
+    return null;
   }
 
   static Future<void> updateNotificationSettings(
