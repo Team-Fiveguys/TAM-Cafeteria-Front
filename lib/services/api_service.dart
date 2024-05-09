@@ -221,17 +221,24 @@ class ApiService {
 
       // 디코드된 문자열을 JSON으로 파싱합니다.
       final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
+      // TODO : null 왔을때 대처
       // 'result' 키에 해당하는 부분을 추출하고, 'menuQueryDTOList' 내부를 순회하며 각 항목의 'name'을 추출하여 리스트를 생성합니다.
-      final List<String> menuNames = List<String>.from(
-        jsonResponse['result']['menuQueryDTOList']
-            .map((item) => item['name'] as String),
-      );
+      print('getMenu : $jsonResponse');
+      final List<String> menuNames =
+          jsonResponse['result']['menuQueryDTOList'] != null
+              ? List<String>.from(
+                  jsonResponse['result']['menuQueryDTOList']
+                      .map((item) => (item['name'] ?? "")),
+                )
+              : [];
 
-      final List<int> menuIds = List<int>.from(
-        jsonResponse['result']['menuQueryDTOList']
-            .map((item) => item['menuId'] as int),
-      );
+      final List<int> menuIds =
+          jsonResponse['result']['menuQueryDTOList'] != null
+              ? List<int>.from(
+                  jsonResponse['result']['menuQueryDTOList']
+                      .map((item) => (item['menuId']) as int),
+                )
+              : [];
 
       final bool dayOff = jsonResponse['result']['dayOff'] ?? false;
       final bool soldOut = jsonResponse['result']['soldOut'] ?? false;
