@@ -148,9 +148,11 @@ class LoginScreen extends ConsumerWidget {
         tokenProvider.setToken(accessToken);
         loginProvier.login();
         //  ref.read(loginStateProvider.state).state = true;
+      } else {
+        throw Exception("로그인 실패");
       }
       Navigator.pop(context, "login success");
-    } catch (error) {
+    } on Exception catch (error) {
       print(error);
       showDialog(
         context: context,
