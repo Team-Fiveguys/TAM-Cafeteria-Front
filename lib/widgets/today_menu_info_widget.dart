@@ -31,8 +31,8 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   bool lunchIsDayOff = false;
   bool breakfastIsSoldOut = false;
   bool breakfastIsDayOff = false;
-  bool myeongBunIsSoldOut = false;
-  bool myeongBunIsDayOff = false;
+  bool myeongDonIsSoldOut = false;
+  bool myeongDonIsDayOff = false;
   String currentCongestionStatus = "보통";
 
   String? lunchImageUrl;
@@ -42,7 +42,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
 
   ValueNotifier<int> refreshNotifier = ValueNotifier(0);
 
-  List<String> myeongBunMenuList = [];
+  List<String> myeongDonMenuList = [];
   List<String> lunchMenuList = [];
   List<String> breakfastMenuList = [];
 
@@ -375,16 +375,16 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
     return [];
   }
 
-  Future<List<String>> getDietsMyeongBun() async {
+  Future<List<String>> getDietsMyeongDon() async {
     Diet? menus = await ApiService.getDiets(
       dateFormat.format(now),
       "LUNCH",
-      4,
+      3,
     );
     if (menus != null) {
-      myeongBunMenuList = menus.names;
-      myeongBunIsSoldOut = menus.soldOut;
-      myeongBunIsDayOff = menus.dayOff;
+      myeongDonMenuList = menus.names;
+      myeongDonIsSoldOut = menus.soldOut;
+      myeongDonIsDayOff = menus.dayOff;
 
       return menus.names;
     }
@@ -580,17 +580,17 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                             child: FutureBuilder(
                               future: widget.cafeteriaName == "학생회관"
                                   ? getDietsInMain('LUNCH')
-                                  : getDietsMyeongBun(),
+                                  : getDietsMyeongDon(),
                               builder: (context, snapshot) {
                                 final isSoldOut = widget.cafeteriaName == "학생회관"
                                     ? lunchIsSoldOut
-                                    : myeongBunIsSoldOut;
+                                    : myeongDonIsSoldOut;
                                 final isDayOff = widget.cafeteriaName == "학생회관"
                                     ? lunchIsDayOff
-                                    : myeongBunIsDayOff;
+                                    : myeongDonIsDayOff;
                                 final menuList = widget.cafeteriaName == "학생회관"
                                     ? lunchMenuList
-                                    : myeongBunMenuList;
+                                    : myeongDonMenuList;
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return const Center(

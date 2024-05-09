@@ -83,7 +83,7 @@ class _AdminPageState extends State<AdminPage> {
         cafeteriaId = 2;
       }
       if (cafeteriaName == "명돈이네") {
-        cafeteriaId = 4;
+        cafeteriaId = 3;
       }
     });
   }
@@ -414,7 +414,7 @@ class _AdminPageState extends State<AdminPage> {
                     } else if (newValue == "학생회관") {
                       cafeteriaId = 2;
                     } else {
-                      cafeteriaId = 4;
+                      cafeteriaId = 3;
                     }
                     cafeteriaName = selectedItem!;
                     saveMyCafeteria(newValue!);
@@ -771,8 +771,8 @@ class _AdminPageState extends State<AdminPage> {
                                         ? "myeongJin"
                                         : cafeteriaId == 2
                                             ? "hakGwan"
-                                            : cafeteriaId == 4
-                                                ? "myeongBun"
+                                            : cafeteriaId == 3
+                                                ? "myeongDon"
                                                 : "";
                                     final result =
                                         await ApiService.patchSoldOutStatus(
@@ -928,8 +928,8 @@ class _AdminPageState extends State<AdminPage> {
                                         ? "myeongJin"
                                         : cafeteriaId == 2
                                             ? "hakGwan"
-                                            : cafeteriaId == 4
-                                                ? "myeongBun"
+                                            : cafeteriaId == 3
+                                                ? "myeongDon"
                                                 : "";
                                     final result =
                                         await ApiService.patchSoldOutStatus(

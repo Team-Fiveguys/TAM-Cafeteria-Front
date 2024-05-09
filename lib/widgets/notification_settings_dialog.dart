@@ -17,7 +17,7 @@ class _NotificationSettingsDialogState
     extends State<NotificationSettingsDialog> {
   late bool allAlarm;
   late bool myeongjinAlarm;
-  late bool myeongbunAlarm;
+  late bool myeongDonAlarm;
   late bool hakgwanAlarm;
   late bool todaydietAlarm;
   late bool dietphotoenrollAlarm;
@@ -41,7 +41,7 @@ class _NotificationSettingsDialogState
     if (settings.isNotEmpty) {
       myeongjinAlarm = settings['myeongJin'] ?? false;
       hakgwanAlarm = settings['hakGwan'] ?? false;
-      myeongbunAlarm = settings['myeongBun'] ?? false;
+      myeongDonAlarm = settings['myeongDon'] ?? false;
       todaydietAlarm = settings['todayDiet'] ?? false;
       dietphotoenrollAlarm = settings['dietPhotoEnroll'] ?? false;
       weekdietenrollAlarm = settings['weekDietEnroll'] ?? false;
@@ -49,7 +49,7 @@ class _NotificationSettingsDialogState
       dietchangeAlarm = settings['dietChange'] ?? false;
       allAlarm = myeongjinAlarm ||
           hakgwanAlarm ||
-          myeongbunAlarm ||
+          myeongDonAlarm ||
           todaydietAlarm ||
           dietphotoenrollAlarm ||
           weekdietenrollAlarm ||
@@ -63,7 +63,7 @@ class _NotificationSettingsDialogState
       Map<String, bool> newSettings = {
         'hakGwan': hakgwanAlarm,
         'myeongJin': myeongjinAlarm,
-        'myeongBun': myeongbunAlarm,
+        'myeongDon': myeongDonAlarm,
         'todayDiet': todaydietAlarm,
         'dietPhotoEnroll': dietphotoenrollAlarm,
         'weekDietEnroll': weekdietenrollAlarm,
@@ -85,11 +85,11 @@ class _NotificationSettingsDialogState
       if (!myeongjinAlarm) {
         FirebaseMessaging.instance.unsubscribeFromTopic('myeongJin');
       }
-      if (myeongbunAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('myeongBun');
+      if (myeongDonAlarm) {
+        FirebaseMessaging.instance.subscribeToTopic('myeongDon');
       }
-      if (!myeongbunAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('myeongBun');
+      if (!myeongDonAlarm) {
+        FirebaseMessaging.instance.unsubscribeFromTopic('myeongDon');
       }
       if (todaydietAlarm) {
         FirebaseMessaging.instance.subscribeToTopic('todayDiet');
@@ -199,7 +199,7 @@ class _NotificationSettingsDialogState
                                           // 전체 알림 스위치 상태가 변경될 때 각 알림 항목 스위치도 동일하게 변경
                                           myeongjinAlarm = value;
                                           hakgwanAlarm = value;
-                                          myeongbunAlarm = value;
+                                          myeongDonAlarm = value;
                                           todaydietAlarm = value;
                                           dietphotoenrollAlarm = value;
                                           weekdietenrollAlarm = value;
@@ -253,12 +253,12 @@ class _NotificationSettingsDialogState
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    const Text('명분이네'),
+                                    const Text('명돈이네'),
                                     Switch(
-                                      value: myeongbunAlarm,
+                                      value: myeongDonAlarm,
                                       onChanged: (value) {
                                         setState(() {
-                                          myeongbunAlarm = value;
+                                          myeongDonAlarm = value;
                                         });
                                       },
                                     ),

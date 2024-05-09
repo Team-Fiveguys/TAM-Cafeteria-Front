@@ -22,8 +22,8 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
           ? "myeongJin"
           : widget.cafeteriaId == 2
               ? "hakGwan"
-              : widget.cafeteriaId == 4
-                  ? "myeongBun"
+              : widget.cafeteriaId == 3
+                  ? "myeongDon"
                   : "";
       await ApiService.postNotificationToSubscriber(
           "[${widget.cafeteriaName}] 주간 식당 등록",
