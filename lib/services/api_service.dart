@@ -886,6 +886,67 @@ class ApiService {
     }
   }
 
+  static Future<void> putRegistrationToken(String registrationToken) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/users/notificationSet/registration-token";
+    final url = Uri.https(
+      baseUrl,
+      path,
+      {
+        "registrationToken": registrationToken,
+      },
+    );
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : putRegistrationToken : $jsonResponse');
+    } else {
+      print('ApiService : putRegistrationToken : $jsonResponse');
+      throw Exception(jsonResponse['message']);
+    }
+  }
+
+  static Future<String?> getRegistrationToken() async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/users/notificationSet/registration-token";
+    final url = Uri.https(
+      baseUrl,
+      path,
+    );
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      return jsonResponse['result']['registrationToken'];
+    } else {
+      // print('ApiService : putRegistrationToken : $jsonResponse');
+    }
+    return null;
+  }
+
   static Future<void> postNotificationToAllUser(
       String title, String content) async {
     final accessToken = await TokenManagerWithSP.loadToken();

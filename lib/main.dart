@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -70,7 +71,7 @@ void initializeNotification() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     RemoteNotification? notification = message.notification;
     print('onMessage listen: ${message.data}');
-    await ApiService.postNotificationToServer(message.data["id"]);
+    await ApiService.postNotificationToServer(message.data["id"] ?? "0");
     if (notification != null) {
       flutterLocalNotificationsPlugin.show(
           notification.hashCode,
@@ -127,6 +128,7 @@ void main() async {
       child: const App(),
     ),
   );
+  // FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 }
 
 class App extends ConsumerStatefulWidget {
@@ -159,13 +161,14 @@ class _AppState extends ConsumerState<App> {
       isLoading = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    initializeNotification();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    initializeNotification();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
     String? fcmToken = await FirebaseMessaging.instance.getToken();
-    print(fcmToken);
+    print("fcmToken $fcmToken");
     // if (await Permission.notification.isDenied) {
     //   print('니녀석이냐?');
     //   await Permission.notification.request();
@@ -189,9 +192,13 @@ class _AppState extends ConsumerState<App> {
         // 매 로그인마다 post 호출 -> 알림 설정 초기화
         // 초기화 안되려면? get을 호출해서 있으면 post 안하고
         final hasSetting = await ApiService.getNotificationSettings();
-
-        if (hasSetting == null && fcmToken != null) {
-          await ApiService.postNotificationSet(fcmToken);
+        final prevToken = await ApiService.getRegistrationToken();
+        if (fcmToken != null) {
+          if (hasSetting == null) {
+            await ApiService.postNotificationSet(fcmToken);
+          } else if (fcmToken != prevToken) {
+            await ApiService.putRegistrationToken(fcmToken);
+          }
         }
         await prefs.setBool('hasPromptedForNotification', true);
       }
@@ -201,7 +208,7 @@ class _AppState extends ConsumerState<App> {
     FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
       print("New Device Token: $newToken");
       // 여기서 서버에 새 토큰을 업데이트하는 로직을 구현하세요.
-      await ApiService.postNotificationSet(newToken);
+      await ApiService.putRegistrationToken(newToken);
       await prefs.setBool('hasPromptedForNotification', true);
     });
     setState(() {
