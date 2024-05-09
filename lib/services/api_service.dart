@@ -918,7 +918,8 @@ class ApiService {
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      print('ApiService : putRegistrationToken : $jsonResponse');
+      print(
+          'ApiService : putRegistrationToken : $registrationToken, $jsonResponse');
     } else {
       print('ApiService : putRegistrationToken : $jsonResponse');
       throw Exception(jsonResponse['message']);
