@@ -124,7 +124,7 @@ class LoginScreen extends ConsumerWidget {
       barrierDismissible:
           false, // 사용자가 다이얼로그 바깥을 터치하거나 뒤로가기를 눌러 다이얼로그를 닫지 못하게 함
       builder: (builderContext) => const PopScope(
-        canPop: false, // Android 뒤로가기 버튼으로도 닫지 못하게 함
+        canPop: true, // Android 뒤로가기 버튼으로도 닫지 못하게 함
         child: Center(
           child: CircularProgressIndicator(), // 로딩 인디케이터
         ),
@@ -168,7 +168,7 @@ class LoginScreen extends ConsumerWidget {
         ),
       );
     } finally {
-      Navigator.of(context).pop(); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
+      Navigator.pop(context, "login"); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
     }
   }
 

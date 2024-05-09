@@ -43,10 +43,10 @@ class MainScreen extends StatelessWidget {
                   color: Theme.of(context).canvasColor,
                 ),
                 width: 350,
-                height: 56,
+                height: 60,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                    vertical: 5,
+                    vertical: 3,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
