@@ -121,8 +121,7 @@ class LoginScreen extends ConsumerWidget {
 
     showDialog(
       context: context,
-      barrierDismissible:
-          false, // 사용자가 다이얼로그 바깥을 터치하거나 뒤로가기를 눌러 다이얼로그를 닫지 못하게 함
+      barrierDismissible: true, // 사용자가 다이얼로그 바깥을 터치하거나 뒤로가기를 눌러 다이얼로그를 닫지 못하게 함
       builder: (builderContext) => const PopScope(
         canPop: true, // Android 뒤로가기 버튼으로도 닫지 못하게 함
         child: Center(
@@ -152,6 +151,7 @@ class LoginScreen extends ConsumerWidget {
         throw Exception("로그인 실패");
       }
       Navigator.pop(context, "login success");
+      Navigator.pop(context, "login success");
     } on Exception catch (error) {
       print(error);
       showDialog(
@@ -164,13 +164,14 @@ class LoginScreen extends ConsumerWidget {
               child: const Text('확인'),
               onPressed: () {
                 Navigator.of(ctx).pop();
+                Navigator.of(ctx).pop();
               },
             ),
           ],
         ),
       );
     } finally {
-      Navigator.pop(context, "login"); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
+      //Navigator.pop(context, "login"); // 로그인 시도가 끝나면 로딩 다이얼로그 닫기
     }
   }
 
