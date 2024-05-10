@@ -58,7 +58,31 @@ class _NotificationSettingsDialogState
     }
   }
 
-  void saveSettings() async {
+  Future<void> saveSettings(BuildContext context) async {
+    // 로딩 인디케이터 시작
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Dialog(
+            child: Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 20),
+                  Text("저장 중..."),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
     try {
       Map<String, bool> newSettings = {
         'hakGwan': hakgwanAlarm,
@@ -70,55 +94,94 @@ class _NotificationSettingsDialogState
         'dietSoldOut': dietsoldoutAlarm,
         'dietChange': dietchangeAlarm,
       };
+      // 변경된 설정을 서버에 저장하는 작업을 시작
+      await Future.wait([
+        ApiService.updateNotificationSettings(newSettings),
+        if (hakgwanAlarm)
+          FirebaseMessaging.instance.subscribeToTopic('hakGwan')
+        else
+          Future.value(),
+        if (!hakgwanAlarm)
+          FirebaseMessaging.instance.unsubscribeFromTopic('hakGwan')
+        else
+          Future.value(),
+        if (myeongjinAlarm)
+          FirebaseMessaging.instance.subscribeToTopic('myeongJin')
+        else
+          Future.value(),
+        if (!myeongjinAlarm)
+          FirebaseMessaging.instance.unsubscribeFromTopic('myeongJin')
+        else
+          Future.value(),
+        if (myeongDonAlarm)
+          FirebaseMessaging.instance.subscribeToTopic('myeongDon')
+        else
+          Future.value(),
+        if (!myeongDonAlarm)
+          FirebaseMessaging.instance.unsubscribeFromTopic('myeongDon')
+        else
+          Future.value(),
+        if (todaydietAlarm)
+          FirebaseMessaging.instance.subscribeToTopic('todayDiet')
+        else
+          Future.value(),
+        if (!todaydietAlarm)
+          FirebaseMessaging.instance.unsubscribeFromTopic('todayDiet')
+        else
+          Future.value(),
+        if (dietphotoenrollAlarm)
+          FirebaseMessaging.instance.subscribeToTopic('dietPhotoEnroll')
+        else
+          Future.value(),
+        if (!dietphotoenrollAlarm)
+          FirebaseMessaging.instance.unsubscribeFromTopic('dietPhotoEnroll')
+        else
+          Future.value(),
+        if (weekdietenrollAlarm)
+          FirebaseMessaging.instance.subscribeToTopic('weekDietEnroll')
+        else
+          Future.value(),
+        if (!weekdietenrollAlarm)
+          FirebaseMessaging.instance.unsubscribeFromTopic('weekDietEnroll')
+        else
+          Future.value(),
+        if (dietsoldoutAlarm)
+          FirebaseMessaging.instance.subscribeToTopic('dietSoldOut')
+        else
+          Future.value(),
+        if (!dietsoldoutAlarm)
+          FirebaseMessaging.instance.unsubscribeFromTopic('dietSoldOut')
+        else
+          Future.value(),
+        // 다른 FCM 구독/구독 해제 로직을 여기에 포함시킵니다.
+      ]).timeout(const Duration(seconds: 10));
+      // 로딩 인디케이터 종료
+      Navigator.of(context).pop();
 
-      // 변경된 설정을 서버에 저장
-      await ApiService.updateNotificationSettings(newSettings);
-      if (hakgwanAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('hakGwan');
-      }
-      if (!hakgwanAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('hakGwan');
-      }
-      if (myeongjinAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('myeongJin');
-      }
-      if (!myeongjinAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('myeongJin');
-      }
-      if (myeongDonAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('myeongDon');
-      }
-      if (!myeongDonAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('myeongDon');
-      }
-      if (todaydietAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('todayDiet');
-      }
-      if (!todaydietAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('todayDiet');
-      }
-      if (dietphotoenrollAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('dietPhotoEnroll');
-      }
-      if (!dietphotoenrollAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('dietPhotoEnroll');
-      }
-      if (weekdietenrollAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('weekDietEnroll');
-      }
-      if (!weekdietenrollAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('weekDietEnroll');
-      }
-      if (dietsoldoutAlarm) {
-        FirebaseMessaging.instance.subscribeToTopic('dietSoldOut');
-      }
-      if (!dietsoldoutAlarm) {
-        FirebaseMessaging.instance.unsubscribeFromTopic('dietSoldOut');
-      }
-      // 저장 완료 메시지 출력
+      // 저장 완료 메시지 출력 또는 다른 처리
       print("Notification settings saved successfully.");
     } catch (e) {
-      // 저장 실패 메시지 출력
+      // 로딩 인디케이터 종료
+      Navigator.of(context).pop();
+
+      // 에러 메시지 출력 또는 에러 다이얼로그 띄우기
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("에러"),
+            content: const Text("알림 설정을 저장하는 데 실패했습니다. 다시 시도해주세요."),
+            actions: <Widget>[
+              ElevatedButton(
+                child: const Text("확인"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
       print("Failed to save notification settings: $e");
     }
   }
@@ -352,8 +415,8 @@ class _NotificationSettingsDialogState
                               ElevatedButton(
                                 onPressed: () {
                                   // 변경된 알림 설정을 저장
-                                  saveSettings();
-                                  Navigator.of(context_).pop();
+                                  saveSettings(context_).then(
+                                      (value) => Navigator.of(context_).pop());
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xffffb800),
