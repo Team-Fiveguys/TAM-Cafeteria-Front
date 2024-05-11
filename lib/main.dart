@@ -54,7 +54,11 @@ void initializeNotification() async {
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
       android: AndroidInitializationSettings("@mipmap/ic_launcher"),
-      iOS: DarwinInitializationSettings(),
+      iOS: DarwinInitializationSettings(
+        requestSoundPermission: false,
+        requestBadgePermission: false,
+        requestAlertPermission: false,
+      ),
     ),
     onDidReceiveNotificationResponse: (details) {
       // 액션 추가...
@@ -194,12 +198,11 @@ class _AppState extends ConsumerState<App> {
         try {
           Map<String, bool> hasSetting =
               await ApiService.getNotificationSettings();
-          final prevToken = await ApiService.getRegistrationToken();
+
           if (fcmToken != null) {
             if (hasSetting.isEmpty) {
               await ApiService.postNotificationSet(fcmToken);
-              await ApiService.updateNotificationSettings(hasSetting);
-            } else if (fcmToken != prevToken) {
+            } else if (fcmToken != await ApiService.getRegistrationToken()) {
               await ApiService.putRegistrationToken(fcmToken);
               await ApiService.updateNotificationSettings(hasSetting);
             }
