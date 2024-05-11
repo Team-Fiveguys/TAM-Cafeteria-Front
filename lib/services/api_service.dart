@@ -1347,7 +1347,7 @@ class ApiService {
   }
 
 //알람 api
-  static Future<dynamic> getNotificationSettings() async {
+  static Future<Map<String, bool>> getNotificationSettings() async {
     final accessToken = await TokenManagerWithSP.loadToken();
 
     const path = "/users/notificationSet";
@@ -1368,12 +1368,28 @@ class ApiService {
 
     if (response.statusCode == 200) {
       // 필요에 따라 JSON 응답을 처리합니다.
-      print(jsonResponse);
-      return jsonResponse['result'];
+      if (jsonResponse['result'] != null && jsonResponse['result'] is Map) {
+        final Map<String, dynamic> resultMap = jsonResponse['result'];
+
+        // resultMap의 모든 요소를 순회하며, bool 타입만을 포함하는 새로운 Map을 생성합니다.
+        final Map<String, bool> result = {};
+        resultMap.forEach((key, value) {
+          // 값이 bool 타입인지 확인합니다.
+          if (value is bool) {
+            result[key] = value;
+          } else {
+            // bool 타입이 아닌 경우, 적절히 처리합니다. (예: 오류 로그를 남김)
+            print("Warning: The value for '$key' is not a bool.");
+          }
+        });
+        return result;
+        // 여기서 'result'는 Map<String, bool> 타입입니다.
+        // 필요에 따라 'result'를 사용합니다.
+      }
     } else {
       print('getNotificationSetting : ${jsonResponse['message']}');
     }
-    return null;
+    return {};
   }
 
   static Future<void> updateNotificationSettings(
@@ -1403,6 +1419,7 @@ class ApiService {
         print(jsonResponse);
       } else {
         print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+        throw Exception(jsonResponse['message']);
       }
     } catch (error) {
       print('오류 발생: $error');

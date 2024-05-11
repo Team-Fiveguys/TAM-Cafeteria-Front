@@ -54,7 +54,11 @@ void initializeNotification() async {
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
       android: AndroidInitializationSettings("@mipmap/ic_launcher"),
-      iOS: DarwinInitializationSettings(),
+      iOS: DarwinInitializationSettings(
+        requestSoundPermission: true,
+        requestBadgePermission: true,
+        requestAlertPermission: true,
+      ),
     ),
     onDidReceiveNotificationResponse: (details) {
       // 액션 추가...
@@ -116,6 +120,11 @@ void main() async {
     nativeAppKey: yourNativeAppKey,
     javaScriptAppKey: yourJavascriptAppKey,
   );
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  initializeNotification();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(
     ProviderScope(
@@ -161,11 +170,6 @@ class _AppState extends ConsumerState<App> {
       isLoading = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    initializeNotification();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     String? fcmToken = await FirebaseMessaging.instance.getToken();
     print("fcmToken $fcmToken");
@@ -192,14 +196,16 @@ class _AppState extends ConsumerState<App> {
         // 매 로그인마다 post 호출 -> 알림 설정 초기화
         // 초기화 안되려면? get을 호출해서 있으면 post 안하고
         try {
-          final hasSetting = await ApiService.getNotificationSettings();
+          Map<String, bool> hasSetting =
+              await ApiService.getNotificationSettings();
           final prevToken = await ApiService.getRegistrationToken();
           if (fcmToken != null) {
-            if (hasSetting == null) {
+            if (hasSetting.isEmpty) {
               await ApiService.postNotificationSet(fcmToken);
             } else if (fcmToken != prevToken) {
               await ApiService.putRegistrationToken(fcmToken);
             }
+            await ApiService.updateNotificationSettings(hasSetting);
           }
         } on Exception catch (e) {
           setState(() {
