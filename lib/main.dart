@@ -54,11 +54,7 @@ void initializeNotification() async {
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
       android: AndroidInitializationSettings("@mipmap/ic_launcher"),
-      iOS: DarwinInitializationSettings(
-        requestSoundPermission: true,
-        requestBadgePermission: true,
-        requestAlertPermission: true,
-      ),
+      iOS: DarwinInitializationSettings(),
     ),
     onDidReceiveNotificationResponse: (details) {
       // 액션 추가...

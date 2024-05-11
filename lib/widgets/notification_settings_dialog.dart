@@ -15,7 +15,7 @@ class NotificationSettingsDialog extends StatefulWidget {
 
 class _NotificationSettingsDialogState
     extends State<NotificationSettingsDialog> {
-  late bool allAlarm;
+  bool allAlarm = false;
   late bool myeongjinAlarm;
   late bool myeongDonAlarm;
   late bool hakgwanAlarm;

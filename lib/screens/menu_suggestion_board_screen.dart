@@ -97,7 +97,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 Stack(
                   children: [
                     Container(
-                      height: 80,
+                      height: 83,
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(
@@ -123,7 +123,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                           Row(
                             children: [
                               const Padding(
-                                padding: EdgeInsets.fromLTRB(20, 11, 0, 10),
+                                padding: EdgeInsets.fromLTRB(20, 11, 0, 6),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -169,7 +169,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 ),
                 const SizedBox(height: 10.0),
                 Container(
-                  height: 80,
+                  height: 83,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(
@@ -195,7 +195,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                       Row(
                         children: [
                           const Padding(
-                            padding: EdgeInsets.fromLTRB(20, 11, 0, 10),
+                            padding: EdgeInsets.fromLTRB(20, 11, 0, 6),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -239,7 +239,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 ),
                 const SizedBox(height: 10.0),
                 Container(
-                  height: 80,
+                  height: 83,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     border: Border.all(
@@ -265,7 +265,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                       Row(
                         children: [
                           const Padding(
-                            padding: EdgeInsets.fromLTRB(20, 11, 0, 10),
+                            padding: EdgeInsets.fromLTRB(20, 11, 0, 6),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -336,7 +336,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
               ],
             ),
             child: Container(
-              height: 80,
+              height: 83,
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(
@@ -353,7 +353,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                   Row(
                     children: [
                       const Padding(
-                        padding: EdgeInsets.fromLTRB(20, 11, 0, 10),
+                        padding: EdgeInsets.fromLTRB(20, 11, 0, 6),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
