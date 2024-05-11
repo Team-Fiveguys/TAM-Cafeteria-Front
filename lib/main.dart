@@ -184,7 +184,8 @@ class _AppState extends ConsumerState<App> {
         sound: true,
       );
 
-      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
         print('이녀석은 되냐?');
         // 사용자가 알림을 허용했을 때의 처리
         // 예: 서버에 API 호출
