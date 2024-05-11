@@ -185,8 +185,6 @@ class _AppState extends ConsumerState<App> {
     initializeNotification();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    String? fcmToken = await getToken();
-    print("fcmToken $fcmToken");
     // if (await Permission.notification.isDenied) {
     //   print('니녀석이냐?');
     //   await Permission.notification.request();
@@ -203,6 +201,8 @@ class _AppState extends ConsumerState<App> {
         sound: true,
       );
 
+      String? fcmToken = await getToken();
+      print("fcmToken $fcmToken");
       if (settings.authorizationStatus == AuthorizationStatus.authorized ||
           settings.authorizationStatus == AuthorizationStatus.provisional) {
         print('이녀석은 되냐?');
