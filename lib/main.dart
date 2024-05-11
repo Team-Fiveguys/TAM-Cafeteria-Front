@@ -110,7 +110,7 @@ void initializeNotification() async {
   }
 }
 
-Future<void> getToken() async {
+Future<String?> getToken() async {
   String? token;
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -120,8 +120,7 @@ Future<void> getToken() async {
   } else {
     token = await messaging.getToken();
   }
-
-  print('FCM Token: $token');
+  return token;
 }
 
 void main() async {
@@ -137,7 +136,6 @@ void main() async {
     javaScriptAppKey: yourJavascriptAppKey,
   );
   await Firebase.initializeApp();
-  await getToken();
 
   runApp(
     ProviderScope(
@@ -187,7 +185,7 @@ class _AppState extends ConsumerState<App> {
     initializeNotification();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    String? fcmToken = await FirebaseMessaging.instance.getToken();
+    String? fcmToken = await getToken();
     print("fcmToken $fcmToken");
     // if (await Permission.notification.isDenied) {
     //   print('니녀석이냐?');
