@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -109,6 +110,20 @@ void initializeNotification() async {
   }
 }
 
+Future<void> getToken() async {
+  String? token;
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  // 플랫폼 별 토큰 가져오기
+  if (defaultTargetPlatform == TargetPlatform.iOS) {
+    token = await messaging.getAPNSToken();
+  } else {
+    token = await messaging.getToken();
+  }
+
+  print('FCM Token: $token');
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final String? initialToken =
@@ -121,6 +136,8 @@ void main() async {
     nativeAppKey: yourNativeAppKey,
     javaScriptAppKey: yourJavascriptAppKey,
   );
+  await Firebase.initializeApp();
+  await getToken();
 
   runApp(
     ProviderScope(
