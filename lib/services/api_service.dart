@@ -952,7 +952,7 @@ class ApiService {
     } else {
       // print('ApiService : putRegistrationToken : $jsonResponse');
     }
-    return null;
+    throw Exception(jsonResponse['message']);
   }
 
   static Future<void> postNotificationToAllUser(

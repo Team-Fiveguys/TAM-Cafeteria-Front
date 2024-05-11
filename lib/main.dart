@@ -191,14 +191,35 @@ class _AppState extends ConsumerState<App> {
         // 예: 서버에 API 호출
         // 매 로그인마다 post 호출 -> 알림 설정 초기화
         // 초기화 안되려면? get을 호출해서 있으면 post 안하고
-        final hasSetting = await ApiService.getNotificationSettings();
-        final prevToken = await ApiService.getRegistrationToken();
-        if (fcmToken != null) {
-          if (hasSetting == null) {
-            await ApiService.postNotificationSet(fcmToken);
-          } else if (fcmToken != prevToken) {
-            await ApiService.putRegistrationToken(fcmToken);
+        try {
+          final hasSetting = await ApiService.getNotificationSettings();
+          final prevToken = await ApiService.getRegistrationToken();
+          if (fcmToken != null) {
+            if (hasSetting == null) {
+              await ApiService.postNotificationSet(fcmToken);
+            } else if (fcmToken != prevToken) {
+              await ApiService.putRegistrationToken(fcmToken);
+            }
           }
+        } on Exception catch (e) {
+          setState(() {
+            isLoading = false;
+          });
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text('에러'),
+              content: Text(e.toString()),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text('확인'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+              ],
+            ),
+          );
         }
         await prefs.setBool('hasPromptedForNotification', true);
       }
