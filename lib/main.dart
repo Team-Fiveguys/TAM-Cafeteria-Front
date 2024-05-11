@@ -71,8 +71,9 @@ void initializeNotification() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     RemoteNotification? notification = message.notification;
     print('onMessage listen: ${message.data}');
-    await ApiService.postNotificationToServer(message.data["id"] ?? "0");
+
     if (notification != null) {
+      await ApiService.postNotificationToServer(message.data["id"] ?? "0");
       flutterLocalNotificationsPlugin.show(
           notification.hashCode,
           notification.title,
@@ -116,9 +117,6 @@ void main() async {
     nativeAppKey: yourNativeAppKey,
     javaScriptAppKey: yourJavascriptAppKey,
   );
-  await Firebase.initializeApp();
-  initializeNotification();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(
     ProviderScope(
@@ -164,6 +162,9 @@ class _AppState extends ConsumerState<App> {
       isLoading = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    await Firebase.initializeApp();
+    initializeNotification();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     String? fcmToken = await FirebaseMessaging.instance.getToken();
     print("fcmToken $fcmToken");
