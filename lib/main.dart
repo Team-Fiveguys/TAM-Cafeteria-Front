@@ -120,9 +120,7 @@ void main() async {
     nativeAppKey: yourNativeAppKey,
     javaScriptAppKey: yourJavascriptAppKey,
   );
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp();
   initializeNotification();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -202,10 +200,11 @@ class _AppState extends ConsumerState<App> {
           if (fcmToken != null) {
             if (hasSetting.isEmpty) {
               await ApiService.postNotificationSet(fcmToken);
+              await ApiService.updateNotificationSettings(hasSetting);
             } else if (fcmToken != prevToken) {
               await ApiService.putRegistrationToken(fcmToken);
+              await ApiService.updateNotificationSettings(hasSetting);
             }
-            await ApiService.updateNotificationSettings(hasSetting);
           }
         } on Exception catch (e) {
           setState(() {
