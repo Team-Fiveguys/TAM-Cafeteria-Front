@@ -14,6 +14,7 @@ class UserManageScreen extends StatefulWidget {
 class _UserManageScreenState extends State<UserManageScreen> {
   late Future<List<User>> _userList;
   int _currentPage = 1; // 현재 페이지 번호
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -79,6 +80,13 @@ class _UserManageScreenState extends State<UserManageScreen> {
     setState(() {
       _userList = _fetchUserList(_currentPage); // Fetch and refresh user list.
     });
+  }
+
+  List<User> _filterUserList(List<User> userList, String query) {
+    return userList.where((user) {
+      return user.name.toLowerCase().contains(query.toLowerCase()) ||
+          user.email.toString().toLowerCase().contains(query.toLowerCase());
+    }).toList();
   }
 
   void _goToNextPage() {
@@ -186,6 +194,17 @@ class _UserManageScreenState extends State<UserManageScreen> {
               ),
             ),
           ),
+          TextField(
+            controller: _searchController,
+            onChanged: (value) {
+              _refreshUserList();
+            },
+            decoration: const InputDecoration(
+              labelText: '검색',
+              hintText: '아이디로 검색',
+              prefixIcon: Icon(Icons.search),
+            ),
+          ),
           Expanded(
             child: FutureBuilder<List<User>>(
               future: _userList,
@@ -195,16 +214,25 @@ class _UserManageScreenState extends State<UserManageScreen> {
                 } else if (snapshot.hasError) {
                   return const Center(child: Text('Failed to load data.'));
                 } else if (snapshot.hasData) {
+                  final filteredUsers =
+                      _filterUserList(snapshot.data!, _searchController.text);
                   return ListView.separated(
-                    itemCount: snapshot.data!.length,
+                    itemCount: filteredUsers.length,
                     itemBuilder: (context, index) {
-                      final user = snapshot.data![index];
+                      final user = filteredUsers[index];
                       return ListTile(
                         contentPadding: const EdgeInsets.symmetric(
                             vertical: 20.0, horizontal: 16.0),
-                        title: Text(user.name,
-                            style: const TextStyle(fontSize: 20.0)),
-                        subtitle: Text('${user.email} (${user.role})',
+                        title: Row(
+                          children: [
+                            Text(user.name,
+                                style: const TextStyle(fontSize: 20.0)),
+                            const SizedBox(width: 8.0), // 간격 조정
+                            Text('(${user.role})',
+                                style: const TextStyle(fontSize: 20.0)),
+                          ],
+                        ),
+                        subtitle: Text(user.email,
                             style: const TextStyle(fontSize: 16.0)),
                         trailing: user.role == 'MEMBER'
                             ? ElevatedButton(
