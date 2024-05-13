@@ -91,7 +91,7 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                     ),
                     const SizedBox(height: 16.0),
                     Container(
-                      height: 500,
+                      height: 100,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(19),
                         border: Border.all(color: Colors.grey),
