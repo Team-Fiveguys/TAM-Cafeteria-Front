@@ -300,7 +300,7 @@ class _AppState extends ConsumerState<App> {
 
   void _autoLoginCheck() {
     final token = ref.watch(accessTokenProvider);
-    print("_autoLoginCheck: $token");
+    // print("_autoLoginCheck: $token");
     if (token != null) {
       decodeJwt(token);
       ref.read(loginStateProvider.notifier).login();
@@ -460,7 +460,7 @@ class _AppState extends ConsumerState<App> {
     }
 
     // print("main App :: build: accessToken $accessToken");
-    print("main App :: build: isAdmin $isAdmin");
+    // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
       const MenuBoardScreen(),

@@ -348,7 +348,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
 
   Future<void> getCongestionStatus() async {
     currentCongestionStatus = await ApiService.getCongestionStatus(cafeteriaId);
-    print('today menu info : getCongestion : $currentCongestionStatus');
+    // print('today menu info : getCongestion : $currentCongestionStatus');
   }
 
   Future<List<String>> getDietsInMain(String meals) async {
@@ -357,7 +357,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
       meals,
       cafeteriaId,
     );
-    print('today menu info : getDietsInMain $meals,${menus?.names}');
+    // print('today menu info : getDietsInMain $meals,${menus?.names}');
     if (menus != null) {
       if (meals == "BREAKFAST") {
         breakfastImageUrl = menus.imageUrl;
