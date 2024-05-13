@@ -25,15 +25,36 @@ class LoginScreen extends ConsumerWidget {
   Future<void> loginWithKakao(BuildContext context, WidgetRef ref) async {
     final tokenProvider = ref.read(accessTokenProvider.notifier);
     final loginProvier = ref.read(loginStateProvider.notifier);
-
+    bool isClosed = false;
     showDialog(
       context: context,
       barrierDismissible:
           false, // 사용자가 다이얼로그 바깥을 터치하거나 뒤로가기를 눌러 다이얼로그를 닫지 못하게 함
-      builder: (builderContext) => const PopScope(
+      builder: (builderContext) => PopScope(
         canPop: true, // Android 뒤로가기 버튼으로도 닫지 못하게 함
-        child: Center(
-          child: CircularProgressIndicator(), // 로딩 인디케이터
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    isClosed = true;
+                  },
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                    size: 30,
+                  ),
+                ),
+              ),
+            ),
+            const Center(
+              child: CircularProgressIndicator(), // 로딩 인디케이터
+            ),
+          ],
         ),
       ),
     );
@@ -48,6 +69,9 @@ class LoginScreen extends ConsumerWidget {
           tokenProvider.setToken(accessToken);
           loginProvier.login();
           Navigator.pop(context, "login success");
+          if (!isClosed) {
+            Navigator.pop(context, "login success");
+          }
           //  ref.read(loginStateProvider.state).state = true;
         }
 
@@ -71,8 +95,6 @@ class LoginScreen extends ConsumerWidget {
             ],
           ),
         );
-      } finally {
-        Navigator.pop(context, "login success");
       }
     } else {
       showDialog(

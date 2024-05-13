@@ -188,7 +188,7 @@ class ApiService {
         },
         body: jsonEncode(
           {
-            'name': name,
+            'menuName': name,
             'cafeteriaId': cafeteriaId.toString(),
           },
         ));
