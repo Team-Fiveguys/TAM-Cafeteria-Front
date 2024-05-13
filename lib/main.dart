@@ -115,11 +115,11 @@ Future<String?> getToken() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
 
   // 플랫폼 별 토큰 가져오기
-  if (defaultTargetPlatform == TargetPlatform.iOS) {
-    token = await messaging.getAPNSToken();
-  } else {
-    token = await messaging.getToken();
-  }
+  // if (defaultTargetPlatform == TargetPlatform.iOS) {
+  //   token = await messaging.getAPNSToken();
+  // } else {
+  token = await messaging.getToken();
+  // }
   return token;
 }
 
