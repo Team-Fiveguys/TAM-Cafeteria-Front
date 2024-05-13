@@ -136,6 +136,8 @@ void main() async {
     javaScriptAppKey: yourJavascriptAppKey,
   );
   await Firebase.initializeApp();
+  initializeNotification();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(
     ProviderScope(
@@ -181,9 +183,9 @@ class _AppState extends ConsumerState<App> {
       isLoading = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await Firebase.initializeApp();
-    initializeNotification();
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+    // await Firebase.initializeApp();
+    // initializeNotification();
+    // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
     // if (await Permission.notification.isDenied) {
     //   print('니녀석이냐?');
