@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tam_cafeteria_front/screens/announcement_board_screen.dart';
 import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 
 //태그 달고
@@ -46,20 +47,29 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            alignment: Alignment.center,
-            width: 900,
-            height: 56,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(41),
-              color: const Color(0xff002967),
-            ),
-            child: const Text(
-              '메뉴건의 게시판',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const AnnounceBoardScreen()),
+              );
+            },
+            child: Container(
+              alignment: Alignment.center,
+              width: 900,
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(41),
+                color: const Color(0xff002967),
+              ),
+              child: const Text(
+                '메뉴건의 게시판',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),

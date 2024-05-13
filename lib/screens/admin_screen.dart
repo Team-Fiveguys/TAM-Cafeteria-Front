@@ -12,6 +12,7 @@ import 'package:tam_cafeteria_front/screens/add_cafeteria_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_send_screen.dart';
 import 'package:tam_cafeteria_front/screens/user_manage_screen.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
+import 'package:tam_cafeteria_front/screens/write_announce_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/waiting_indicator_widget.dart';
 
@@ -31,7 +32,7 @@ class _AdminPageState extends State<AdminPage> {
   final DateTime now = DateTime.now();
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
 
-  late int? cafeteriaId;
+  int? cafeteriaId;
   String serverWaitingStatus = '여유';
   String? selectedItem = '명진당';
   String? selectedMeals = '중식';
@@ -709,11 +710,13 @@ class _AdminPageState extends State<AdminPage> {
                                         return const Center(
                                           child: CircularProgressIndicator(),
                                         );
-                                      } else if (snapshot.hasError) {
-                                        // 에러가 발생한 경우 에러 메시지를 표시합니다.
-                                        return Center(
-                                          child:
-                                              Text('Error: ${snapshot.error}'),
+                                      } else if (_breakfastisSoldOut == true) {
+                                        return Container(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              10, 0, 0, 0),
+                                          child: Image.asset(
+                                            'assets/images/soldOut.png',
+                                          ),
                                         );
                                       } else {
                                         // 데이터를 성공적으로 불러온 경우 메뉴 항목을 그리드 뷰로 표시합니다.
@@ -763,56 +766,67 @@ class _AdminPageState extends State<AdminPage> {
                               child: Text('Error: ${snapshot.error}'),
                             );
                           } else {
-                            return ElevatedButton(
-                              onPressed: () async {
-                                try {
-                                  if (cafeteriaId != null) {
-                                    final channel = cafeteriaId == 1
-                                        ? "myeongJin"
-                                        : cafeteriaId == 2
-                                            ? "hakGwan"
-                                            : cafeteriaId == 3
-                                                ? "myeongDon"
-                                                : "";
-                                    final result =
-                                        await ApiService.patchSoldOutStatus(
-                                            cafeteriaId!,
-                                            dateFormat.format(now),
-                                            "BREAKFAST");
-                                    if (result) {
-                                      print(channel);
-                                      await ApiService.postNotificationToSubscriber(
-                                          "[$cafeteriaName] [조식]품절",
-                                          "금일 $cafeteriaName 조식 품절되었습니다. 다음에 또 봐요!",
-                                          channel,
-                                          "dietSoldOut");
+                            return SizedBox(
+                              width: 400,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color(0xffffb800), // 버튼의 배경 색상
+                                ),
+                                onPressed: () async {
+                                  try {
+                                    if (cafeteriaId != null) {
+                                      final channel = cafeteriaId == 1
+                                          ? "myeongJin"
+                                          : cafeteriaId == 2
+                                              ? "hakGwan"
+                                              : cafeteriaId == 3
+                                                  ? "myeongDon"
+                                                  : "";
+                                      final result =
+                                          await ApiService.patchSoldOutStatus(
+                                              cafeteriaId!,
+                                              dateFormat.format(now),
+                                              "BREAKFAST");
+                                      if (result) {
+                                        print(channel);
+                                        await ApiService
+                                            .postNotificationToSubscriber(
+                                                "[$cafeteriaName] [조식]품절",
+                                                "금일 $cafeteriaName 조식 품절되었습니다. 다음에 또 봐요!",
+                                                channel,
+                                                "dietSoldOut");
+                                      }
+                                      setState(() {
+                                        // _lunchisSoldOut =
+                                        //     !(_lunchisSoldOut ?? false);
+                                      });
                                     }
-                                    setState(() {
-                                      // _lunchisSoldOut =
-                                      //     !(_lunchisSoldOut ?? false);
-                                    });
+                                  } on Exception catch (e) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text('에러'),
+                                        content: Text(e.toString()),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text('확인'),
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
                                   }
-                                } on Exception catch (e) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      title: const Text('에러'),
-                                      content: Text(e.toString()),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          child: const Text('확인'),
-                                          onPressed: () {
-                                            Navigator.of(ctx).pop();
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Text(_breakfastisSoldOut ?? false
-                                  ? "품절 해제"
-                                  : "품절 설정"),
+                                },
+                                child: Text(
+                                  _breakfastisSoldOut ?? false
+                                      ? "품절 해제"
+                                      : "품절 설정",
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
                             );
                           }
                         },
@@ -866,11 +880,13 @@ class _AdminPageState extends State<AdminPage> {
                                         return const Center(
                                           child: CircularProgressIndicator(),
                                         );
-                                      } else if (snapshot.hasError) {
-                                        // 에러가 발생한 경우 에러 메시지를 표시합니다.
-                                        return Center(
-                                          child:
-                                              Text('Error: ${snapshot.error}'),
+                                      } else if (_lunchisSoldOut == true) {
+                                        return Container(
+                                          padding: const EdgeInsets.fromLTRB(
+                                              10, 0, 0, 0),
+                                          child: Image.asset(
+                                            'assets/images/soldOut.png',
+                                          ),
                                         );
                                       } else {
                                         // 데이터를 성공적으로 불러온 경우 메뉴 항목을 그리드 뷰로 표시합니다.
@@ -920,54 +936,64 @@ class _AdminPageState extends State<AdminPage> {
                               child: Text('Error: ${snapshot.error}'),
                             );
                           } else {
-                            return ElevatedButton(
-                              onPressed: () async {
-                                try {
-                                  if (cafeteriaId != null) {
-                                    final channel = cafeteriaId == 1
-                                        ? "myeongJin"
-                                        : cafeteriaId == 2
-                                            ? "hakGwan"
-                                            : cafeteriaId == 3
-                                                ? "myeongDon"
-                                                : "";
-                                    final result =
-                                        await ApiService.patchSoldOutStatus(
-                                            cafeteriaId!,
-                                            dateFormat.format(now),
-                                            "LUNCH");
-                                    if (result) {
-                                      await ApiService.postNotificationToSubscriber(
-                                          "[$cafeteriaName] [중식]품절",
-                                          "금일 $cafeteriaName 중식 품절되었습니다. 다음에 또 봐요!",
-                                          channel,
-                                          "dietSoldOut");
+                            return SizedBox(
+                              width: 400,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color(0xffffb800), // 버튼의 배경 색상
+                                ),
+                                onPressed: () async {
+                                  try {
+                                    if (cafeteriaId != null) {
+                                      final channel = cafeteriaId == 1
+                                          ? "myeongJin"
+                                          : cafeteriaId == 2
+                                              ? "hakGwan"
+                                              : cafeteriaId == 3
+                                                  ? "myeongDon"
+                                                  : "";
+                                      final result =
+                                          await ApiService.patchSoldOutStatus(
+                                              cafeteriaId!,
+                                              dateFormat.format(now),
+                                              "LUNCH");
+                                      if (result) {
+                                        await ApiService
+                                            .postNotificationToSubscriber(
+                                                "[$cafeteriaName] [중식]품절",
+                                                "금일 $cafeteriaName 중식 품절되었습니다. 다음에 또 봐요!",
+                                                channel,
+                                                "dietSoldOut");
+                                      }
+                                      setState(() {
+                                        // _lunchisSoldOut =
+                                        //     !(_lunchisSoldOut ?? false);
+                                      });
                                     }
-                                    setState(() {
-                                      // _lunchisSoldOut =
-                                      //     !(_lunchisSoldOut ?? false);
-                                    });
+                                  } on Exception catch (e) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text('에러'),
+                                        content: Text(e.toString()),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text('확인'),
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
                                   }
-                                } on Exception catch (e) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (ctx) => AlertDialog(
-                                      title: const Text('에러'),
-                                      content: Text(e.toString()),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          child: const Text('확인'),
-                                          onPressed: () {
-                                            Navigator.of(ctx).pop();
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Text(
-                                  _lunchisSoldOut ?? false ? "품절 해제" : "품절 설정"),
+                                },
+                                child: Text(
+                                  _lunchisSoldOut ?? false ? "품절 해제" : "품절 설정",
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
                             );
                           }
                         },
@@ -1382,6 +1408,50 @@ class _AdminPageState extends State<AdminPage> {
               ),
               const SizedBox(
                 width: 20,
+                height: 20,
+              ),
+//공지게시판 작성
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadiusDirectional.circular(20),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3), // 그림자 위치 조정
+                    ),
+                  ],
+                ),
+                height: 120,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: 10,
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WriteAnnounceScreen(),
+                        ),
+                      );
+                    },
+                    child: const Center(
+                      child: Text(
+                        "공지 작성",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Color(0xFF282828),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

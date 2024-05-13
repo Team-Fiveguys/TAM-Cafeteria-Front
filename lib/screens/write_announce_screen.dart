@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class WriteMenuScreen extends StatefulWidget {
-  const WriteMenuScreen({Key? key}) : super(key: key);
+class WriteAnnounceScreen extends StatefulWidget {
+  const WriteAnnounceScreen({Key? key}) : super(key: key);
 
   @override
-  State<WriteMenuScreen> createState() => _WriteMenuScreenState();
+  State<WriteAnnounceScreen> createState() => _WriteAnnounceScreenState();
 }
 
-class _WriteMenuScreenState extends State<WriteMenuScreen> {
+class _WriteAnnounceScreenState extends State<WriteAnnounceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,7 +45,7 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                   color: const Color(0xff002967),
                 ),
                 child: const Text(
-                  '메뉴건의 글쓰기',
+                  '공지사항 글쓰기',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 20.0,
@@ -82,7 +82,7 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                       ),
                       child: TextFormField(
                         decoration: const InputDecoration(
-                          hintText: '원하는 메뉴를 작성해주세요',
+                          hintText: '공지 제목을 작성해주세요',
                           border: InputBorder.none,
                           contentPadding:
                               EdgeInsets.symmetric(horizontal: 16.0),
@@ -91,7 +91,7 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                     ),
                     const SizedBox(height: 16.0),
                     Container(
-                      height: 100,
+                      height: 200,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(19),
                         border: Border.all(color: Colors.grey),
