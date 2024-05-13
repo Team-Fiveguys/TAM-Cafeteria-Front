@@ -97,63 +97,63 @@ class _NotificationSettingsDialogState
       // 변경된 설정을 서버에 저장하는 작업을 시작
       await Future.wait([
         ApiService.updateNotificationSettings(newSettings),
-        if (hakgwanAlarm)
-          FirebaseMessaging.instance.subscribeToTopic('hakGwan')
-        else
-          Future.value(),
-        if (!hakgwanAlarm)
-          FirebaseMessaging.instance.unsubscribeFromTopic('hakGwan')
-        else
-          Future.value(),
-        if (myeongjinAlarm)
-          FirebaseMessaging.instance.subscribeToTopic('myeongJin')
-        else
-          Future.value(),
-        if (!myeongjinAlarm)
-          FirebaseMessaging.instance.unsubscribeFromTopic('myeongJin')
-        else
-          Future.value(),
-        if (myeongDonAlarm)
-          FirebaseMessaging.instance.subscribeToTopic('myeongDon')
-        else
-          Future.value(),
-        if (!myeongDonAlarm)
-          FirebaseMessaging.instance.unsubscribeFromTopic('myeongDon')
-        else
-          Future.value(),
-        if (todaydietAlarm)
-          FirebaseMessaging.instance.subscribeToTopic('todayDiet')
-        else
-          Future.value(),
-        if (!todaydietAlarm)
-          FirebaseMessaging.instance.unsubscribeFromTopic('todayDiet')
-        else
-          Future.value(),
-        if (dietphotoenrollAlarm)
-          FirebaseMessaging.instance.subscribeToTopic('dietPhotoEnroll')
-        else
-          Future.value(),
-        if (!dietphotoenrollAlarm)
-          FirebaseMessaging.instance.unsubscribeFromTopic('dietPhotoEnroll')
-        else
-          Future.value(),
-        if (weekdietenrollAlarm)
-          FirebaseMessaging.instance.subscribeToTopic('weekDietEnroll')
-        else
-          Future.value(),
-        if (!weekdietenrollAlarm)
-          FirebaseMessaging.instance.unsubscribeFromTopic('weekDietEnroll')
-        else
-          Future.value(),
-        if (dietsoldoutAlarm)
-          FirebaseMessaging.instance.subscribeToTopic('dietSoldOut')
-        else
-          Future.value(),
-        if (!dietsoldoutAlarm)
-          FirebaseMessaging.instance.unsubscribeFromTopic('dietSoldOut')
-        else
-          Future.value(),
-        // 다른 FCM 구독/구독 해제 로직을 여기에 포함시킵니다.
+        // if (hakgwanAlarm)
+        //   FirebaseMessaging.instance.subscribeToTopic('hakGwan')
+        // else
+        //   Future.value(),
+        // if (!hakgwanAlarm)
+        //   FirebaseMessaging.instance.unsubscribeFromTopic('hakGwan')
+        // else
+        //   Future.value(),
+        // if (myeongjinAlarm)
+        //   FirebaseMessaging.instance.subscribeToTopic('myeongJin')
+        // else
+        //   Future.value(),
+        // if (!myeongjinAlarm)
+        //   FirebaseMessaging.instance.unsubscribeFromTopic('myeongJin')
+        // else
+        //   Future.value(),
+        // if (myeongDonAlarm)
+        //   FirebaseMessaging.instance.subscribeToTopic('myeongDon')
+        // else
+        //   Future.value(),
+        // if (!myeongDonAlarm)
+        //   FirebaseMessaging.instance.unsubscribeFromTopic('myeongDon')
+        // else
+        //   Future.value(),
+        // if (todaydietAlarm)
+        //   FirebaseMessaging.instance.subscribeToTopic('todayDiet')
+        // else
+        //   Future.value(),
+        // if (!todaydietAlarm)
+        //   FirebaseMessaging.instance.unsubscribeFromTopic('todayDiet')
+        // else
+        //   Future.value(),
+        // if (dietphotoenrollAlarm)
+        //   FirebaseMessaging.instance.subscribeToTopic('dietPhotoEnroll')
+        // else
+        //   Future.value(),
+        // if (!dietphotoenrollAlarm)
+        //   FirebaseMessaging.instance.unsubscribeFromTopic('dietPhotoEnroll')
+        // else
+        //   Future.value(),
+        // if (weekdietenrollAlarm)
+        //   FirebaseMessaging.instance.subscribeToTopic('weekDietEnroll')
+        // else
+        //   Future.value(),
+        // if (!weekdietenrollAlarm)
+        //   FirebaseMessaging.instance.unsubscribeFromTopic('weekDietEnroll')
+        // else
+        //   Future.value(),
+        // if (dietsoldoutAlarm)
+        //   FirebaseMessaging.instance.subscribeToTopic('dietSoldOut')
+        // else
+        //   Future.value(),
+        // if (!dietsoldoutAlarm)
+        //   FirebaseMessaging.instance.unsubscribeFromTopic('dietSoldOut')
+        // else
+        //   Future.value(),
+        // // 다른 FCM 구독/구독 해제 로직을 여기에 포함시킵니다.
       ]).timeout(const Duration(seconds: 10));
       // 로딩 인디케이터 종료
       Navigator.of(context).pop();
