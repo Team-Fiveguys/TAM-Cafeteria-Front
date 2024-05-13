@@ -371,10 +371,10 @@ class LoginScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10.0),
                         Image.asset('assets/images/dot_line.png'),
-                        Container(
-                          alignment: Alignment.topRight,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
+                        Flexible(
+                          fit: FlexFit.tight,
+                          child: Container(
+                            alignment: Alignment.topRight,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -448,84 +448,66 @@ class LoginScreen extends ConsumerWidget {
                         const SizedBox(
                           height: 10,
                         ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
+                        Flexible(
+                          fit: FlexFit.tight,
+                          child: Container(
+                            alignment: Alignment.center,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SizedBox(
-                                  width: 70,
-                                  height: 70,
-                                  child: IconButton(
-                                    icon: Image.asset(
-                                        'assets/images/google_login_logo.png'),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                          title: const Text('알림'),
-                                          content: const Text(
-                                              '아직 개발 중인 기능입니다. 죄송합니다.'),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              child: const Text('확인'),
-                                              onPressed: () {
-                                                Navigator.of(ctx).pop();
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                IconButton(
+                                  icon: Image.asset(
+                                      'assets/images/google_login_logo.png'),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text('알림'),
+                                        content: const Text(
+                                            '아직 개발 중인 기능입니다. 죄송합니다.'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text('확인'),
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
-                                SizedBox(
-                                  width: 70,
-                                  height: 70,
-                                  child: IconButton(
-                                    icon: Image.asset(
-                                        'assets/images/naver_login_logo.png'),
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (ctx) => AlertDialog(
-                                          title: const Text('알림'),
-                                          content: const Text(
-                                              '아직 개발 중인 기능입니다. 죄송합니다.'),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              child: const Text('확인'),
-                                              onPressed: () {
-                                                Navigator.of(ctx).pop();
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
+                                IconButton(
+                                  icon: Image.asset(
+                                      'assets/images/naver_login_logo.png'),
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text('알림'),
+                                        content: const Text(
+                                            '아직 개발 중인 기능입니다. 죄송합니다.'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text('확인'),
+                                            onPressed: () {
+                                              Navigator.of(ctx).pop();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
-                                SizedBox(
-                                  width: 70,
-                                  height: 70,
-                                  child: IconButton(
-                                    icon: Image.asset(
-                                        'assets/images/apple_login_logo.png'),
-                                    onPressed: () =>
-                                        loginWithApple(context, ref),
-                                  ),
+                                IconButton(
+                                  icon: Image.asset(
+                                      'assets/images/apple_login_logo.png'),
+                                  onPressed: () => loginWithApple(context, ref),
                                 ),
-                                SizedBox(
-                                  width: 70,
-                                  height: 70,
-                                  child: IconButton(
-                                    icon: Image.asset(
-                                        'assets/images/kakao_login_logo.png'),
-                                    onPressed: () =>
-                                        loginWithKakao(context, ref),
-                                  ),
+                                IconButton(
+                                  icon: Image.asset(
+                                      'assets/images/kakao_login_logo.png'),
+                                  onPressed: () => loginWithKakao(context, ref),
                                 ),
                               ],
                             ),
