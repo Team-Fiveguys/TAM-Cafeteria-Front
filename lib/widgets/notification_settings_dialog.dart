@@ -92,8 +92,7 @@ class _NotificationSettingsDialogState
             todaydietAlarm ||
             dietphotoenrollAlarm ||
             weekdietenrollAlarm ||
-            dietsoldoutAlarm ||
-            dietchangeAlarm;
+            dietsoldoutAlarm;
       }
     }
   }
