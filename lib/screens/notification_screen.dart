@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/models/notification_model.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
@@ -214,6 +215,11 @@ class _NotificationCenterState extends State<NotificationCenter> {
                     return ListView.builder(
                       itemCount: data.length, // 알림의 개수
                       itemBuilder: (BuildContext context, int index) {
+                        final date = data[index].date;
+                        DateTime dateTime = DateTime.parse(date);
+                        String formattedDate = DateFormat('yyyy-MM-dd HH:mm')
+                            .format(dateTime.toLocal());
+
                         // Dismissible 위젯을 사용해 스와이프로 삭제할 수 있게 함
                         return Dismissible(
                           key: Key('$index'), // 각 Dismissible 위젯에 고유한 키를 제공
@@ -261,7 +267,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
                                     ),
                                   ),
                                   Text(
-                                    data[index].date,
+                                    formattedDate,
                                     style: const TextStyle(
                                       fontSize: 10,
                                     ),

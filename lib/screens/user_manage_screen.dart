@@ -142,22 +142,15 @@ class _UserManageScreenState extends State<UserManageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
-              child: SizedBox(
-                height: 50,
-                child: Image.asset(
-                  'assets/images/app_bar_logo.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ],
+        title: SizedBox(
+          height: 50,
+          child: Image.asset(
+            'assets/images/app_bar_logo.png',
+            fit: BoxFit.contain,
+          ),
         ),
-        leading: Container(),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [

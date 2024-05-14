@@ -287,8 +287,9 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                 ),
                                 SizedBox(height: 8.0),
                                 Text(
-                                  '돼지고기가 들어간 김치찌개!',
+                                  '돼지고기 김치찌개!',
                                   style: TextStyle(fontSize: 14.0),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ),

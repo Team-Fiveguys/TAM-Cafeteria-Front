@@ -299,8 +299,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Padding(
                   padding: const EdgeInsets.only(
                     top: 30,
-                    right: 5,
-                    left: 5,
+                    right: 15,
+                    left: 15,
                   ),
                   child: TextField(
                     controller: nameController,
@@ -319,8 +319,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
-                    right: 5,
-                    left: 5,
+                    right: 15,
+                    left: 15,
                   ),
                   child: Row(
                     children: [
@@ -364,7 +364,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     children: [
                       const SizedBox(height: 20.0),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: Row(
                           children: [
                             Expanded(
@@ -425,8 +425,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 20.0),
                 Padding(
                   padding: const EdgeInsets.only(
-                    right: 5,
-                    left: 5,
+                    right: 15,
+                    left: 15,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -434,11 +434,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Container(
                         decoration: const BoxDecoration(
                           // 상단 Container: 하단 외곽선을 제외한 세 면에 외곽선을 적용합니다.
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                            left: BorderSide(color: Colors.grey),
-                            right: BorderSide(color: Colors.grey),
-                          ),
+                          // border: Border(
+                          //   top: BorderSide(color: Colors.grey),
+                          //   left: BorderSide(color: Colors.grey),
+                          //   right: BorderSide(color: Colors.grey),
+                          // ),
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(10),
                             topRight: Radius.circular(10),
@@ -470,10 +470,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       Container(
                         decoration: const BoxDecoration(
-                          border: Border(
-                            left: BorderSide(color: Colors.grey),
-                            right: BorderSide(color: Colors.grey),
-                          ),
+                          // border: Border(
+                          //   left: BorderSide(color: Colors.grey),
+                          //   right: BorderSide(color: Colors.grey),
+                          // ),
                           color: Colors.white,
                         ),
                         child: const Divider(
@@ -484,11 +484,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Container(
                         decoration: const BoxDecoration(
                           // 하단 Container: 상단 외곽선을 제외한 세 면에 외곽선을 적용합니다.
-                          border: Border(
-                            bottom: BorderSide(color: Colors.grey),
-                            left: BorderSide(color: Colors.grey),
-                            right: BorderSide(color: Colors.grey),
-                          ),
+                          // border: Border(
+                          //   bottom: BorderSide(color: Colors.grey),
+                          //   left: BorderSide(color: Colors.grey),
+                          //   right: BorderSide(color: Colors.grey),
+                          // ),
                           borderRadius: BorderRadius.only(
                             bottomLeft: Radius.circular(10),
                             bottomRight: Radius.circular(10),
@@ -550,8 +550,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(
-                    left: 5,
-                    right: 5,
+                    left: 15,
+                    right: 15,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -604,7 +604,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
                           child: Container(
                             decoration: BoxDecoration(
                                 border: Border.all(
@@ -646,7 +646,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 40),
                           child: Container(
                             decoration: BoxDecoration(
                                 border: Border.all(
@@ -673,6 +673,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(
+                          height: 20,
+                        ),
                       ],
                     ),
                   ),
@@ -692,13 +695,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 0,
               ),
             ),
-            minimumSize: const Size(double.infinity, 80),
+            minimumSize: const Size(double.infinity, 60),
           ),
           onPressed: signUp,
           child: const Text(
             '회원가입',
             style: TextStyle(
-              color: Colors.black,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),

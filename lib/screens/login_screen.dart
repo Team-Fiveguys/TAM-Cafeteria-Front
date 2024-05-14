@@ -574,8 +574,8 @@ class LoginScreen extends ConsumerWidget {
                                 style: const TextStyle(
                                   color: Colors.blue,
                                   fontSize: 16,
-                                  decoration:
-                                      TextDecoration.underline, // 텍스트에 밑줄 추가
+                                  // decoration:
+                                  //     TextDecoration.underline, // 텍스트에 밑줄 추가
                                 ),
                               ),
                             ),

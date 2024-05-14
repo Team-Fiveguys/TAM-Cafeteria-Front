@@ -481,7 +481,25 @@ class _AppState extends ConsumerState<App> {
         textTheme: GoogleFonts.robotoTextTheme(
           Theme.of(context).textTheme,
         ),
-        dialogBackgroundColor: Colors.white,
+        dialogTheme: const DialogTheme(
+          surfaceTintColor: Colors.white,
+        ),
+        textButtonTheme: const TextButtonThemeData(
+            style: ButtonStyle(
+                foregroundColor: MaterialStatePropertyAll(Colors.blue))),
+        switchTheme: SwitchThemeData(
+          trackColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+            if (states.contains(MaterialState.selected)) {
+              // 스위치가 켜져있을 때의 색상
+              return Colors.blue;
+            } else {
+              // 스위치가 꺼져있을 때의 색상
+              return Colors.grey;
+            }
+          }),
+        ),
+        // dialogBackgroundColor: Colors.grey[200],
         // colorScheme: ColorScheme.fromSwatch().copyWith(
         //   secondary: const Color(0xFFFFF7E3),
         // ),
@@ -683,6 +701,7 @@ class _AppState extends ConsumerState<App> {
             body: WillPopScope(
               onWillPop: onWillPop,
               child: RefreshIndicator(
+                color: Colors.blue,
                 onRefresh: () async {
                   setState(() {
                     testValue = 2;

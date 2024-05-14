@@ -530,16 +530,17 @@ class _NotificationSettingsDialogState
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffc6c6c6),
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: Theme.of(context).canvasColor)),
           ),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               widget.buttonText,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.black),
               textAlign: TextAlign.left,
             ),
           ),

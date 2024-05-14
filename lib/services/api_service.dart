@@ -1011,7 +1011,7 @@ class ApiService {
           id: notification['id'],
           title: notification['title'],
           content: notification['content'],
-          date: notification['transmitDate'],
+          date: notification['transmitTime'],
           isRead: notification['read'],
         );
         notificationList.add(instance);

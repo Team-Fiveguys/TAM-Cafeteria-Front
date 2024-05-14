@@ -608,12 +608,12 @@ class _AdminPageState extends State<AdminPage> {
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             children: [
                               const Text(
-                                '메뉴 변동',
+                                '품절 관리',
                                 style: TextStyle(
                                   color: Color(0xFF282828),
                                   fontSize: 20,
@@ -634,31 +634,6 @@ class _AdminPageState extends State<AdminPage> {
                           ),
 
                           //그냥 수정페이지로 갈수 있게?
-                          const Row(
-                            children: [
-                              SizedBox(
-                                width: 3,
-                              ),
-                              Text('메뉴수정'),
-                              // IconButton(
-                              //   onPressed: () {
-                              //     Navigator.push(
-                              //       context,
-                              //       MaterialPageRoute(
-                              //         builder: (context) => dailydiet(
-                              //           cafeteriaName: cafeteriaName,
-                              //           cafeteriaId: cafateriaId,
-                              //         ),
-                              //       ),
-                              //     );
-                              //   },
-                              //   icon: const Icon(
-                              //     Icons.arrow_forward_ios_rounded,
-                              //     color: Colors.amber,
-                              //   ),
-                              // )
-                            ],
-                          ),
                         ],
                       ),
                       const SizedBox(
@@ -1177,7 +1152,7 @@ class _AdminPageState extends State<AdminPage> {
                         child: TextButton(
                           onPressed: () async {
                             if (cafeteriaId != null) {
-                              bool result = await Navigator.push(
+                              final result = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => WeekDiet(
@@ -1186,9 +1161,9 @@ class _AdminPageState extends State<AdminPage> {
                                   ),
                                 ),
                               );
-                              if (result == true) {
-                                setState(() {});
-                              }
+                              // if (result == true) {
+                              setState(() {});
+                              // }
                             }
                           },
                           child: const Center(
@@ -1432,12 +1407,27 @@ class _AdminPageState extends State<AdminPage> {
                   ),
                   child: TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WriteAnnounceScreen(),
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('알림'),
+                          content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('확인'),
+                              onPressed: () {
+                                Navigator.of(ctx).pop();
+                              },
+                            ),
+                          ],
                         ),
                       );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => const WriteAnnounceScreen(),
+                      //   ),
+                      // );
                     },
                     child: const Center(
                       child: Text(

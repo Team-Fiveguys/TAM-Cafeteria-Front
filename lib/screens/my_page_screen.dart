@@ -286,16 +286,17 @@ class _MyPageState extends State<MyPage> {
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xffc6c6c6),
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.white,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Theme.of(context).canvasColor)),
             ),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 buttonText,
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.black),
                 textAlign: TextAlign.left,
               ),
             ),
@@ -334,10 +335,11 @@ class _MyPageState extends State<MyPage> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffc6c6c6),
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: Theme.of(context).canvasColor)),
           ),
           child: Align(
             alignment: Alignment.centerLeft,
@@ -369,16 +371,17 @@ class _MyPageState extends State<MyPage> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffc6c6c6),
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: Theme.of(context).canvasColor)),
           ),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               buttonText,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.black),
               textAlign: TextAlign.left,
             ),
           ),
@@ -400,7 +403,7 @@ class _MyPageState extends State<MyPage> {
               context: context,
               // 필요한 경우 applicationName, applicationVersion 등을 설정할 수 있음
               applicationName: '탐식당',
-              applicationVersion: '1.0.0',
+              applicationVersion: '1.0.1',
               applicationIcon: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Image.asset('assets/images/app_logo.png',
@@ -410,16 +413,17 @@ class _MyPageState extends State<MyPage> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffc6c6c6),
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: Theme.of(context).canvasColor)),
           ),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               buttonText,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.black),
               textAlign: TextAlign.left,
             ),
           ),
@@ -555,16 +559,17 @@ class _MyPageState extends State<MyPage> {
           );
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xffc6c6c6),
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(color: Theme.of(context).canvasColor)),
         ),
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text(
             buttonText,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.black),
             textAlign: TextAlign.left,
           ),
         ),
@@ -829,16 +834,17 @@ class _MyPageState extends State<MyPage> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffc6c6c6),
+            backgroundColor: Colors.white,
+            surfaceTintColor: Colors.white,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(color: Theme.of(context).canvasColor)),
           ),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               buttonText,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.black),
               textAlign: TextAlign.left,
             ),
           ),

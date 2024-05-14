@@ -394,7 +394,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 230,
+      // height: 235,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -423,16 +423,24 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 TextButton(
-                  onPressed: () => popUpMenuImage(context), //메뉴 사진 팝업 함수 필요
+                  onPressed: () => popUpMenuImage(context),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min, // Row의 크기를 자식 위젯에 맞게 조정
                     children: [
-                      Text(
-                        '메뉴 사진 보기',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontSize: 8,
+                      Flexible(
+                        // Text를 Flexible로 감싸서 필요한 만큼 공간을 차지하게 함
+                        child: Text(
+                          '메뉴 사진 보기',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 10,
+                          ),
+                          maxLines: 2, // 최대 줄 수를 2로 설정
+                          overflow: TextOverflow
+                              .ellipsis, // 텍스트가 두 줄을 넘어갈 경우 말줄임표로 처리
                         ),
                       ),
                       Icon(
@@ -457,7 +465,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                       breakfastHour: widget.breakfastHour,
                     ),
                     const SizedBox(
-                      height: 10,
+                      height: 12,
                     ),
                     Container(
                       padding: const EdgeInsets.all(8),
@@ -562,10 +570,10 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                             )
                           : const TimeIndicator(
                               name: "명돈이네",
-                              lunchHour: "11:00 ~ 15:00",
+                              lunchHour: "11:00 ~ 15:00|17:00 ~ 18:15",
                             ),
-                      const SizedBox(
-                        height: 10,
+                      SizedBox(
+                        height: widget.breakfastHour != null ? 12 : 2,
                       ),
                       Container(
                         padding: const EdgeInsets.all(8),
@@ -666,7 +674,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                     children: [
                       RichText(text: const TextSpan()),
                       const SizedBox(
-                        height: 6,
+                        height: 8,
                       ),
                       Stack(
                         children: [
