@@ -61,7 +61,9 @@ class _NotificationCenterState extends State<NotificationCenter> {
   }
 
   void readNotification(NotificationModel notification) async {
-    await ApiService.readOneNotification(notification.id.toString());
+    if (!notification.isRead) {
+      await ApiService.readOneNotification(notification.id.toString());
+    }
     showDialog(
       context: context,
       builder: (context) {
@@ -272,9 +274,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               onTap: () {
-                                if (!data[index].isRead) {
-                                  readNotification(data[index]);
-                                }
+                                readNotification(data[index]);
                               },
                             ),
                           ),
