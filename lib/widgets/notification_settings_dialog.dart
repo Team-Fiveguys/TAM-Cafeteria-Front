@@ -39,6 +39,7 @@ class _NotificationSettingsDialogState
       print('니녀석이냐?');
       showDialog(
         context: context,
+        barrierDismissible: false,
         builder: (ctx) => AlertDialog(
           title: const Text('알림'),
           content: const Text('알림을 허용하지 않은 사용자입니다. 알림을 받기 위해 알림 설정으로 이동해주세요.'),
@@ -237,6 +238,7 @@ class _NotificationSettingsDialogState
           onPressed: () {
             showDialog(
               context: context,
+              barrierDismissible: false,
               builder: (ctx) {
                 return FutureBuilder(
                   future: initializeSettings(),

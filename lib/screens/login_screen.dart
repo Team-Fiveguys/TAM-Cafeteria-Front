@@ -119,6 +119,7 @@ class LoginScreen extends ConsumerWidget {
   }
 
   Future<void> loginWithApple(BuildContext context, WidgetRef ref) async {
+    bool isClosed = false;
     if (Platform.isAndroid) {
       // TODO: 나중에 redirect로 바꾸기
       // 안드로이드 기기에서 실행되었다면 경고 다이얼로그 표시
@@ -143,11 +144,33 @@ class LoginScreen extends ConsumerWidget {
 
     showDialog(
       context: context,
-      barrierDismissible: true, // 사용자가 다이얼로그 바깥을 터치하거나 뒤로가기를 눌러 다이얼로그를 닫지 못하게 함
-      builder: (builderContext) => const PopScope(
+      barrierDismissible:
+          false, // 사용자가 다이얼로그 바깥을 터치하거나 뒤로가기를 눌러 다이얼로그를 닫지 못하게 함
+      builder: (builderContext) => PopScope(
         canPop: true, // Android 뒤로가기 버튼으로도 닫지 못하게 함
-        child: Center(
-          child: CircularProgressIndicator(), // 로딩 인디케이터
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    isClosed = true;
+                  },
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                    size: 30,
+                  ),
+                ),
+              ),
+            ),
+            const Center(
+              child: CircularProgressIndicator(), // 로딩 인디케이터
+            ),
+          ],
         ),
       ),
     );
@@ -173,7 +196,9 @@ class LoginScreen extends ConsumerWidget {
         throw Exception("로그인 실패");
       }
       Navigator.pop(context, "login success");
-      Navigator.pop(context, "login success");
+      if (!isClosed) {
+        Navigator.pop(context, "login success");
+      }
     } on Exception catch (error) {
       print(error);
       showDialog(
