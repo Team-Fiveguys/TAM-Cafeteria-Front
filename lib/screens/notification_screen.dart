@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/models/notification_model.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
@@ -246,7 +247,25 @@ class _NotificationCenterState extends State<NotificationCenter> {
                             margin: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 5),
                             child: ListTile(
-                              title: Text(data[index].title),
+                              title: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      data[index].title,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Text(
+                                    data[index].date,
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ],
+                              ),
                               subtitle: Text(
                                 data[index].content,
                                 maxLines: 1,

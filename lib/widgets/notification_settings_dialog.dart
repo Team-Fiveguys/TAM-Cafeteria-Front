@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class NotificationSettingsDialog extends StatefulWidget {
@@ -16,14 +17,14 @@ class NotificationSettingsDialog extends StatefulWidget {
 class _NotificationSettingsDialogState
     extends State<NotificationSettingsDialog> {
   bool allAlarm = false;
-  late bool myeongjinAlarm;
-  late bool myeongDonAlarm;
-  late bool hakgwanAlarm;
-  late bool todaydietAlarm;
-  late bool dietphotoenrollAlarm;
-  late bool weekdietenrollAlarm;
-  late bool dietsoldoutAlarm;
-  late bool dietchangeAlarm;
+  bool myeongjinAlarm = false;
+  bool myeongDonAlarm = false;
+  bool hakgwanAlarm = false;
+  bool todaydietAlarm = false;
+  bool dietphotoenrollAlarm = false;
+  bool weekdietenrollAlarm = false;
+  bool dietsoldoutAlarm = false;
+  bool dietchangeAlarm = false;
 
   @override
   void initState() {
@@ -32,29 +33,68 @@ class _NotificationSettingsDialogState
     // initializeSettings();
   }
 
-  // 서버에서 받은 설정으로 초기화
-  // 서버에서 받은 설정으로 초기화
 // 서버에서 받은 설정으로 초기화
   Future<void> initializeSettings() async {
-    // 서버에서 받은 설정 데이터. 예시로 하드코딩했으나 실제로는 ApiService를 사용하여 가져와야 합니다.
-    final settings = await ApiService.getNotificationSettings();
-    if (settings.isNotEmpty) {
-      myeongjinAlarm = settings['myeongJin'] ?? false;
-      hakgwanAlarm = settings['hakGwan'] ?? false;
-      myeongDonAlarm = settings['myeongDon'] ?? false;
-      todaydietAlarm = settings['todayDiet'] ?? false;
-      dietphotoenrollAlarm = settings['dietPhotoEnroll'] ?? false;
-      weekdietenrollAlarm = settings['weekDietEnroll'] ?? false;
-      dietsoldoutAlarm = settings['dietSoldOut'] ?? false;
-      dietchangeAlarm = settings['dietChange'] ?? false;
-      allAlarm = myeongjinAlarm ||
-          hakgwanAlarm ||
-          myeongDonAlarm ||
-          todaydietAlarm ||
-          dietphotoenrollAlarm ||
-          weekdietenrollAlarm ||
-          dietsoldoutAlarm ||
-          dietchangeAlarm;
+    if (!await Permission.notification.isGranted) {
+      print('니녀석이냐?');
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('알림'),
+          content: const Text('알림을 허용하지 않은 사용자입니다. 알림을 받기 위해 알림 설정으로 이동해주세요.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('이동'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                openAppSettings();
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('취소'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+      );
+
+      return;
+      // await Permission.notification.request();
+    }
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
+    Map<String, bool> hasSetting = await ApiService.getNotificationSettings();
+
+    if (fcmToken != null) {
+      if (hasSetting.isEmpty) {
+        await ApiService.postNotificationSet(fcmToken);
+        hasSetting = await ApiService.getNotificationSettings();
+        // await ApiService.updateNotificationSettings(hasSetting);
+      } else if (fcmToken != await ApiService.getRegistrationToken()) {
+        await ApiService.putRegistrationToken(fcmToken);
+        // await ApiService.updateNotificationSettings(hasSetting);
+      }
+      if (hasSetting.isNotEmpty) {
+        myeongjinAlarm = hasSetting['myeongJin'] ?? false;
+        hakgwanAlarm = hasSetting['hakGwan'] ?? false;
+        myeongDonAlarm = hasSetting['myeongDon'] ?? false;
+        todaydietAlarm = hasSetting['todayDiet'] ?? false;
+        dietphotoenrollAlarm = hasSetting['dietPhotoEnroll'] ?? false;
+        weekdietenrollAlarm = hasSetting['weekDietEnroll'] ?? false;
+        dietsoldoutAlarm = hasSetting['dietSoldOut'] ?? false;
+        dietchangeAlarm = hasSetting['dietChange'] ?? false;
+        allAlarm = myeongjinAlarm ||
+            hakgwanAlarm ||
+            myeongDonAlarm ||
+            todaydietAlarm ||
+            dietphotoenrollAlarm ||
+            weekdietenrollAlarm ||
+            dietsoldoutAlarm ||
+            dietchangeAlarm;
+      }
     }
   }
 
@@ -292,6 +332,13 @@ class _NotificationSettingsDialogState
                                       onChanged: (value) {
                                         setState(() {
                                           myeongjinAlarm = value;
+                                          allAlarm = myeongjinAlarm ||
+                                              hakgwanAlarm ||
+                                              myeongDonAlarm ||
+                                              todaydietAlarm ||
+                                              dietphotoenrollAlarm ||
+                                              weekdietenrollAlarm ||
+                                              dietsoldoutAlarm;
                                         });
                                       },
                                     ),
@@ -307,6 +354,13 @@ class _NotificationSettingsDialogState
                                       onChanged: (value) {
                                         setState(() {
                                           hakgwanAlarm = value;
+                                          allAlarm = myeongjinAlarm ||
+                                              hakgwanAlarm ||
+                                              myeongDonAlarm ||
+                                              todaydietAlarm ||
+                                              dietphotoenrollAlarm ||
+                                              weekdietenrollAlarm ||
+                                              dietsoldoutAlarm;
                                         });
                                       },
                                     ),
@@ -322,6 +376,13 @@ class _NotificationSettingsDialogState
                                       onChanged: (value) {
                                         setState(() {
                                           myeongDonAlarm = value;
+                                          allAlarm = myeongjinAlarm ||
+                                              hakgwanAlarm ||
+                                              myeongDonAlarm ||
+                                              todaydietAlarm ||
+                                              dietphotoenrollAlarm ||
+                                              weekdietenrollAlarm ||
+                                              dietsoldoutAlarm;
                                         });
                                       },
                                     ),
@@ -345,6 +406,13 @@ class _NotificationSettingsDialogState
                                       onChanged: (value) {
                                         setState(() {
                                           todaydietAlarm = value;
+                                          allAlarm = myeongjinAlarm ||
+                                              hakgwanAlarm ||
+                                              myeongDonAlarm ||
+                                              todaydietAlarm ||
+                                              dietphotoenrollAlarm ||
+                                              weekdietenrollAlarm ||
+                                              dietsoldoutAlarm;
                                         });
                                       },
                                     ),
@@ -360,6 +428,13 @@ class _NotificationSettingsDialogState
                                       onChanged: (value) {
                                         setState(() {
                                           dietphotoenrollAlarm = value;
+                                          allAlarm = myeongjinAlarm ||
+                                              hakgwanAlarm ||
+                                              myeongDonAlarm ||
+                                              todaydietAlarm ||
+                                              dietphotoenrollAlarm ||
+                                              weekdietenrollAlarm ||
+                                              dietsoldoutAlarm;
                                         });
                                       },
                                     ),
@@ -375,6 +450,13 @@ class _NotificationSettingsDialogState
                                       onChanged: (value) {
                                         setState(() {
                                           weekdietenrollAlarm = value;
+                                          allAlarm = myeongjinAlarm ||
+                                              hakgwanAlarm ||
+                                              myeongDonAlarm ||
+                                              todaydietAlarm ||
+                                              dietphotoenrollAlarm ||
+                                              weekdietenrollAlarm ||
+                                              dietsoldoutAlarm;
                                         });
                                       },
                                     ),
@@ -390,6 +472,13 @@ class _NotificationSettingsDialogState
                                       onChanged: (value) {
                                         setState(() {
                                           dietsoldoutAlarm = value;
+                                          allAlarm = myeongjinAlarm ||
+                                              hakgwanAlarm ||
+                                              myeongDonAlarm ||
+                                              todaydietAlarm ||
+                                              dietphotoenrollAlarm ||
+                                              weekdietenrollAlarm ||
+                                              dietsoldoutAlarm;
                                         });
                                       },
                                     ),
