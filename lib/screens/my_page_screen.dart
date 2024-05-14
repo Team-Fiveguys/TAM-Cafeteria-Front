@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:path/path.dart';
+// import 'package:path/path.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
-import 'package:tam_cafeteria_front/screens/login_screen.dart';
+// import 'package:tam_cafeteria_front/screens/login_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+// import 'package:flutter/material.dart';
+// import 'package:http/http.dart' as http;
 import 'package:tam_cafeteria_front/screens/terms_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/notification_settings_dialog.dart';
@@ -31,8 +31,8 @@ class _MyPageState extends State<MyPage> {
   Future<void> getMyInfo() async {
     final info = await ApiService.getUserInfo();
     if (info != null) {
-      name = info['name'];
-      email = info['email'];
+      name = info['name'] ?? "익명";
+      email = info['email'] ?? "";
     }
   }
 

@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'package:path/path.dart';
+// import 'package:path/path.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:tam_cafeteria_front/main.dart';
+// import 'package:tam_cafeteria_front/main.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
@@ -18,7 +18,7 @@ import 'package:tam_cafeteria_front/services/api_service.dart';
 class LoginScreen extends ConsumerWidget {
   LoginScreen({Key? key}) : super(key: key);
 
-  final bool _isChecked = false;
+  // final bool _isChecked = false;
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 

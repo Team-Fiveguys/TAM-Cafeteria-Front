@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:tam_cafeteria_front/screens/announcement_board_screen.dart';
-import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 
 //태그 달고
 //폰트 줄이고 메뉴A 좀 좌우 상하 길이 맞추고 좋아요 icon가져오고 숫자 늘어나게 만들고
@@ -16,7 +15,7 @@ class MenuBoardScreen extends StatefulWidget {
 }
 
 class _MenuBoardScreenState extends State<MenuBoardScreen> {
-  final int _likeCount = 0; // 처음에는 30으로 시작
+  // final int _likeCount = 0; // 처음에는 30으로 시작
 
   void _incrementLikeCount() {
     showDialog(
