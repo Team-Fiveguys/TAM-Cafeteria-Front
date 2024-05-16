@@ -956,7 +956,7 @@ class ApiService {
   static Future<void> postNotificationToAllUser(
       String title, String content) async {
     final accessToken = await TokenManagerWithSP.loadToken();
-    const path = "/admin/notifications/general/users";
+    const path = "/admin/notifications/users";
     final url = Uri.https(baseUrl, path);
 
     final response = await http.post(url,

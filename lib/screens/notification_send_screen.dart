@@ -94,6 +94,98 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
             ),
             TextButton(
               onPressed: () async {
+                final channel = widget.cafeteriaId == 1
+                    ? "myeongJin"
+                    : widget.cafeteriaId == 2
+                        ? "hakGwan"
+                        : widget.cafeteriaId == 3
+                            ? "myeongDon"
+                            : "";
+                try {
+                  await ApiService.postNotificationToSubscriber(
+                      titleController.text,
+                      contentController.text,
+                      channel,
+                      'general');
+                  Navigator.of(context).pop();
+                } on Exception catch (e) {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('에러'),
+                      content: Text(e.toString()),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('확인'),
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              child: const Text("등록"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showSendImportantNotification() async {
+    TextEditingController titleController = TextEditingController();
+    TextEditingController contentController = TextEditingController();
+    // titleController.text = "[${widget.cafeteriaName}]";
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("알림 작성"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    hintText: "제목",
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                TextField(
+                  controller: contentController,
+                  decoration: InputDecoration(
+                    hintText: "내용",
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                  ),
+                  maxLines: 10, // 무제한 줄 입력을 허용하거나, 원하는 줄 수를 지정할 수 있습니다.
+                  keyboardType:
+                      TextInputType.multiline, // 여러 줄 입력을 위해 키보드 타입 설정
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("취소"),
+            ),
+            TextButton(
+              onPressed: () async {
+                // final channel = widget.cafeteriaId == 1
+                //     ? "myeongJin"
+                //     : widget.cafeteriaId == 2
+                //         ? "hakGwan"
+                //         : widget.cafeteriaId == 3
+                //             ? "myeongDon"
+                //             : "";
                 try {
                   await ApiService.postNotificationToAllUser(
                       titleController.text, contentController.text);
@@ -190,6 +282,7 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(
                     height: 30,
@@ -275,6 +368,41 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
                   ),
                   const SizedBox(
                     height: 30,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadiusDirectional.circular(20),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 1,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3), // 그림자 위치 조정
+                        ),
+                      ],
+                    ),
+                    height: 150,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 15,
+                        horizontal: 10,
+                      ),
+                      child: TextButton(
+                        onPressed: showSendImportantNotification,
+                        child: const Center(
+                          child: Text(
+                            "중요 공지\n보내기",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF282828),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -24,7 +24,7 @@ class _NotificationSettingsDialogState
   bool dietphotoenrollAlarm = false;
   bool weekdietenrollAlarm = false;
   bool dietsoldoutAlarm = false;
-  bool dietchangeAlarm = false;
+  bool generalAlarm = false;
 
   @override
   void initState() {
@@ -35,6 +35,8 @@ class _NotificationSettingsDialogState
 
 // 서버에서 받은 설정으로 초기화
   Future<void> initializeSettings() async {
+    print(
+        "initializeSetting : isGrant=${await Permission.notification.isGranted}  isProvisional=${await Permission.notification.isProvisional} ");
     if (!await Permission.notification.isGranted) {
       print('니녀석이냐?');
       showDialog(
@@ -86,14 +88,15 @@ class _NotificationSettingsDialogState
         dietphotoenrollAlarm = hasSetting['dietPhotoEnroll'] ?? false;
         weekdietenrollAlarm = hasSetting['weekDietEnroll'] ?? false;
         dietsoldoutAlarm = hasSetting['dietSoldOut'] ?? false;
-        dietchangeAlarm = hasSetting['dietChange'] ?? false;
+        generalAlarm = hasSetting['general'] ?? false;
         allAlarm = myeongjinAlarm ||
             hakgwanAlarm ||
             myeongDonAlarm ||
             todaydietAlarm ||
             dietphotoenrollAlarm ||
             weekdietenrollAlarm ||
-            dietsoldoutAlarm;
+            dietsoldoutAlarm ||
+            generalAlarm;
       }
     }
   }
@@ -125,6 +128,7 @@ class _NotificationSettingsDialogState
 
     try {
       Map<String, bool> newSettings = {
+        'general': generalAlarm,
         'hakGwan': hakgwanAlarm,
         'myeongJin': myeongjinAlarm,
         'myeongDon': myeongDonAlarm,
@@ -132,68 +136,10 @@ class _NotificationSettingsDialogState
         'dietPhotoEnroll': dietphotoenrollAlarm,
         'weekDietEnroll': weekdietenrollAlarm,
         'dietSoldOut': dietsoldoutAlarm,
-        'dietChange': dietchangeAlarm,
       };
       // 변경된 설정을 서버에 저장하는 작업을 시작
       await Future.wait([
         ApiService.updateNotificationSettings(newSettings),
-        // if (hakgwanAlarm)
-        //   FirebaseMessaging.instance.subscribeToTopic('hakGwan')
-        // else
-        //   Future.value(),
-        // if (!hakgwanAlarm)
-        //   FirebaseMessaging.instance.unsubscribeFromTopic('hakGwan')
-        // else
-        //   Future.value(),
-        // if (myeongjinAlarm)
-        //   FirebaseMessaging.instance.subscribeToTopic('myeongJin')
-        // else
-        //   Future.value(),
-        // if (!myeongjinAlarm)
-        //   FirebaseMessaging.instance.unsubscribeFromTopic('myeongJin')
-        // else
-        //   Future.value(),
-        // if (myeongDonAlarm)
-        //   FirebaseMessaging.instance.subscribeToTopic('myeongDon')
-        // else
-        //   Future.value(),
-        // if (!myeongDonAlarm)
-        //   FirebaseMessaging.instance.unsubscribeFromTopic('myeongDon')
-        // else
-        //   Future.value(),
-        // if (todaydietAlarm)
-        //   FirebaseMessaging.instance.subscribeToTopic('todayDiet')
-        // else
-        //   Future.value(),
-        // if (!todaydietAlarm)
-        //   FirebaseMessaging.instance.unsubscribeFromTopic('todayDiet')
-        // else
-        //   Future.value(),
-        // if (dietphotoenrollAlarm)
-        //   FirebaseMessaging.instance.subscribeToTopic('dietPhotoEnroll')
-        // else
-        //   Future.value(),
-        // if (!dietphotoenrollAlarm)
-        //   FirebaseMessaging.instance.unsubscribeFromTopic('dietPhotoEnroll')
-        // else
-        //   Future.value(),
-        // if (weekdietenrollAlarm)
-        //   FirebaseMessaging.instance.subscribeToTopic('weekDietEnroll')
-        // else
-        //   Future.value(),
-        // if (!weekdietenrollAlarm)
-        //   FirebaseMessaging.instance.unsubscribeFromTopic('weekDietEnroll')
-        // else
-        //   Future.value(),
-        // if (dietsoldoutAlarm)
-        //   FirebaseMessaging.instance.subscribeToTopic('dietSoldOut')
-        // else
-        //   Future.value(),
-        // if (!dietsoldoutAlarm)
-        //   FirebaseMessaging.instance.unsubscribeFromTopic('dietSoldOut')
-        // else
-        //   Future.value(),
-        // // 다른 FCM 구독/구독 해제 로직을 여기에 포함시킵니다.
       ]).timeout(const Duration(seconds: 10));
       // 로딩 인디케이터 종료
       Navigator.of(context).pop();
@@ -308,7 +254,7 @@ class _NotificationSettingsDialogState
                                           dietphotoenrollAlarm = value;
                                           weekdietenrollAlarm = value;
                                           dietsoldoutAlarm = value;
-                                          dietchangeAlarm = value;
+                                          generalAlarm = value;
                                         });
                                       },
                                     ),
@@ -339,7 +285,8 @@ class _NotificationSettingsDialogState
                                               todaydietAlarm ||
                                               dietphotoenrollAlarm ||
                                               weekdietenrollAlarm ||
-                                              dietsoldoutAlarm;
+                                              dietsoldoutAlarm ||
+                                              generalAlarm;
                                         });
                                       },
                                     ),
@@ -361,7 +308,8 @@ class _NotificationSettingsDialogState
                                               todaydietAlarm ||
                                               dietphotoenrollAlarm ||
                                               weekdietenrollAlarm ||
-                                              dietsoldoutAlarm;
+                                              dietsoldoutAlarm ||
+                                              generalAlarm;
                                         });
                                       },
                                     ),
@@ -383,7 +331,8 @@ class _NotificationSettingsDialogState
                                               todaydietAlarm ||
                                               dietphotoenrollAlarm ||
                                               weekdietenrollAlarm ||
-                                              dietsoldoutAlarm;
+                                              dietsoldoutAlarm ||
+                                              generalAlarm;
                                         });
                                       },
                                     ),
@@ -413,7 +362,8 @@ class _NotificationSettingsDialogState
                                               todaydietAlarm ||
                                               dietphotoenrollAlarm ||
                                               weekdietenrollAlarm ||
-                                              dietsoldoutAlarm;
+                                              dietsoldoutAlarm ||
+                                              generalAlarm;
                                         });
                                       },
                                     ),
@@ -435,7 +385,8 @@ class _NotificationSettingsDialogState
                                               todaydietAlarm ||
                                               dietphotoenrollAlarm ||
                                               weekdietenrollAlarm ||
-                                              dietsoldoutAlarm;
+                                              dietsoldoutAlarm ||
+                                              generalAlarm;
                                         });
                                       },
                                     ),
@@ -457,7 +408,8 @@ class _NotificationSettingsDialogState
                                               todaydietAlarm ||
                                               dietphotoenrollAlarm ||
                                               weekdietenrollAlarm ||
-                                              dietsoldoutAlarm;
+                                              dietsoldoutAlarm ||
+                                              generalAlarm;
                                         });
                                       },
                                     ),
@@ -479,26 +431,36 @@ class _NotificationSettingsDialogState
                                               todaydietAlarm ||
                                               dietphotoenrollAlarm ||
                                               weekdietenrollAlarm ||
-                                              dietsoldoutAlarm;
+                                              dietsoldoutAlarm ||
+                                              generalAlarm;
                                         });
                                       },
                                     ),
                                   ],
                                 ),
-                                // Row(
-                                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                //   children: [
-                                //     const Text('식단 변경'),
-                                //     Switch(
-                                //       value: dietchangeAlarm,
-                                //       onChanged: (value) {
-                                //         setState(() {
-                                //           dietchangeAlarm = value;
-                                //         });
-                                //       },
-                                //     ),
-                                //   ],
-                                // ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text('일반 알림'),
+                                    Switch(
+                                      value: generalAlarm,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          generalAlarm = value;
+                                          allAlarm = myeongjinAlarm ||
+                                              hakgwanAlarm ||
+                                              myeongDonAlarm ||
+                                              todaydietAlarm ||
+                                              dietphotoenrollAlarm ||
+                                              weekdietenrollAlarm ||
+                                              dietsoldoutAlarm ||
+                                              generalAlarm;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                             actions: <Widget>[
