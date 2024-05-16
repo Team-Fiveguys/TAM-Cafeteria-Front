@@ -216,11 +216,11 @@ class _AppState extends ConsumerState<App> {
 
           if (fcmToken != null) {
             if (hasSetting.isEmpty) {
-              await ApiService.postNotificationSet(fcmToken);
+              ApiService.postNotificationSet(fcmToken);
               // hasSetting = await ApiService.getNotificationSettings();
               // await ApiService.updateNotificationSettings(hasSetting);
             } else if (fcmToken != await ApiService.getRegistrationToken()) {
-              await ApiService.putRegistrationToken(fcmToken);
+              ApiService.putRegistrationToken(fcmToken);
               // await ApiService.updateNotificationSettings(hasSetting);
             }
           }

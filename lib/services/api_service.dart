@@ -1477,4 +1477,29 @@ class ApiService {
       throw Exception(jsonResponse['message']);
     }
   }
+
+  static Future<void> deleteLogOut() async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/logout";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+    if (response.statusCode == 200) {
+      print('logout : $jsonResponse');
+    } else {
+      print("$jsonResponse");
+      throw Exception(jsonResponse['message']);
+    }
+  }
 }

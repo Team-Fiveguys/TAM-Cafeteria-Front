@@ -176,6 +176,7 @@ class _MyPageState extends State<MyPage> {
                         ),
                         onPressed: () {
                           // 로그아웃 버튼을 눌렀을 때 실행되는 로그아웃 기능
+                          ApiService.deleteLogOut();
                           ref.read(loginStateProvider.notifier).logout();
                           // 로그아웃 후의 추가 작업
                           // Navigator.pushReplacementNamed(

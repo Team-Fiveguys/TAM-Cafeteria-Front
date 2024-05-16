@@ -70,9 +70,7 @@ class _AdminPageState extends State<AdminPage> {
     if (selectedItem != null) {
       cafeteriaName = selectedItem!;
     }
-    print('admin initState');
     final pref = await SharedPreferences.getInstance();
-    print('getCongestion : pref : ${pref.getString('cafeteriaName')}');
 
     setState(() {
       selectedItem = pref.getString('cafeteriaName') ?? '명진당';
@@ -317,7 +315,6 @@ class _AdminPageState extends State<AdminPage> {
         // Menu 클래스의 메뉴 이름 목록을 List<String>으로 변환하여 반환합니다.
         lunchImageUrl = menu.imageUrl;
         _lunchisSoldOut = menu.soldOut;
-        print('getTodayLunchMenu : soldOut $_lunchisSoldOut');
         return menu.names;
       }
     }
@@ -330,13 +327,10 @@ class _AdminPageState extends State<AdminPage> {
       serverWaitingStatus = await ApiService.getCongestionStatus(cafeteriaId!);
     }
     currentWaitingStatus = serverWaitingStatus;
-    print('admin : getCongestion : $currentWaitingStatus');
   }
 
   @override
   Widget build(BuildContext context) {
-    print("admin screen : build");
-    print('testValue in admin ${widget.testValue}');
     return Column(
       children: [
         //관리자 페이지
