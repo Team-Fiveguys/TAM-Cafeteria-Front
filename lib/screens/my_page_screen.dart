@@ -195,6 +195,13 @@ class _MyPageState extends State<MyPage> {
                   ),
                 ],
               ),
+              const SizedBox(
+                height: 50,
+              ),
+              const Text(
+                '건의 및 문의사항 : tamcafeteria@gmail.com',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ],
           ),
         ),

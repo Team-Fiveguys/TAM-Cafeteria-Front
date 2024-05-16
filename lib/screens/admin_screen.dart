@@ -228,6 +228,13 @@ class _AdminPageState extends State<AdminPage> {
               onPressed: () async {
                 if (_image != null) {
                   final meals = selectedMeals == "중식" ? "LUNCH" : "BREAKFAST";
+                  final channel = cafeteriaId == 1
+                      ? "myeongJin"
+                      : cafeteriaId == 2
+                          ? "hakGwan"
+                          : cafeteriaId == 3
+                              ? "myeongDon"
+                              : "";
                   try {
                     if (cafeteriaId != null) {
                       if ((meals == "LUNCH" &&
@@ -245,7 +252,7 @@ class _AdminPageState extends State<AdminPage> {
                       await ApiService.postNotificationToSubscriber(
                           "[$cafeteriaName] [$selectedMeals] 사진 등록",
                           "$cafeteriaName $selectedMeals 사진 등록되었어요. 확인해보세요!",
-                          cafeteriaId.toString(),
+                          channel,
                           "dietPhotoEnroll");
 
                       Navigator.of(imagePickerContext).pop();

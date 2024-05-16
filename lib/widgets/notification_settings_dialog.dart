@@ -36,7 +36,7 @@ class _NotificationSettingsDialogState
 // 서버에서 받은 설정으로 초기화
   Future<void> initializeSettings() async {
     print(
-        "initializeSetting : isGrant=${await Permission.notification.isGranted}  isProvisional=${await Permission.notification.isProvisional} ");
+        "initializeSetting : isDenied=${await Permission.notification.isDenied}  isProvisional=${await Permission.notification.isProvisional} ");
     if (!await Permission.notification.isGranted) {
       print('니녀석이냐?');
       showDialog(
