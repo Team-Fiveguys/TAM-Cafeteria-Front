@@ -430,7 +430,6 @@ class _WeekDietState extends State<WeekDiet> {
             return AlertDialog(
               title: const Text("메뉴 일괄등록"),
               content: SingleChildScrollView(
-                  width: 300,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   width: 500, // 가로 크기를 늘림
