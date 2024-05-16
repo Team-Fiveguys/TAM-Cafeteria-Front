@@ -865,7 +865,7 @@ class _AdminPageState extends State<AdminPage> {
                                             crossAxisCount:
                                                 2, // 한 줄에 표시할 아이템의 수를 2로 설정합니다.
                                             childAspectRatio:
-                                                3, // 아이템의 가로 세로 비율을 조정합니다.
+                                                2, // 아이템의 가로 세로 비율을 조정합니다.
                                           ),
                                           itemCount: snapshot.data!.length,
                                           itemBuilder: (context, index) {
@@ -873,10 +873,15 @@ class _AdminPageState extends State<AdminPage> {
                                               padding:
                                                   const EdgeInsets.fromLTRB(
                                                       10, 0, 0, 0),
-                                              child: Text(
-                                                '.${snapshot.data![index]}',
-                                                style: const TextStyle(
-                                                    fontSize: 16),
+                                              child: Expanded(
+                                                child: Text(
+                                                  '.${snapshot.data![index]}',
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
+                                                  maxLines: null,
+                                                  overflow:
+                                                      TextOverflow.visible,
+                                                ),
                                               ),
                                             );
                                           },
