@@ -44,6 +44,9 @@ class _WeekDietState extends State<WeekDiet> {
   String selectedMeals = "LUNCH";
   late String selectedDay;
   int selectedDayIndex = DateTime.now().weekday - 1;
+  List<String> selectedMenusForBulk = [];
+  Set<DateTime> selectedDates = {};
+  bool isExpanded = false;
 
   String? selectedCategory; // 선택된 카테고리를 저장할 변수
   final TextEditingController menuNameController = TextEditingController();
@@ -103,6 +106,79 @@ class _WeekDietState extends State<WeekDiet> {
     try {
       await ApiService.postDiets(weekMenus[selectedDay]!, selectedDay,
           selectedMeals, widget.cafeteriaId, operationalDays[selectedDay]!);
+      setState(() {});
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void registerMenusForSelectedDates() async {
+    for (DateTime selectedDate in selectedDates) {
+      String selectedDayFormat = dateFormat.format(selectedDate);
+
+      for (String menu in selectedMenusForBulk) {
+        await registerMenuForADate(menu, selectedDayFormat);
+      }
+    }
+
+    // 모든 메뉴가 등록된 후 UI 업데이트
+    setState(() {});
+  }
+
+  Future<void> registerMenuForADate(String menuName, String date) async {
+    try {
+      await ApiService.putDiets(
+        menuName,
+        date,
+        selectedMeals,
+        widget.cafeteriaId,
+      );
+    } on Exception catch (e) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  void registerMultiMenuInDiets() async {
+    try {
+      for (var selectedDate in selectedDates) {
+        String selectedDay = dateFormat.format(selectedDate);
+        for (var menu in selectedMenusForBulk) {
+          await ApiService.putDiets(
+            menu,
+            selectedDay,
+            selectedMeals,
+            widget.cafeteriaId,
+          );
+        }
+      }
       setState(() {});
     } on Exception catch (e) {
       showDialog(
@@ -343,6 +419,112 @@ class _WeekDietState extends State<WeekDiet> {
       operationalDays[selectedDay] = todayDiets.dayOff;
     }
     // print('weekDiets : loadMenus : $selectedDay $weekMenus');
+  }
+
+  void showBulkAddDialog() async {
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: const Text("메뉴 일괄등록"),
+              content: SingleChildScrollView(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: 500, // 가로 크기를 늘림
+                  height: isExpanded ? 800 : 600, // 클릭에 따라 높이를 조정
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '오늘 날짜: ${dateFormat.format(now)}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      TableCalendar(
+                        firstDay: DateTime.utc(2010, 10, 16),
+                        lastDay: DateTime.utc(2030, 3, 14),
+                        focusedDay: DateTime.now(),
+                        calendarFormat: CalendarFormat.month,
+                        selectedDayPredicate: (day) {
+                          return selectedDates.contains(day);
+                        },
+                        onDaySelected: (selectedDay, focusedDay) {
+                          setState(() {
+                            if (selectedDates.contains(selectedDay)) {
+                              selectedDates.remove(selectedDay);
+                            } else {
+                              selectedDates.add(selectedDay);
+                            }
+                          });
+                        },
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isExpanded = !isExpanded;
+                            });
+                          },
+                          child: FutureBuilder(
+                            future: ApiService.getDiets(dateFormat.format(now),
+                                selectedMeals, widget.cafeteriaId),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                var data = snapshot.data!.names;
+
+                                return ListView.builder(
+                                  itemCount: data.length,
+                                  itemBuilder: (context, index) {
+                                    final item = data[index];
+                                    return CheckboxListTile(
+                                      title: Text(item),
+                                      value:
+                                          selectedMenusForBulk.contains(item),
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          if (value == true) {
+                                            selectedMenusForBulk.add(item);
+                                          } else {
+                                            selectedMenusForBulk.remove(item);
+                                          }
+                                        });
+                                      },
+                                    );
+                                  },
+                                );
+                              }
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("취소"),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    registerMultiMenuInDiets();
+                    Navigator.pop(context);
+                  },
+                  child: const Text("등록"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -687,6 +869,25 @@ class _WeekDietState extends State<WeekDiet> {
                                             ),
                                           ),
                                         ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xffffb800),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: TextButton(
+                                      onPressed: () {
+                                        showBulkAddDialog(); // 일괄등록 다이얼로그를 띄우는 함수 호출
+                                      },
+                                      child: const Text(
+                                        '일괄등록',
+                                        style: TextStyle(color: Colors.white),
                                       ),
                                     ),
                                   ),
