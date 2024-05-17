@@ -170,13 +170,34 @@ class _WeekDietState extends State<WeekDiet> {
     try {
       for (var selectedDate in selectedDates) {
         String selectedDay = dateFormat.format(selectedDate);
-        for (var menu in selectedMenusForBulk) {
-          await ApiService.putDiets(
-            menu,
+
+        // 기존 메뉴를 API에서 가져옵니다.
+        Diet? existingDiets = await ApiService.getDiets(
+            selectedDay, selectedMeals, widget.cafeteriaId);
+        List<String> existingMenus = existingDiets?.names ?? [];
+
+        if (existingMenus.isEmpty) {
+          // 기존 메뉴가 없으면 postDiets를 사용하여 새로운 메뉴를 추가합니다.
+          await ApiService.postDiets(
+            selectedMenusForBulk,
             selectedDay,
             selectedMeals,
             widget.cafeteriaId,
+            false,
           );
+        } else {
+          // 기존 메뉴가 있는 경우
+          for (var menu in selectedMenusForBulk) {
+            if (!existingMenus.contains(menu)) {
+              // 선택된 메뉴가 이미 존재하지 않으면 putDiets를 사용하여 추가합니다.
+              await ApiService.putDiets(
+                menu,
+                selectedDay,
+                selectedMeals,
+                widget.cafeteriaId,
+              );
+            } else {}
+          }
         }
       }
       setState(() {});
@@ -444,13 +465,14 @@ class _WeekDietState extends State<WeekDiet> {
                       TableCalendar(
                         firstDay: DateTime.utc(2010, 10, 16),
                         lastDay: DateTime.utc(2030, 3, 14),
-                        focusedDay: DateTime.now(),
+                        focusedDay: _selectedDay,
                         calendarFormat: CalendarFormat.month,
                         selectedDayPredicate: (day) {
                           return selectedDates.contains(day);
                         },
                         onDaySelected: (selectedDay, focusedDay) {
                           setState(() {
+                            _selectedDay = focusedDay;
                             if (selectedDates.contains(selectedDay)) {
                               selectedDates.remove(selectedDay);
                             } else {
@@ -458,6 +480,12 @@ class _WeekDietState extends State<WeekDiet> {
                             }
                           });
                         },
+                        calendarStyle: const CalendarStyle(
+                          selectedDecoration: BoxDecoration(
+                            color: Color(0xFFFFB800),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                       ),
                       Expanded(
                         child: GestureDetector(
