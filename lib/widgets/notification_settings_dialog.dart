@@ -200,268 +200,270 @@ class _NotificationSettingsDialogState
                       return StatefulBuilder(
                         builder: (BuildContext context_, StateSetter setState) {
                           return AlertDialog(
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      widget.buttonText,
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20.0,
-                                        fontWeight: FontWeight.bold,
+                            content: SingleChildScrollView(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        widget.buttonText,
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 20.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.close,
-                                        color: Colors.black54,
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.close,
+                                          color: Colors.black54,
+                                        ),
+                                        onPressed: () {
+                                          Navigator.of(context_).pop();
+                                        },
                                       ),
-                                      onPressed: () {
-                                        Navigator.of(context_).pop();
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      '전체 알림',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Switch(
-                                      value: allAlarm,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          allAlarm = value;
-                                          // 전체 알림 스위치 상태가 변경될 때 각 알림 항목 스위치도 동일하게 변경
-                                          myeongjinAlarm = value;
-                                          hakgwanAlarm = value;
-                                          myeongDonAlarm = value;
-                                          todaydietAlarm = value;
-                                          dietphotoenrollAlarm = value;
-                                          weekdietenrollAlarm = value;
-                                          dietsoldoutAlarm = value;
-                                          generalAlarm = value;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  '식당 알림',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                    ],
                                   ),
-                                ),
-                                const SizedBox(height: 5),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('명진당'),
-                                    Switch(
-                                      value: myeongjinAlarm,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          myeongjinAlarm = value;
-                                          allAlarm = myeongjinAlarm ||
-                                              hakgwanAlarm ||
-                                              myeongDonAlarm ||
-                                              todaydietAlarm ||
-                                              dietphotoenrollAlarm ||
-                                              weekdietenrollAlarm ||
-                                              dietsoldoutAlarm ||
-                                              generalAlarm;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('학생회관'),
-                                    Switch(
-                                      value: hakgwanAlarm,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          hakgwanAlarm = value;
-                                          allAlarm = myeongjinAlarm ||
-                                              hakgwanAlarm ||
-                                              myeongDonAlarm ||
-                                              todaydietAlarm ||
-                                              dietphotoenrollAlarm ||
-                                              weekdietenrollAlarm ||
-                                              dietsoldoutAlarm ||
-                                              generalAlarm;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('명돈이네'),
-                                    Switch(
-                                      value: myeongDonAlarm,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          myeongDonAlarm = value;
-                                          allAlarm = myeongjinAlarm ||
-                                              hakgwanAlarm ||
-                                              myeongDonAlarm ||
-                                              todaydietAlarm ||
-                                              dietphotoenrollAlarm ||
-                                              weekdietenrollAlarm ||
-                                              dietsoldoutAlarm ||
-                                              generalAlarm;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  '기능 알림',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                  const SizedBox(
+                                    height: 10,
                                   ),
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('오늘의 식단'),
-                                    Switch(
-                                      value: todaydietAlarm,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          todaydietAlarm = value;
-                                          allAlarm = myeongjinAlarm ||
-                                              hakgwanAlarm ||
-                                              myeongDonAlarm ||
-                                              todaydietAlarm ||
-                                              dietphotoenrollAlarm ||
-                                              weekdietenrollAlarm ||
-                                              dietsoldoutAlarm ||
-                                              generalAlarm;
-                                        });
-                                      },
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        '전체 알림',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Switch(
+                                        value: allAlarm,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            allAlarm = value;
+                                            // 전체 알림 스위치 상태가 변경될 때 각 알림 항목 스위치도 동일하게 변경
+                                            myeongjinAlarm = value;
+                                            hakgwanAlarm = value;
+                                            myeongDonAlarm = value;
+                                            todaydietAlarm = value;
+                                            dietphotoenrollAlarm = value;
+                                            weekdietenrollAlarm = value;
+                                            dietsoldoutAlarm = value;
+                                            generalAlarm = value;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    '식당 알림',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
                                     ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('식단 사진 등록'),
-                                    Switch(
-                                      value: dietphotoenrollAlarm,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          dietphotoenrollAlarm = value;
-                                          allAlarm = myeongjinAlarm ||
-                                              hakgwanAlarm ||
-                                              myeongDonAlarm ||
-                                              todaydietAlarm ||
-                                              dietphotoenrollAlarm ||
-                                              weekdietenrollAlarm ||
-                                              dietsoldoutAlarm ||
-                                              generalAlarm;
-                                        });
-                                      },
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('명진당'),
+                                      Switch(
+                                        value: myeongjinAlarm,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            myeongjinAlarm = value;
+                                            allAlarm = myeongjinAlarm ||
+                                                hakgwanAlarm ||
+                                                myeongDonAlarm ||
+                                                todaydietAlarm ||
+                                                dietphotoenrollAlarm ||
+                                                weekdietenrollAlarm ||
+                                                dietsoldoutAlarm ||
+                                                generalAlarm;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('학생회관'),
+                                      Switch(
+                                        value: hakgwanAlarm,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            hakgwanAlarm = value;
+                                            allAlarm = myeongjinAlarm ||
+                                                hakgwanAlarm ||
+                                                myeongDonAlarm ||
+                                                todaydietAlarm ||
+                                                dietphotoenrollAlarm ||
+                                                weekdietenrollAlarm ||
+                                                dietsoldoutAlarm ||
+                                                generalAlarm;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('명돈이네'),
+                                      Switch(
+                                        value: myeongDonAlarm,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            myeongDonAlarm = value;
+                                            allAlarm = myeongjinAlarm ||
+                                                hakgwanAlarm ||
+                                                myeongDonAlarm ||
+                                                todaydietAlarm ||
+                                                dietphotoenrollAlarm ||
+                                                weekdietenrollAlarm ||
+                                                dietsoldoutAlarm ||
+                                                generalAlarm;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 10),
+                                  const Text(
+                                    '기능 알림',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
                                     ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('주간 식단 등록'),
-                                    Switch(
-                                      value: weekdietenrollAlarm,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          weekdietenrollAlarm = value;
-                                          allAlarm = myeongjinAlarm ||
-                                              hakgwanAlarm ||
-                                              myeongDonAlarm ||
-                                              todaydietAlarm ||
-                                              dietphotoenrollAlarm ||
-                                              weekdietenrollAlarm ||
-                                              dietsoldoutAlarm ||
-                                              generalAlarm;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('품절'),
-                                    Switch(
-                                      value: dietsoldoutAlarm,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          dietsoldoutAlarm = value;
-                                          allAlarm = myeongjinAlarm ||
-                                              hakgwanAlarm ||
-                                              myeongDonAlarm ||
-                                              todaydietAlarm ||
-                                              dietphotoenrollAlarm ||
-                                              weekdietenrollAlarm ||
-                                              dietsoldoutAlarm ||
-                                              generalAlarm;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text('일반 알림'),
-                                    Switch(
-                                      value: generalAlarm,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          generalAlarm = value;
-                                          allAlarm = myeongjinAlarm ||
-                                              hakgwanAlarm ||
-                                              myeongDonAlarm ||
-                                              todaydietAlarm ||
-                                              dietphotoenrollAlarm ||
-                                              weekdietenrollAlarm ||
-                                              dietsoldoutAlarm ||
-                                              generalAlarm;
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('오늘의 식단'),
+                                      Switch(
+                                        value: todaydietAlarm,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            todaydietAlarm = value;
+                                            allAlarm = myeongjinAlarm ||
+                                                hakgwanAlarm ||
+                                                myeongDonAlarm ||
+                                                todaydietAlarm ||
+                                                dietphotoenrollAlarm ||
+                                                weekdietenrollAlarm ||
+                                                dietsoldoutAlarm ||
+                                                generalAlarm;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('식단 사진 등록'),
+                                      Switch(
+                                        value: dietphotoenrollAlarm,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            dietphotoenrollAlarm = value;
+                                            allAlarm = myeongjinAlarm ||
+                                                hakgwanAlarm ||
+                                                myeongDonAlarm ||
+                                                todaydietAlarm ||
+                                                dietphotoenrollAlarm ||
+                                                weekdietenrollAlarm ||
+                                                dietsoldoutAlarm ||
+                                                generalAlarm;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('주간 식단 등록'),
+                                      Switch(
+                                        value: weekdietenrollAlarm,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            weekdietenrollAlarm = value;
+                                            allAlarm = myeongjinAlarm ||
+                                                hakgwanAlarm ||
+                                                myeongDonAlarm ||
+                                                todaydietAlarm ||
+                                                dietphotoenrollAlarm ||
+                                                weekdietenrollAlarm ||
+                                                dietsoldoutAlarm ||
+                                                generalAlarm;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('품절'),
+                                      Switch(
+                                        value: dietsoldoutAlarm,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            dietsoldoutAlarm = value;
+                                            allAlarm = myeongjinAlarm ||
+                                                hakgwanAlarm ||
+                                                myeongDonAlarm ||
+                                                todaydietAlarm ||
+                                                dietphotoenrollAlarm ||
+                                                weekdietenrollAlarm ||
+                                                dietsoldoutAlarm ||
+                                                generalAlarm;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text('일반 알림'),
+                                      Switch(
+                                        value: generalAlarm,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            generalAlarm = value;
+                                            allAlarm = myeongjinAlarm ||
+                                                hakgwanAlarm ||
+                                                myeongDonAlarm ||
+                                                todaydietAlarm ||
+                                                dietphotoenrollAlarm ||
+                                                weekdietenrollAlarm ||
+                                                dietsoldoutAlarm ||
+                                                generalAlarm;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                             actions: <Widget>[
                               ElevatedButton(
