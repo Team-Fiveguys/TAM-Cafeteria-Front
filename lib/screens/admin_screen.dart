@@ -711,9 +711,11 @@ class _AdminPageState extends State<AdminPage> {
                                                   const EdgeInsets.fromLTRB(
                                                       10, 0, 0, 0),
                                               child: Text(
-                                                snapshot.data![index],
+                                                '·${snapshot.data![index]}',
                                                 style: const TextStyle(
                                                     fontSize: 16),
+                                                maxLines: null,
+                                                overflow: TextOverflow.visible,
                                               ),
                                             );
                                           },
@@ -880,15 +882,12 @@ class _AdminPageState extends State<AdminPage> {
                                               padding:
                                                   const EdgeInsets.fromLTRB(
                                                       10, 0, 0, 0),
-                                              child: Expanded(
-                                                child: Text(
-                                                  '.${snapshot.data![index]}',
-                                                  style: const TextStyle(
-                                                      fontSize: 16),
-                                                  maxLines: null,
-                                                  overflow:
-                                                      TextOverflow.visible,
-                                                ),
+                                              child: Text(
+                                                '·${snapshot.data![index]}',
+                                                style: const TextStyle(
+                                                    fontSize: 16),
+                                                maxLines: null,
+                                                overflow: TextOverflow.visible,
                                               ),
                                             );
                                           },
