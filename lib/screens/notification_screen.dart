@@ -210,7 +210,18 @@ class _NotificationCenterState extends State<NotificationCenter> {
             child: FutureBuilder(
                 future: notificationList,
                 builder: (context, snapshot) {
+                  print(snapshot.data);
                   if (snapshot.data != null) {
+                    if (snapshot.data!.isEmpty) {
+                      return const Column(
+                        children: [
+                          SizedBox(
+                            height: 40,
+                          ),
+                          Text("현재 도착한 알림이 없습니다."),
+                        ],
+                      );
+                    }
                     List<NotificationModel> data = snapshot.data!;
                     return ListView.builder(
                       itemCount: data.length, // 알림의 개수

@@ -642,19 +642,19 @@ class _AppState extends ConsumerState<App> {
                         if (!isLoggedIn) {
                           navigateToLoginScreen(context);
                         } else {
-                          bool result = await Navigator.push(
+                          final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
                                       const NotificationCenter()));
 
-                          if (result == true) {
-                            // 필요한 상태 업데이트나 리렌더링 로직
-                            setState(() {
-                              getNotificationLength();
-                            });
-                          }
+                          // if (result == true) {
+                          // 필요한 상태 업데이트나 리렌더링 로직
+                          setState(() {
+                            getNotificationLength();
+                          });
                         }
+                        // }
                       },
                       icon: FutureBuilder(
                         future: getNotificationLength(),
