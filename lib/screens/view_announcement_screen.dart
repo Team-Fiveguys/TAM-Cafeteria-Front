@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-// import 'package:flutter/material.dart';
-
 class ViewAnnouncement extends StatefulWidget {
   final List<String> titles;
   final List<String> contents;
@@ -27,7 +25,6 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
               child: SizedBox(
                 height: 50,
                 child: Image.asset(
