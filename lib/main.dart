@@ -15,6 +15,7 @@ import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:tam_cafeteria_front/screens/enter_board_screen.dart';
 import 'package:tam_cafeteria_front/screens/login_screen.dart';
 import 'package:tam_cafeteria_front/screens/menu_suggestion_board_screen.dart';
 import 'package:flutter/rendering.dart';
@@ -172,7 +173,7 @@ class _AppState extends ConsumerState<App> {
 
   List<Widget> _widgetOptions = <Widget>[
     MainScreen(),
-    const MenuBoardScreen(),
+    const EnterBoardScreen(),
     const MyPage(),
   ];
 
@@ -310,7 +311,7 @@ class _AppState extends ConsumerState<App> {
         _selectedIndex = isAdmin ? 2 : 0;
         _widgetOptions = <Widget>[
           MainScreen(),
-          const MenuBoardScreen(),
+          const EnterBoardScreen(),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -328,7 +329,7 @@ class _AppState extends ConsumerState<App> {
         _selectedIndex = isAdmin ? 2 : 0;
         _widgetOptions = <Widget>[
           MainScreen(),
-          const MenuBoardScreen(),
+          const EnterBoardScreen(),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -366,7 +367,7 @@ class _AppState extends ConsumerState<App> {
     _selectedIndex = isAdmin ? 2 : 0;
     _widgetOptions = <Widget>[
       MainScreen(),
-      const MenuBoardScreen(),
+      const EnterBoardScreen(),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -463,7 +464,7 @@ class _AppState extends ConsumerState<App> {
     // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
-      const MenuBoardScreen(),
+      const EnterBoardScreen(),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -564,48 +565,7 @@ class _AppState extends ConsumerState<App> {
                 );
               },
             ),
-            floatingActionButton: _selectedIndex == 1
-                ? Builder(
-                    builder: (context) {
-                      return FloatingActionButton.extended(
-                        onPressed: () {
-                          // FloatingActionButton을 누를 때 수행할 작업
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('알림'),
-                              content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('확인'),
-                                  onPressed: () {
-                                    Navigator.of(ctx).pop();
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const WriteMenuScreen(),
-                          //   ),
-                          // );
-                        },
-                        icon: Image.asset(
-                          'assets/images/write_board_icon.png',
-                          width: 70, // 이미지의 너비 조절
-                          height: 70, // 이미지의 높이 조절
-                        ),
-                        label: const Text(''), // 라벨은 비워둠
-                        backgroundColor:
-                            Colors.black, // 배경색을 투명으로 설정하여 이미지만 보이도록 함
-                        shape: const CircleBorder(), // 원형으로 설정
-                      );
-                    },
-                  )
-                : null,
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+
             appBar: AppBar(
               // elevation: 100,
               scrolledUnderElevation: 3,
@@ -698,6 +658,7 @@ class _AppState extends ConsumerState<App> {
                 ],
               ),
             ),
+            // ignore: deprecated_member_use
             body: WillPopScope(
               onWillPop: onWillPop,
               child: RefreshIndicator(
