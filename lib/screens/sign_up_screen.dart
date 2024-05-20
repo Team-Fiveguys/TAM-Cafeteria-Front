@@ -27,7 +27,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isServiceChecked = false;
   bool _isPersonalChecked = false;
   bool isVerified = false;
-  String? _selectedGender;
+  // String? _selectedGender;
   final TextEditingController nameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _checkPasswordController =
@@ -55,8 +55,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       msg = "비밀번호를 확인해주세요";
     } else if (_passwordController.text != _checkPasswordController.text) {
       msg = "비밀번호가 일치하지않습니다";
-    } else if (_selectedGender == null) {
-      msg = "성별을 선택해주세요";
     } else if (!isVerified) {
       msg = "메일을 인증해주세요";
     } else {
@@ -64,7 +62,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         success = await ApiService.postSignUp(
             nameController.text,
             _passwordController.text,
-            _selectedGender!,
             emailController.text,
             checkEmailVerifiyControlloer.text);
         if (success) {
@@ -246,28 +243,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return "$minute:${second.toString().padLeft(2, '0')}";
   }
 
-  Widget _buildGenderButton(String gender) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(100, 70),
-        backgroundColor: _selectedGender == gender ? Colors.grey : Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      onPressed: () {
-        setState(() {
-          _selectedGender = gender;
-        });
-      },
-      child: Text(
-        gender,
-        style: TextStyle(
-          color: _selectedGender == gender ? Colors.white : Colors.black,
-        ),
-      ),
-    );
-  }
+  // Widget _buildGenderButton(String gender) {
+  //   return ElevatedButton(
+  //     style: ElevatedButton.styleFrom(
+  //       minimumSize: const Size(100, 70),
+  //       backgroundColor: _selectedGender == gender ? Colors.grey : Colors.white,
+  //       shape: RoundedRectangleBorder(
+  //         borderRadius: BorderRadius.circular(10),
+  //       ),
+  //     ),
+  //     onPressed: () {
+  //       setState(() {
+  //         _selectedGender = gender;
+  //       });
+  //     },
+  //     child: Text(
+  //       gender,
+  //       style: TextStyle(
+  //         color: _selectedGender == gender ? Colors.white : Colors.black,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Future<String> loadServiceTerms() async {
     return await rootBundle.loadString('assets/serviceTerms.txt');
@@ -548,26 +545,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(
                   height: 30,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 15,
-                    right: 15,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _buildGenderButton('남성'),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Expanded(
-                        child: _buildGenderButton('여성'),
-                      ),
-                    ],
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(
+                //     left: 15,
+                //     right: 15,
+                //   ),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //     children: [
+                //       Expanded(
+                //         child: _buildGenderButton('남성'),
+                //       ),
+                //       const SizedBox(
+                //         width: 10,
+                //       ),
+                //       Expanded(
+                //         child: _buildGenderButton('여성'),
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 const SizedBox(
                   height: 30,
                 ),

@@ -537,8 +537,8 @@ class ApiService {
     }
   }
 
-  static Future<bool> postSignUp(String name, String password, String sex,
-      String email, String authcode) async {
+  static Future<bool> postSignUp(
+      String name, String password, String email, String authcode) async {
     const path = "/sign-up";
     final url = Uri.https(baseUrl, path);
 
@@ -551,7 +551,6 @@ class ApiService {
           {
             'name': name,
             'password': password,
-            'sex': sex,
             'email': email,
             'authCode': authcode,
           },
