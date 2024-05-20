@@ -1501,4 +1501,77 @@ class ApiService {
       throw Exception(jsonResponse['message']);
     }
   }
+
+  Future<List<Map<String, dynamic>>> fetchBoardList(
+      String boardType, int cafeteriaId, int page) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      final path = "/boards/$boardType/boards";
+      // cafeteriaId를 쿼리 파라미터에 추가
+      final url = Uri.https(
+          baseUrl, path, {'cafeteriaId': '$cafeteriaId', 'page': '$page'});
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // UTF-8로 디코딩
+        final String responseUtf8 = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
+        final List<dynamic> resultList = jsonResponse['result'];
+        final List<Map<String, dynamic>> boardList = resultList.map((item) {
+          return {
+            'id': item['id'],
+            'title': item['title'],
+            'publisherName': item['publisherName'],
+            'uploadTime': item['uploadTime'],
+          };
+        }).toList();
+        print(jsonResponse);
+        return boardList;
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+        return [];
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      return [];
+    }
+  }
+
+  static Future<void> createPost(
+      String boardType, String title, String content, int cafeteriaId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/boards";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(
+          {
+            "boardType": boardType,
+            "title": title,
+            "content": content,
+            "cafeteriaId": cafeteriaId
+          },
+        ));
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : createPost : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      throw Exception(jsonResponse['message']);
+    }
+  }
 }
