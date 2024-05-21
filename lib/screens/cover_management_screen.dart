@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +23,12 @@ class _CoverManagementState extends State<CoverManagement> {
   final List<String> daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
 
   bool isExam = false;
+  bool isDessertDistribution = false;
+  bool isFestival = false;
+  bool isReserveForce = false;
+  bool isVaccation = false;
+  bool isHoliday = false;
+  bool isSpicy = false;
 
   @override
   void initState() {
@@ -231,6 +236,95 @@ class _CoverManagementState extends State<CoverManagement> {
                               const Text('시험기간 유무'),
                             ],
                           ),
+                          Row(
+                            children: [
+                              Checkbox(
+                                activeColor: Colors.blue,
+                                value: isFestival,
+                                onChanged: (bool? value) async {
+                                  setState(() {
+                                    isFestival = value!;
+                                  });
+                                },
+                              ),
+                              const Text('축제 유무'),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Checkbox(
+                                activeColor: Colors.blue,
+                                value: isDessertDistribution,
+                                onChanged: (bool? value) async {
+                                  setState(() {
+                                    isDessertDistribution = value!;
+                                  });
+                                },
+                              ),
+                              const Text('간식배부 유무'),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Checkbox(
+                                activeColor: Colors.blue,
+                                value: isReserveForce,
+                                onChanged: (bool? value) async {
+                                  setState(() {
+                                    isReserveForce = value!;
+                                  });
+                                },
+                              ),
+                              const Text('예비군 유무'),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Checkbox(
+                                activeColor: Colors.blue,
+                                value: isVaccation,
+                                onChanged: (bool? value) async {
+                                  setState(() {
+                                    isVaccation = value!;
+                                  });
+                                },
+                              ),
+                              const Text('방학 유무'),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Checkbox(
+                                activeColor: Colors.blue,
+                                value: isHoliday,
+                                onChanged: (bool? value) async {
+                                  setState(() {
+                                    isHoliday = value!;
+                                  });
+                                },
+                              ),
+                              const Text('공휴일 유무'),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Checkbox(
+                                activeColor: Colors.blue,
+                                value: isSpicy,
+                                onChanged: (bool? value) async {
+                                  setState(() {
+                                    isSpicy = value!;
+                                  });
+                                },
+                              ),
+                              const Text('매움 유무'),
+                            ],
+                          ),
+                          TextButton(
+                            onPressed: () {},
+                            child: const Text("결과 보기"),
+                          ),
+                          const Text('예측 식수 :  '),
                         ],
                       ),
                     ),
