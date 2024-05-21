@@ -481,6 +481,17 @@ class _AppState extends ConsumerState<App> {
         textTheme: GoogleFonts.robotoTextTheme(
           Theme.of(context).textTheme,
         ),
+        checkboxTheme: CheckboxThemeData(
+          side: const BorderSide(color: Colors.blue), // 테두리 색상 설정
+          fillColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+            if (states.contains(MaterialState.selected)) {
+              return Colors.blue; // 체크했을 때 색상 설정
+            }
+            return Colors.white; // 해제했을 때 색상 설정
+          }),
+          checkColor: MaterialStateProperty.all<Color>(Colors.white),
+        ),
         dialogTheme: const DialogTheme(
           surfaceTintColor: Colors.white,
         ),
@@ -499,10 +510,17 @@ class _AppState extends ConsumerState<App> {
             }
           }),
         ),
-        // dialogBackgroundColor: Colors.grey[200],
-        // colorScheme: ColorScheme.fromSwatch().copyWith(
-        //   secondary: const Color(0xFFFFF7E3),
-        // ),
+        inputDecorationTheme: InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(15), // 눌렀을 때 테두리 색상
+          ),
+        ),
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Color(0xFF515151), // 커서 색상
+          selectionColor: Colors.lightBlueAccent, // 선택한 텍스트 배경 색상
+          selectionHandleColor: Colors.blue, // 선택 핸들 색상
+        ),
         scaffoldBackgroundColor: Colors.white,
         primaryColor: const Color(0xFF3e3e3e),
         primaryColorLight: const Color(0xFF97948f),
