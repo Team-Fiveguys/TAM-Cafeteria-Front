@@ -106,24 +106,22 @@ class _NotificationSettingsDialogState
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Dialog(
-            child: Padding(
-              padding: EdgeInsets.all(20.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(width: 20),
-                  Text("저장 중..."),
-                ],
-              ),
+      builder: (BuildContext context) => const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Dialog(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("저장 중..."),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
 
     try {

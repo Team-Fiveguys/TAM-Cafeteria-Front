@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
@@ -64,22 +65,20 @@ class _WeekDietState extends State<WeekDiet> {
     initDietList();
   }
 
-  void initDietList() {
+  void initDietList() async {
     DateTime currentDate = firstDay;
     while (currentDate.isBefore(lastDay.add(const Duration(days: 1)))) {
       // lastDay를 포함하기 위해 1일 추가
       String formattedDate = dateFormat.format(currentDate);
-      Future.delayed(Duration.zero, () async {
-        Diet? todayDiets = await ApiService.getDiets(
-            formattedDate, selectedMeals, widget.cafeteriaId);
-        if (todayDiets != null) {
-          weekMenus[formattedDate] = todayDiets.names;
-          operationalDays[formattedDate] = todayDiets.dayOff;
-        } else {
-          weekMenus[formattedDate] = [];
-          operationalDays[formattedDate] = false;
-        }
-      });
+      Diet? todayDiets = await ApiService.getDiets(
+          formattedDate, selectedMeals, widget.cafeteriaId);
+      if (todayDiets != null) {
+        weekMenus[formattedDate] = todayDiets.names;
+        operationalDays[formattedDate] = todayDiets.dayOff;
+      } else {
+        weekMenus[formattedDate] = [];
+        operationalDays[formattedDate] = false;
+      }
       // weekMenus[formattedDate] = []; // formattedDate를 key로 하여 비어 있는 리스트 할당
       // 기본적으로 모든 날짜를 운영으로 설정
 
@@ -255,8 +254,11 @@ class _WeekDietState extends State<WeekDiet> {
         selectedDay,
         selectedMeals,
         widget.cafeteriaId,
-      );
-      setState(() {});
+      ).then((_) {
+        setState(() {
+          weekMenus[selectedDay]?.remove(menuName);
+        });
+      });
     } on Exception catch (e) {
       showDialog(
         context: context,
@@ -291,23 +293,23 @@ class _WeekDietState extends State<WeekDiet> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      DropdownButton<String>(
-                        hint: const Text("카테고리 선택"),
-                        value: selectedCategory,
-                        dropdownColor: Colors.white,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedCategory = newValue;
-                          });
-                        },
-                        items: <String>['한식', '중식', '일식', '양식']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
+                      // DropdownButton<String>(
+                      //   hint: const Text("카테고리 선택"),
+                      //   value: selectedCategory,
+                      //   dropdownColor: Colors.white,
+                      //   onChanged: (String? newValue) {
+                      //     setState(() {
+                      //       selectedCategory = newValue;
+                      //     });
+                      //   },
+                      //   items: <String>['한식', '중식', '일식', '양식']
+                      //       .map<DropdownMenuItem<String>>((String value) {
+                      //     return DropdownMenuItem<String>(
+                      //       value: value,
+                      //       child: Text(value),
+                      //     );
+                      //   }).toList(),
+                      // ),
                       TextField(
                         controller: menuNameController,
                         onChanged: (value) {
@@ -328,8 +330,7 @@ class _WeekDietState extends State<WeekDiet> {
                               data = data
                                   .where((menu) => !currentMenus.contains(menu))
                                   .toList();
-                              print(
-                                  '길이 ${data.length}, ${filteredMenus.length}, ${menuNameController.text.isEmpty}');
+
                               return ListView.builder(
                                 itemCount: menuNameController.text.isEmpty
                                     ? data.length
@@ -406,19 +407,54 @@ class _WeekDietState extends State<WeekDiet> {
                 ),
                 TextButton(
                   onPressed: () {
-                    // 메뉴 등록 로직 추가
-                    print(
-                        "$selectedCategory 카테고리, 메뉴명: ${menuNameController.text}");
-                    if (weekMenus[selectedDay]!.isNotEmpty) {
-                      registeringOneMenuInDiets(menuNameController.text);
+                    if (filteredMenus.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('에러'),
+                          content:
+                              const Text('없는 메뉴입니다. 아래 메뉴 등록하기를 눌러 메뉴를 등록해주세요'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('확인'),
+                              onPressed: () {
+                                Navigator.of(ctx).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (menuNameController.text.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('에러'),
+                          content: const Text('메뉴를 선택해주세요'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('확인'),
+                              onPressed: () {
+                                Navigator.of(ctx).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
                     } else {
-                      registeringDiets();
-                    }
-                    weekMenus[selectedDay]!.add(menuNameController.text);
+                      // 메뉴 등록 로직 추가
+                      print(
+                          "$selectedCategory 카테고리, 메뉴명: ${menuNameController.text}");
 
-                    selectedCategory = null;
-                    menuNameController.clear();
-                    Navigator.of(context).pop();
+                      if (weekMenus[selectedDay]!.isNotEmpty) {
+                        registeringOneMenuInDiets(menuNameController.text);
+                      } else {
+                        registeringDiets();
+                      }
+                      weekMenus[selectedDay]!.add(menuNameController.text);
+                      selectedCategory = null;
+                      menuNameController.clear();
+                      Navigator.of(context).pop();
+                    }
                   },
                   child: const Text("등록"),
                 ),
@@ -522,9 +558,14 @@ class _WeekDietState extends State<WeekDiet> {
                                   },
                                 );
                               }
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
                               return const Center(
-                                child: CircularProgressIndicator(),
-                              );
+                                  child: Text("해당 날짜에 등록된 식단이 없습니다."));
                             },
                           ),
                         ),
@@ -597,7 +638,6 @@ class _WeekDietState extends State<WeekDiet> {
                   leading: IconButton(
                     // leading 위치에 아이콘 버튼 배치
                     onPressed: () {
-                      // if(initMenuListLength) TODO: 추가한 메뉴가 있을때 확인알림 해줘야할듯?
                       Navigator.pop(context, true);
                     },
                     icon: const Icon(
@@ -854,6 +894,7 @@ class _WeekDietState extends State<WeekDiet> {
                                                     onPressed: () {
                                                       removeOneMenuInDiets(
                                                           menu);
+                                                      loadDiets();
                                                     },
                                                     icon: const Icon(
                                                       Icons.remove,
@@ -875,25 +916,31 @@ class _WeekDietState extends State<WeekDiet> {
                                   ),
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFD9D9D9),
+                                      // color: const Color(0xFFD9D9D9),
                                       borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(
+                                        color: Theme.of(context).cardColor,
+                                        width: 3,
+                                      ),
                                     ),
                                     height: 50,
                                     child: TextButton(
                                       //TODO: 금주 식단 등록 추가 버튼 구현
                                       onPressed: () => showDietAddDialog(),
-                                      child: const Row(
+                                      child: Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.center,
                                         children: [
                                           Icon(
                                             Icons.add,
-                                            color: Color(0xFF5A5A5A),
+                                            color:
+                                                Theme.of(context).canvasColor,
                                           ),
                                           Text(
                                             '추가',
                                             style: TextStyle(
-                                              color: Color(0xFF5A5A5A),
+                                              color:
+                                                  Theme.of(context).canvasColor,
                                             ),
                                           ),
                                         ],
@@ -906,12 +953,26 @@ class _WeekDietState extends State<WeekDiet> {
                                   Container(
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: const Color(0xffffb800),
+                                      color: weekMenus[selectedDay]?.isEmpty ??
+                                              true
+                                          ? Colors.grey
+                                          : const Color(0xffffb800),
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                     child: TextButton(
                                       onPressed: () {
-                                        showBulkAddDialog(); // 일괄등록 다이얼로그를 띄우는 함수 호출
+                                        if (weekMenus[selectedDay]?.isEmpty ??
+                                            true) {
+                                          Fluttertoast.showToast(
+                                              msg: "메뉴를 먼저 등록해주세요",
+                                              gravity: ToastGravity.BOTTOM,
+                                              backgroundColor:
+                                                  const Color(0xff6E6E6E),
+                                              fontSize: 15,
+                                              toastLength: Toast.LENGTH_SHORT);
+                                        } else {
+                                          showBulkAddDialog(); // 일괄등록 다이얼로그를 띄우는 함수 호출
+                                        }
                                       },
                                       child: const Text(
                                         '일괄등록',
