@@ -121,16 +121,14 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
       required String publisherName,
       required int boardId}) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        final postDetail = await _apiService.fetchBoardDetail(boardId);
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ViewAnnouncement(
-              titles: [title], // 제목 목록 전달
-              contents: [
-                publisherName
-              ], // 발행자 이름 목록 전달 (내용을 publisherName으로 대체)
-              currentIndex: index, // 현재 인덱스 전달
+            builder: (context) => ViewAnnouncementScreen(
+              title: postDetail['title'],
+              content: postDetail['content'],
             ),
           ),
         );

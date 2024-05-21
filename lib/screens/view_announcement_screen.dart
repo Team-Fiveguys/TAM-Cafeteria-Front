@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 
-class ViewAnnouncement extends StatefulWidget {
-  final List<String> titles;
-  final List<String> contents;
-  int currentIndex;
+class ViewAnnouncementScreen extends StatefulWidget {
+  final String title;
+  final String content;
 
-  ViewAnnouncement({
+  const ViewAnnouncementScreen({
     Key? key,
-    required this.titles,
-    required this.contents,
-    required this.currentIndex,
+    required this.title,
+    required this.content,
   }) : super(key: key);
 
   @override
-  State<ViewAnnouncement> createState() => _ViewAnnouncementState();
+  State<ViewAnnouncementScreen> createState() =>
+      _ViewMenuSuggestionScreenState();
 }
 
-class _ViewAnnouncementState extends State<ViewAnnouncement> {
+class _ViewMenuSuggestionScreenState extends State<ViewAnnouncementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,7 +92,7 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
                             ],
                           ),
                           child: Text(
-                            widget.titles[widget.currentIndex],
+                            widget.title,
                             style: const TextStyle(
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
@@ -124,9 +123,11 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
                               ),
                             ],
                           ),
-                          child: Text(
-                            widget.contents[widget.currentIndex],
-                            style: const TextStyle(fontSize: 18.0),
+                          child: SingleChildScrollView(
+                            child: Text(
+                              widget.content,
+                              style: const TextStyle(fontSize: 18.0),
+                            ),
                           ),
                         ),
                       ),
@@ -134,35 +135,6 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 20.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    if (widget.currentIndex > 0) {
-                      setState(() {
-                        // 이전 버튼이 클릭되면 currentIndex를 감소시킴
-                        widget.currentIndex--;
-                      });
-                    }
-                  },
-                  child: const Text('이전 게시물'),
-                ),
-                const SizedBox(width: 20.0),
-                ElevatedButton(
-                  onPressed: () {
-                    if (widget.currentIndex < widget.titles.length - 1) {
-                      setState(() {
-                        // 다음 버튼이 클릭되면 currentIndex를 증가시킴
-                        widget.currentIndex++;
-                      });
-                    }
-                  },
-                  child: const Text('다음 게시물'),
-                ),
-              ],
             ),
           ],
         ),
