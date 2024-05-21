@@ -38,24 +38,19 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 50,
-                  child: Image.asset(
-                    'assets/images/app_bar_logo.png',
-                    fit: BoxFit.contain,
-                  ),
+          preferredSize: const Size.fromHeight(60),
+          child: AppBar(
+            title: Expanded(
+              child: SizedBox(
+                height: 50,
+                child: Image.asset(
+                  'assets/images/app_bar_logo.png',
+                  fit: BoxFit.contain,
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+            centerTitle: true,
+          )),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

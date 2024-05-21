@@ -1574,4 +1574,32 @@ class ApiService {
       throw Exception(jsonResponse['message']);
     }
   }
+
+  Future<Map<String, dynamic>> fetchBoardDetail(int id) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      final path = "/boards/$id";
+      final url = Uri.https(baseUrl, path);
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final String responseUtf8 = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
+        return jsonResponse['result'];
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+        return {};
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      return {};
+    }
+  }
 }

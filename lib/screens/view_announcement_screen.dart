@@ -21,20 +21,16 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 50,
-                child: Image.asset(
-                  'assets/images/app_bar_logo.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
+        title: Expanded(
+          child: SizedBox(
+            height: 50,
+            child: Image.asset(
+              'assets/images/app_bar_logo.png',
+              fit: BoxFit.contain,
             ),
-          ],
+          ),
         ),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

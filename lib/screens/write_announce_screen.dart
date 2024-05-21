@@ -41,20 +41,16 @@ class _WriteAnnounceScreenState extends State<WriteAnnounceScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: AppBar(
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 50,
-                  child: Image.asset(
-                    'assets/images/app_bar_logo.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
+          title: Expanded(
+            child: SizedBox(
+              height: 50,
+              child: Image.asset(
+                'assets/images/app_bar_logo.png',
+                fit: BoxFit.contain,
               ),
-            ],
+            ),
           ),
+          centerTitle: true,
         ),
       ),
       body: Padding(

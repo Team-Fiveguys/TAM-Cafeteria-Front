@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class ViewMenuSuggestionScreen extends StatefulWidget {
-  final List<String> titles;
-  final List<String> contents;
-  int currentIndex;
+  final String title;
+  final String content;
 
-  ViewMenuSuggestionScreen({
+  const ViewMenuSuggestionScreen({
     Key? key,
-    required this.titles,
-    required this.contents,
-    required this.currentIndex,
+    required this.title,
+    required this.content,
   }) : super(key: key);
 
   @override
@@ -23,14 +20,16 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: SizedBox(
-          height: 50,
-          child: Image.asset(
-            'assets/images/app_bar_logo.png',
-            fit: BoxFit.contain,
+        title: Expanded(
+          child: SizedBox(
+            height: 50,
+            child: Image.asset(
+              'assets/images/app_bar_logo.png',
+              fit: BoxFit.contain,
+            ),
           ),
         ),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -93,7 +92,7 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
                             ],
                           ),
                           child: Text(
-                            widget.titles[widget.currentIndex],
+                            widget.title,
                             style: const TextStyle(
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
@@ -126,7 +125,7 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
                           ),
                           child: SingleChildScrollView(
                             child: Text(
-                              widget.contents[widget.currentIndex],
+                              widget.content,
                               style: const TextStyle(fontSize: 18.0),
                             ),
                           ),
@@ -136,33 +135,6 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 20.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: widget.currentIndex > 0
-                      ? () {
-                          setState(() {
-                            widget.currentIndex--;
-                          });
-                        }
-                      : null,
-                  child: const Text('이전 게시물'),
-                ),
-                const SizedBox(width: 20.0),
-                ElevatedButton(
-                  onPressed: widget.currentIndex < widget.titles.length - 1
-                      ? () {
-                          setState(() {
-                            widget.currentIndex++;
-                          });
-                        }
-                      : null,
-                  child: const Text('다음 게시물'),
-                ),
-              ],
             ),
           ],
         ),

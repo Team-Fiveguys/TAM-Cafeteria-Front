@@ -24,20 +24,16 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 50,
-                child: Image.asset(
-                  'assets/images/app_bar_logo.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
+        title: Expanded(
+          child: SizedBox(
+            height: 50,
+            child: Image.asset(
+              'assets/images/app_bar_logo.png',
+              fit: BoxFit.contain,
             ),
-          ],
+          ),
         ),
+        centerTitle: true,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _futureAnnounceList,

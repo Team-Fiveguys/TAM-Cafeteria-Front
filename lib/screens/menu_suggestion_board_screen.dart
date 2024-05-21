@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tam_cafeteria_front/screens/view_menu_suggestion_screen.dart';
 import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
-import 'package:tam_cafeteria_front/screens/view_menu_suggestion_screen.dart';
 
 class MenuBoardScreen extends StatefulWidget {
   const MenuBoardScreen({Key? key}) : super(key: key);
@@ -20,16 +20,16 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
     _futureBoardList = _apiService.fetchBoardList("MENU_REQUEST", 1, 1);
   }
 
-  Widget _buildPost(String title, String content, int likes) {
+  Widget _buildPost(int id, String title, String content) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        final postDetail = await _apiService.fetchBoardDetail(id);
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ViewMenuSuggestionScreen(
-              titles: [title],
-              contents: [content],
-              currentIndex: 0,
+              title: postDetail['title'],
+              content: postDetail['content'],
             ),
           ),
         );
@@ -43,59 +43,43 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
           ),
           borderRadius: BorderRadius.circular(19),
         ),
-        child: Stack(
+        child: Row(
           children: [
-            Positioned(
-              child: Container(
-                alignment: Alignment.topLeft,
-                child: Image.asset(
-                  'assets/images/hot_badge.png',
-                  scale: 2.55,
-                ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 11, 0, 6),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    content,
+                    style: const TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
               ),
             ),
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 11, 0, 6),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Text(
-                        content,
-                        style: const TextStyle(
-                          fontSize: 14.0,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ],
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: _incrementLikeCount,
+                    icon: const Icon(Icons.thumb_up),
                   ),
-                ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          _incrementLikeCount();
-                        },
-                        icon: const Icon(Icons.thumb_up),
-                      ),
-                      Text('$likes'),
-                      const SizedBox(width: 15),
-                    ],
-                  ),
-                ),
-              ],
+                  const SizedBox(width: 15),
+                ],
+              ),
             ),
           ],
         ),
@@ -125,20 +109,16 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 50,
-                child: Image.asset(
-                  'assets/images/app_bar_logo.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
+        title: Expanded(
+          child: SizedBox(
+            height: 50,
+            child: Image.asset(
+              'assets/images/app_bar_logo.png',
+              fit: BoxFit.contain,
             ),
-          ],
+          ),
         ),
+        centerTitle: true,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _futureBoardList,
@@ -204,8 +184,8 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                               itemCount: boardList.length,
                               itemBuilder: (context, index) {
                                 final board = boardList[index];
-                                return _buildPost(board['title'],
-                                    board['publisherName'], board['id']);
+                                return _buildPost(board['id'], board['title'],
+                                    board['publisherName']);
                               },
                               separatorBuilder: (context, index) =>
                                   const SizedBox(height: 10),
