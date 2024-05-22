@@ -100,7 +100,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    onPressed: toggleLike, // 눌렀을 때 좋아요 상태를 전환합니다.
+                    onPressed: toggleLike,
                     icon: Icon(
                       isLiked
                           ? Icons.thumb_up_alt

@@ -1632,28 +1632,22 @@ class ApiService {
   }
 
   static Future<void> togglePostLike(int postId) async {
-    final accessToken = await TokenManagerWithSP.loadToken(); // 엑세스 토큰을 불러옵니다.
-    final path = "/posts/$postId/like"; // 요청할 API 경로를 설정합니다.
-    final url = Uri.https(baseUrl, path); // 완전한 URL을 생성합니다.
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final path = "/posts/$postId/like";
+    final url = Uri.https(baseUrl, path);
 
-    // HTTP POST 요청을 보냅니다.
     final response = await http.post(url, headers: {
       'Content-Type': 'application/json',
-      'Authorization':
-          'Bearer $accessToken', // 헤더에 'Authorization'을 포함하여 엑세스 토큰을 전달합니다.
+      'Authorization': 'Bearer $accessToken',
     });
 
-    final String decodedResponse =
-        utf8.decode(response.bodyBytes); // 응답 본문을 디코드합니다.
+    final String decodedResponse = utf8.decode(response.bodyBytes);
 
-    // 디코드된 문자열을 JSON으로 파싱합니다.
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
-    // 응답의 상태 코드가 200(성공)인 경우, 결과를 콘솔에 출력합니다.
     if (response.statusCode == 200) {
       print('ApiService : togglePostLike : $jsonResponse');
     } else {
-      // 실패한 경우, 오류 메시지를 포함한 예외를 발생시킵니다.
       print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
@@ -1684,6 +1678,27 @@ class ApiService {
     } catch (e) {
       print('오류 발생: $e');
       return {};
+    }
+  }
+
+  static Future<void> deletePost(int postId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final path = "/posts/$postId";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.delete(url, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken', // 액세스 토큰을 헤더에 추가
+    });
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('deletePost : $jsonResponse'); // 성공적으로 삭제되었을 때의 로그
+    } else {
+      print('Error in deletePost : $jsonResponse'); // 에러 발생시 로그
+      throw Exception(jsonResponse['message']); // 에러 메시지를 예외로 던짐
     }
   }
 }
