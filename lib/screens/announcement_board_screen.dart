@@ -129,6 +129,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
             builder: (context) => ViewAnnouncementScreen(
               title: postDetail['title'],
               content: postDetail['content'],
+              postId: boardId,
             ),
           ),
         );

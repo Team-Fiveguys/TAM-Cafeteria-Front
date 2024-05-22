@@ -1688,17 +1688,17 @@ class ApiService {
 
     final response = await http.delete(url, headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $accessToken', // 액세스 토큰을 헤더에 추가
+      'Authorization': 'Bearer $accessToken',
     });
 
     final String decodedResponse = utf8.decode(response.bodyBytes);
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      print('deletePost : $jsonResponse'); // 성공적으로 삭제되었을 때의 로그
+      print('deletePost : $jsonResponse');
     } else {
-      print('Error in deletePost : $jsonResponse'); // 에러 발생시 로그
-      throw Exception(jsonResponse['message']); // 에러 메시지를 예외로 던짐
+      print('Error in deletePost : $jsonResponse');
+      throw Exception(jsonResponse['message']);
     }
   }
 }

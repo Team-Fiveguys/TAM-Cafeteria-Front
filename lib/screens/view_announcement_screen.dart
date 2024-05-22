@@ -1,33 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class ViewAnnouncementScreen extends StatefulWidget {
+  final int postId;
   final String title;
   final String content;
 
   const ViewAnnouncementScreen({
     Key? key,
+    required this.postId,
     required this.title,
     required this.content,
   }) : super(key: key);
 
   @override
-  State<ViewAnnouncementScreen> createState() =>
-      _ViewMenuSuggestionScreenState();
+  State<ViewAnnouncementScreen> createState() => _ViewAnnouncementScreenState();
 }
 
-class _ViewMenuSuggestionScreenState extends State<ViewAnnouncementScreen> {
+class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
+  void _deletePost() async {
+    try {
+      await ApiService.deletePost(widget.postId);
+      // 삭제 성공 시, 알림을 표시하거나 적절한 동작을 수행할 수 있습니다.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('게시물이 성공적으로 삭제되었습니다.')),
+      );
+      // 게시물이 삭제되었으므로 화면을 닫습니다.
+      Navigator.of(context).pop();
+    } catch (e) {
+      // 삭제 실패 시, 오류를 표시하거나 적절한 동작을 수행할 수 있습니다.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시물 삭제 중 오류가 발생했습니다: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Expanded(
-          child: SizedBox(
-            height: 50,
-            child: Image.asset(
-              'assets/images/app_bar_logo.png',
-              fit: BoxFit.contain,
-            ),
-          ),
+        title: Image.asset(
+          'assets/images/app_bar_logo.png',
+          fit: BoxFit.contain,
+          height: 50,
         ),
         centerTitle: true,
       ),
@@ -58,80 +73,63 @@ class _ViewMenuSuggestionScreenState extends State<ViewAnnouncementScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(19),
-                border: Border.all(
-                  color: Colors.white,
-                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.4),
                     spreadRadius: 2.0,
-                    blurRadius: 1.0,
+                    blurRadius: 4.0,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(19),
-                            border: Border.all(
-                              color: Colors.white,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.9),
-                                spreadRadius: 2.0,
-                                blurRadius: 1.0,
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            widget.title,
-                            style: const TextStyle(
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(19),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.9),
+                          spreadRadius: 2.0,
+                          blurRadius: 1.0,
                         ),
+                      ],
+                    ),
+                    child: Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontSize: 24.0,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: 20.0),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 400,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(19),
-                            border: Border.all(
-                              color: Colors.white,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.9),
-                                spreadRadius: 2.0,
-                                blurRadius: 1.0,
-                              ),
-                            ],
-                          ),
-                          child: SingleChildScrollView(
-                            child: Text(
-                              widget.content,
-                              style: const TextStyle(fontSize: 18.0),
-                            ),
-                          ),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(19),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.9),
+                          spreadRadius: 2.0,
+                          blurRadius: 1.0,
                         ),
+                      ],
+                    ),
+                    child: SingleChildScrollView(
+                      child: Text(
+                        widget.content,
+                        style: const TextStyle(fontSize: 18.0),
                       ),
-                    ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _deletePost,
+                    child: const Text('삭제'),
                   ),
                 ],
               ),
