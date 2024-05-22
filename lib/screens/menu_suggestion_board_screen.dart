@@ -14,8 +14,6 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   late Future<List<Map<String, dynamic>>> _futureBoardList;
   late Future<List<Map<String, dynamic>>> _futureHotBoardList;
   final ApiService _apiService = ApiService();
-  List<dynamic> boardList = [];
-  List<dynamic> topHotBoards = [];
 
   @override
   void initState() {
@@ -24,7 +22,31 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
     _futureHotBoardList = _apiService.fetchMenuBoardList(1, 1, "LIKE");
   }
 
+  void reloadPage() {
+    setState(() {
+      _futureBoardList = _apiService.fetchMenuBoardList(1, 1, "TIME");
+      _futureHotBoardList = _apiService.fetchMenuBoardList(1, 1, "LIKE");
+    });
+  }
+
   Widget _buildPost(int id, String title, String publisherName, int likeCount) {
+    bool isLiked = false; // 현재 좋아요 상태를 추적합니다.
+
+    void toggleLike() async {
+      try {
+        // 좋아요 상태를 전환합니다.
+        await ApiService.togglePostLike(id);
+        // 좋아요 상태를 업데이트합니다.
+        setState(() {
+          isLiked = !isLiked; // 좋아요 상태를 업데이트합니다.
+          // 좋아요 상태에 따라 likeCount를 업데이트하지 않고, 좋아요 수만 증가 또는 감소시킵니다.
+          likeCount = isLiked ? likeCount + 1 : likeCount - 1;
+        });
+      } catch (e) {
+        print('좋아요 상태 전환 중 오류 발생: $e');
+      }
+    }
+
     return GestureDetector(
       onTap: () async {
         final postDetail = await _apiService.fetchBoardDetail(id);
@@ -78,8 +100,15 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   IconButton(
-                    onPressed: _incrementLikeCount,
-                    icon: const Icon(Icons.thumb_up),
+                    onPressed: toggleLike, // 눌렀을 때 좋아요 상태를 전환합니다.
+                    icon: Icon(
+                      isLiked
+                          ? Icons.thumb_up_alt
+                          : Icons.thumb_up_alt_outlined, // 좋아요 상태에 따라 아이콘 변경
+                      color: isLiked
+                          ? Colors.yellow
+                          : Colors.grey, // 좋아요 상태에 따라 색상 변경
+                    ),
                   ),
                   Text('$likeCount'),
                   const SizedBox(width: 15),
@@ -94,6 +123,20 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
 
   Widget _buildHotPost(
       int id, String title, String publisherName, int likeCount) {
+    bool isLiked = false; // 현재 좋아요 상태를 추적합니다.
+
+    void toggleLike() async {
+      try {
+        // 좋아요 상태를 전환합니다.
+        await ApiService.togglePostLike(id);
+        setState(() {
+          isLiked = !isLiked; // 좋아요 상태를 업데이트합니다.
+        });
+      } catch (e) {
+        print('좋아요 상태 전환 중 오류 발생: $e');
+      }
+    }
+
     return GestureDetector(
       onTap: () async {
         final postDetail = await _apiService.fetchBoardDetail(id);
@@ -160,8 +203,16 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           IconButton(
-                            onPressed: _incrementLikeCount,
-                            icon: const Icon(Icons.thumb_up),
+                            onPressed: toggleLike, // 눌렀을 때 좋아요 상태를 전환합니다.
+                            icon: Icon(
+                              isLiked
+                                  ? Icons.thumb_up_alt
+                                  : Icons
+                                      .thumb_up_alt_outlined, // 좋아요 상태에 따라 아이콘 변경
+                              color: isLiked
+                                  ? Colors.yellow
+                                  : Colors.grey, // 좋아요 상태에 따라 색상 변경
+                            ),
                           ),
                           Text('$likeCount'),
                           const SizedBox(width: 15),
