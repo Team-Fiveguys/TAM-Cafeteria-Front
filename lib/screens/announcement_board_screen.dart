@@ -17,7 +17,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   @override
   void initState() {
     super.initState();
-    _futureAnnounceList = _apiService.fetchBoardList("NOTICE", 1, 1);
+    _futureAnnounceList = _apiService.fetchNoticeBoardList(1, 1, "TIME");
   }
 
   @override
@@ -95,7 +95,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
                 if (value == true) {
                   setState(() {
                     _futureAnnounceList =
-                        _apiService.fetchBoardList("NOTICE", 1, 1);
+                        _apiService.fetchNoticeBoardList(1, 1, "TIME");
                   });
                 }
               });
@@ -170,20 +170,10 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
                 ),
               ),
             ),
-            Row(
+            const Row(
               children: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.thumb_up),
-                ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 11, 20, 10),
-                  child: Text(
-                    ' $boardId',
-                    style: const TextStyle(fontSize: 14.0),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
+                  padding: EdgeInsets.fromLTRB(0, 11, 20, 10),
                 ),
               ],
             ),

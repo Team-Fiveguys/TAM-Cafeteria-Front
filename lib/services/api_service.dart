@@ -1502,14 +1502,20 @@ class ApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchBoardList(
-      String boardType, int cafeteriaId, int page) async {
+  Future<List<Map<String, dynamic>>> fetchMenuBoardList(
+    int cafeteriaId,
+    int page,
+    String orderType,
+  ) async {
     try {
       final accessToken = await TokenManagerWithSP.loadToken();
-      final path = "/boards/$boardType/boards";
+      const path = "/posts/menu-request";
       // cafeteriaId를 쿼리 파라미터에 추가
-      final url = Uri.https(
-          baseUrl, path, {'cafeteriaId': '$cafeteriaId', 'page': '$page'});
+      final url = Uri.https(baseUrl, path, {
+        'cafeteriaId': '$cafeteriaId',
+        'page': '$page',
+        'orderType': orderType,
+      });
 
       final response = await http.get(
         url,
@@ -1530,6 +1536,56 @@ class ApiService {
             'title': item['title'],
             'publisherName': item['publisherName'],
             'uploadTime': item['uploadTime'],
+            'likeCount': item['likeCount'],
+          };
+        }).toList();
+        print(jsonResponse);
+        return boardList;
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+        return [];
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchNoticeBoardList(
+    int cafeteriaId,
+    int page,
+    String orderType,
+  ) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      const path = "/posts/notice";
+      // cafeteriaId를 쿼리 파라미터에 추가
+      final url = Uri.https(baseUrl, path, {
+        'cafeteriaId': '$cafeteriaId',
+        'page': '$page',
+        'orderType': orderType
+      });
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // UTF-8로 디코딩
+        final String responseUtf8 = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
+        final List<dynamic> resultList = jsonResponse['result'];
+        final List<Map<String, dynamic>> boardList = resultList.map((item) {
+          return {
+            'id': item['id'],
+            'title': item['title'],
+            'publisherName': item['publisherName'],
+            'uploadTime': item['uploadTime'],
+            'likeCount': item['likeCount'],
           };
         }).toList();
         print(jsonResponse);
@@ -1547,7 +1603,7 @@ class ApiService {
   static Future<void> createPost(
       String boardType, String title, String content, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
-    const path = "/boards";
+    const path = "/posts";
     final url = Uri.https(baseUrl, path);
 
     final response = await http.post(url,
@@ -1560,7 +1616,7 @@ class ApiService {
             "boardType": boardType,
             "title": title,
             "content": content,
-            "cafeteriaId": cafeteriaId
+            "cafeteriaId": cafeteriaId,
           },
         ));
 
@@ -1578,7 +1634,7 @@ class ApiService {
   Future<Map<String, dynamic>> fetchBoardDetail(int id) async {
     try {
       final accessToken = await TokenManagerWithSP.loadToken();
-      final path = "/boards/$id";
+      final path = "/posts/$id";
       final url = Uri.https(baseUrl, path);
 
       final response = await http.get(

@@ -19,8 +19,20 @@ class EnterBoardScreen extends StatelessWidget {
           child: Container(
             width: double.infinity, // Match parent width
             height: 60, // Set desired height
+
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black), // Black border
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(19),
+              border: Border.all(
+                color: Colors.black,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.4),
+                  spreadRadius: 2.0,
+                  blurRadius: 1.0,
+                ),
+              ],
             ),
             child: TextButton(
               style: TextButton.styleFrom(
@@ -38,15 +50,27 @@ class EnterBoardScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
         Padding(
           padding: const EdgeInsets.only(
               left: 16.0, right: 16.0), // Add left padding
           child: Container(
             width: double.infinity, // Match parent width
             height: 60, // Set desired height
+
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black), // Black border
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(19),
+              border: Border.all(
+                color: Colors.black,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.4),
+                  spreadRadius: 2.0,
+                  blurRadius: 1.0,
+                ),
+              ],
             ),
             child: TextButton(
               style: TextButton.styleFrom(

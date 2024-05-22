@@ -12,15 +12,17 @@ class MenuBoardScreen extends StatefulWidget {
 
 class _MenuBoardScreenState extends State<MenuBoardScreen> {
   late Future<List<Map<String, dynamic>>> _futureBoardList;
+  late Future<List<Map<String, dynamic>>> _futureHotBoardList;
   final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
-    _futureBoardList = _apiService.fetchBoardList("MENU_REQUEST", 1, 1);
+    _futureBoardList = _apiService.fetchMenuBoardList(1, 1, "TIME");
+    _futureHotBoardList = _apiService.fetchMenuBoardList(1, 1, "LIKE");
   }
 
-  Widget _buildPost(int id, String title, String content) {
+  Widget _buildPost(int id, String title, String publisherName, int likeCount) {
     return GestureDetector(
       onTap: () async {
         final postDetail = await _apiService.fetchBoardDetail(id);
@@ -60,7 +62,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    content,
+                    publisherName,
                     style: const TextStyle(
                       fontSize: 14.0,
                       color: Colors.black,
@@ -77,6 +79,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                     onPressed: _incrementLikeCount,
                     icon: const Icon(Icons.thumb_up),
                   ),
+                  Text('$likeCount'),
                   const SizedBox(width: 15),
                 ],
               ),
@@ -173,7 +176,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'hot 게시판',
+                            'Hot 게시판',
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                           const SizedBox(height: 10),
@@ -184,8 +187,59 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                               itemCount: boardList.length,
                               itemBuilder: (context, index) {
                                 final board = boardList[index];
-                                return _buildPost(board['id'], board['title'],
-                                    board['publisherName']);
+                                return _buildPost(
+                                  board['id'],
+                                  board['title'],
+                                  board['publisherName'],
+                                  board['likeCount'],
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(19),
+                        border: Border.all(
+                          color: Colors.black,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.4),
+                            spreadRadius: 2.0,
+                            blurRadius: 1.0,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '일반 게시판',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 10),
+                          Expanded(
+                            child: ListView.separated(
+                              shrinkWrap: false,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: boardList.length,
+                              itemBuilder: (context, index) {
+                                final board = boardList[index];
+                                return _buildPost(
+                                  board['id'],
+                                  board['title'],
+                                  board['publisherName'],
+                                  board['likeCount'],
+                                );
                               },
                               separatorBuilder: (context, index) =>
                                   const SizedBox(height: 10),
@@ -214,7 +268,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 if (value == true) {
                   setState(() {
                     _futureBoardList =
-                        _apiService.fetchBoardList("MENU_REQUEST", 1, 1);
+                        _apiService.fetchMenuBoardList(1, 1, "TIME");
                   });
                 }
               });
