@@ -184,7 +184,43 @@ class _CoverManagementState extends State<CoverManagement> {
                           const SizedBox(
                             height: 30,
                           ),
-                          const Text('AI 모델 made by 엄'),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Text(
+                                '개강일',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              SizedBox(
+                                width: 150,
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    contentPadding:
+                                        const EdgeInsets.fromLTRB(20, 5, 5, 5),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          const Text(
+                            'AI 모델 made by 엄',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           TableCalendar(
                             headerStyle: const HeaderStyle(
                               formatButtonVisible: false,
@@ -222,20 +258,20 @@ class _CoverManagementState extends State<CoverManagement> {
                           const SizedBox(
                             height: 30,
                           ),
-                          Row(
-                            children: [
-                              Checkbox(
-                                activeColor: Colors.blue,
-                                value: isExam,
-                                onChanged: (bool? value) async {
-                                  setState(() {
-                                    isExam = value!;
-                                  });
-                                },
-                              ),
-                              const Text('시험기간 유무'),
-                            ],
-                          ),
+                          // Row(
+                          //   children: [
+                          //     Checkbox(
+                          //       activeColor: Colors.blue,
+                          //       value: isExam,
+                          //       onChanged: (bool? value) async {
+                          //         setState(() {
+                          //           isExam = value!;
+                          //         });
+                          //       },
+                          //     ),
+                          //     const Text('시험기간 유무'),
+                          //   ],
+                          // ),
                           Row(
                             children: [
                               Checkbox(
@@ -278,34 +314,34 @@ class _CoverManagementState extends State<CoverManagement> {
                               const Text('예비군 유무'),
                             ],
                           ),
-                          Row(
-                            children: [
-                              Checkbox(
-                                activeColor: Colors.blue,
-                                value: isVaccation,
-                                onChanged: (bool? value) async {
-                                  setState(() {
-                                    isVaccation = value!;
-                                  });
-                                },
-                              ),
-                              const Text('방학 유무'),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Checkbox(
-                                activeColor: Colors.blue,
-                                value: isHoliday,
-                                onChanged: (bool? value) async {
-                                  setState(() {
-                                    isHoliday = value!;
-                                  });
-                                },
-                              ),
-                              const Text('공휴일 유무'),
-                            ],
-                          ),
+                          // Row(
+                          //   children: [
+                          //     Checkbox(
+                          //       activeColor: Colors.blue,
+                          //       value: isVaccation,
+                          //       onChanged: (bool? value) async {
+                          //         setState(() {
+                          //           isVaccation = value!;
+                          //         });
+                          //       },
+                          //     ),
+                          //     const Text('방학 유무'),
+                          //   ],
+                          // ),
+                          // Row(
+                          //   children: [
+                          //     Checkbox(
+                          //       activeColor: Colors.blue,
+                          //       value: isHoliday,
+                          //       onChanged: (bool? value) async {
+                          //         setState(() {
+                          //           isHoliday = value!;
+                          //         });
+                          //       },
+                          //     ),
+                          //     const Text('공휴일 유무'),
+                          //   ],
+                          // ),
                           Row(
                             children: [
                               Checkbox(
@@ -323,6 +359,9 @@ class _CoverManagementState extends State<CoverManagement> {
                           TextButton(
                             onPressed: () {},
                             child: const Text("결과 보기"),
+                          ),
+                          const SizedBox(
+                            height: 30,
                           ),
                           const Text('예측 식수 :  '),
                         ],
