@@ -1658,4 +1658,25 @@ class ApiService {
       return {};
     }
   }
+
+  Future<void> togglePostLike(int postId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final url = Uri.https(baseUrl, '/posts/$postId/like');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonResponse = jsonDecode(response.body);
+      print('API Success: $jsonResponse');
+    } else {
+      final jsonResponse = jsonDecode(response.body);
+      throw Exception('Failed to toggle like on post: $jsonResponse');
+    }
+  }
 }
