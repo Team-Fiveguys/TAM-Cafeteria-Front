@@ -307,7 +307,7 @@ class _AppState extends ConsumerState<App> {
       setState(() {
         print('autoLoginCheck :: $token');
 
-        _selectedIndex = isAdmin ? 2 : 0;
+        _selectedIndex = isAdmin ? 2 : 0; //TODO : 게시판 완성되면 2로 고치기
         _widgetOptions = <Widget>[
           MainScreen(),
           const MenuBoardScreen(),
@@ -363,7 +363,7 @@ class _AppState extends ConsumerState<App> {
         await initiallizingFCM();
       }
     });
-    _selectedIndex = isAdmin ? 2 : 0;
+    _selectedIndex = isAdmin ? 1 : 0;
     _widgetOptions = <Widget>[
       MainScreen(),
       const MenuBoardScreen(),
@@ -463,7 +463,7 @@ class _AppState extends ConsumerState<App> {
     // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
-      const MenuBoardScreen(),
+      // const MenuBoardScreen(),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -564,10 +564,10 @@ class _AppState extends ConsumerState<App> {
                             icon: Icon(Icons.home),
                             label: '홈',
                           ),
-                          const BottomNavigationBarItem(
-                            icon: Icon(Icons.forum),
-                            label: '게시판',
-                          ),
+                          // const BottomNavigationBarItem(
+                          //   icon: Icon(Icons.forum),
+                          //   label: '게시판',
+                          // ),
                           BottomNavigationBarItem(
                             icon: const Icon(Icons.person),
                             label: isAdmin ? '관리자페이지' : '마이페이지',
@@ -660,7 +660,7 @@ class _AppState extends ConsumerState<App> {
                         if (!isLoggedIn) {
                           navigateToLoginScreen(context);
                         } else {
-                          final result = await Navigator.push(
+                          await Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
