@@ -20,14 +20,10 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Expanded(
-          child: SizedBox(
-            height: 50,
-            child: Image.asset(
-              'assets/images/app_bar_logo.png',
-              fit: BoxFit.contain,
-            ),
-          ),
+        title: Image.asset(
+          'assets/images/app_bar_logo.png',
+          fit: BoxFit.contain,
+          height: 50, // SizedBox를 제거하고 직접 높이를 지정합니다.
         ),
         centerTitle: true,
       ),

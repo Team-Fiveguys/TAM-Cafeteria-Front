@@ -38,19 +38,16 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: AppBar(
-            title: Expanded(
-              child: SizedBox(
-                height: 50,
-                child: Image.asset(
-                  'assets/images/app_bar_logo.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-            centerTitle: true,
-          )),
+        preferredSize: const Size.fromHeight(60),
+        child: AppBar(
+          title: Image.asset(
+            'assets/images/app_bar_logo.png',
+            fit: BoxFit.contain,
+            height: 50, // SizedBox를 제거하고 직접 높이를 지정합니다.
+          ),
+          centerTitle: true,
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
