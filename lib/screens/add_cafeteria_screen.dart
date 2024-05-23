@@ -17,6 +17,24 @@ class _AddCafeteriaState extends State<AddCafeteria> {
   bool isRunBreakfast = false;
   bool isRunLunch = false;
 
+  String formatTime(String input) {
+    // 공백 제거
+    input = input.replaceAll(' ', '');
+
+    // HH~HH 형식을 HH:00~HH:00 형식으로 변환
+    final regex = RegExp(r'^(\d{1,2})(~)(\d{1,2})$');
+    if (regex.hasMatch(input)) {
+      return input.replaceAllMapped(regex, (match) {
+        String startHour = match.group(1)!.padLeft(2, '0');
+        String endHour = match.group(3)!.padLeft(2, '0');
+        return '$startHour:00~$endHour:00';
+      });
+    }
+
+    // 이미 올바른 형식인 경우 반환
+    return input;
+  }
+
   void submit() async {
     String msg = "등록되었습니다";
     if (nameController.text.isEmpty) {
@@ -29,13 +47,15 @@ class _AddCafeteriaState extends State<AddCafeteria> {
       msg = "중식 운영시간을 입력하세요";
     } else {
       try {
+        String breakfastTime = formatTime(breakfastController.text);
+        String lunchTime = formatTime(lunchController.text);
         await ApiService.postAddCafeteria(
             nameController.text,
             locationController.text,
             !isRunBreakfast,
             !isRunLunch,
-            breakfastController.text,
-            lunchController.text);
+            breakfastTime,
+            lunchTime);
       } on Exception catch (e) {
         showDialog(
           context: context,

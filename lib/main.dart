@@ -172,7 +172,7 @@ class _AppState extends ConsumerState<App> {
 
   List<Widget> _widgetOptions = <Widget>[
     MainScreen(),
-    const MenuBoardScreen(),
+    // const MenuBoardScreen(),
     const MyPage(),
   ];
 
@@ -307,10 +307,10 @@ class _AppState extends ConsumerState<App> {
       setState(() {
         print('autoLoginCheck :: $token');
 
-        _selectedIndex = isAdmin ? 2 : 0;
+        _selectedIndex = isAdmin ? 1 : 0; //TODO : 게시판 완성되면 2로 고치기
         _widgetOptions = <Widget>[
           MainScreen(),
-          const MenuBoardScreen(),
+          // const MenuBoardScreen(),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -325,10 +325,10 @@ class _AppState extends ConsumerState<App> {
     } else {
       setState(() {
         isAdmin = false;
-        _selectedIndex = isAdmin ? 2 : 0;
+        _selectedIndex = isAdmin ? 1 : 0;
         _widgetOptions = <Widget>[
           MainScreen(),
-          const MenuBoardScreen(),
+          // const MenuBoardScreen(),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -363,10 +363,10 @@ class _AppState extends ConsumerState<App> {
         await initiallizingFCM();
       }
     });
-    _selectedIndex = isAdmin ? 2 : 0;
+    _selectedIndex = isAdmin ? 1 : 0;
     _widgetOptions = <Widget>[
       MainScreen(),
-      const MenuBoardScreen(),
+      // const MenuBoardScreen(),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -463,7 +463,7 @@ class _AppState extends ConsumerState<App> {
     // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
-      const MenuBoardScreen(),
+      // const MenuBoardScreen(),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -480,6 +480,17 @@ class _AppState extends ConsumerState<App> {
       theme: ThemeData(
         textTheme: GoogleFonts.robotoTextTheme(
           Theme.of(context).textTheme,
+        ),
+        checkboxTheme: CheckboxThemeData(
+          side: const BorderSide(color: Colors.blue), // 테두리 색상 설정
+          fillColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+            if (states.contains(MaterialState.selected)) {
+              return Colors.blue; // 체크했을 때 색상 설정
+            }
+            return Colors.white; // 해제했을 때 색상 설정
+          }),
+          checkColor: MaterialStateProperty.all<Color>(Colors.white),
         ),
         dialogTheme: const DialogTheme(
           surfaceTintColor: Colors.white,
@@ -499,10 +510,17 @@ class _AppState extends ConsumerState<App> {
             }
           }),
         ),
-        // dialogBackgroundColor: Colors.grey[200],
-        // colorScheme: ColorScheme.fromSwatch().copyWith(
-        //   secondary: const Color(0xFFFFF7E3),
-        // ),
+        inputDecorationTheme: InputDecorationTheme(
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.blue),
+            borderRadius: BorderRadius.circular(15), // 눌렀을 때 테두리 색상
+          ),
+        ),
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Color(0xFF515151), // 커서 색상
+          selectionColor: Colors.lightBlueAccent, // 선택한 텍스트 배경 색상
+          selectionHandleColor: Colors.blue, // 선택 핸들 색상
+        ),
         scaffoldBackgroundColor: Colors.white,
         primaryColor: const Color(0xFF3e3e3e),
         primaryColorLight: const Color(0xFF97948f),
@@ -546,10 +564,10 @@ class _AppState extends ConsumerState<App> {
                             icon: Icon(Icons.home),
                             label: '홈',
                           ),
-                          const BottomNavigationBarItem(
-                            icon: Icon(Icons.forum),
-                            label: '게시판',
-                          ),
+                          // const BottomNavigationBarItem(
+                          //   icon: Icon(Icons.forum),
+                          //   label: '게시판',
+                          // ),
                           BottomNavigationBarItem(
                             icon: const Icon(Icons.person),
                             label: isAdmin ? '관리자페이지' : '마이페이지',
@@ -564,48 +582,48 @@ class _AppState extends ConsumerState<App> {
                 );
               },
             ),
-            floatingActionButton: _selectedIndex == 1
-                ? Builder(
-                    builder: (context) {
-                      return FloatingActionButton.extended(
-                        onPressed: () {
-                          // FloatingActionButton을 누를 때 수행할 작업
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('알림'),
-                              content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('확인'),
-                                  onPressed: () {
-                                    Navigator.of(ctx).pop();
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const WriteMenuScreen(),
-                          //   ),
-                          // );
-                        },
-                        icon: Image.asset(
-                          'assets/images/write_board_icon.png',
-                          width: 70, // 이미지의 너비 조절
-                          height: 70, // 이미지의 높이 조절
-                        ),
-                        label: const Text(''), // 라벨은 비워둠
-                        backgroundColor:
-                            Colors.black, // 배경색을 투명으로 설정하여 이미지만 보이도록 함
-                        shape: const CircleBorder(), // 원형으로 설정
-                      );
-                    },
-                  )
-                : null,
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            // floatingActionButton: _selectedIndex == 1
+            //     ? Builder(
+            //         builder: (context) {
+            //           return FloatingActionButton.extended(
+            //             onPressed: () {
+            //               // FloatingActionButton을 누를 때 수행할 작업
+            //               showDialog(
+            //                 context: context,
+            //                 builder: (ctx) => AlertDialog(
+            //                   title: const Text('알림'),
+            //                   content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
+            //                   actions: <Widget>[
+            //                     TextButton(
+            //                       child: const Text('확인'),
+            //                       onPressed: () {
+            //                         Navigator.of(ctx).pop();
+            //                       },
+            //                     ),
+            //                   ],
+            //                 ),
+            //               );
+            //               // Navigator.push(
+            //               //   context,
+            //               //   MaterialPageRoute(
+            //               //     builder: (context) => const WriteMenuScreen(),
+            //               //   ),
+            //               // );
+            //             },
+            //             icon: Image.asset(
+            //               'assets/images/write_board_icon.png',
+            //               width: 70, // 이미지의 너비 조절
+            //               height: 70, // 이미지의 높이 조절
+            //             ),
+            //             label: const Text(''), // 라벨은 비워둠
+            //             backgroundColor:
+            //                 Colors.black, // 배경색을 투명으로 설정하여 이미지만 보이도록 함
+            //             shape: const CircleBorder(), // 원형으로 설정
+            //           );
+            //         },
+            //       )
+            //     : null,
+            // floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             appBar: AppBar(
               // elevation: 100,
               scrolledUnderElevation: 3,
@@ -642,7 +660,7 @@ class _AppState extends ConsumerState<App> {
                         if (!isLoggedIn) {
                           navigateToLoginScreen(context);
                         } else {
-                          final result = await Navigator.push(
+                          await Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>

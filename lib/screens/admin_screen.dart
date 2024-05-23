@@ -259,11 +259,77 @@ class _AdminPageState extends State<AdminPage> {
                     }
                   } on Exception catch (e) {
                     print('_showImagePicker $e');
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
+                    if (e.toString() == "Exception: 해당 요일에 식단이 존재하지 않습니다.") {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: AlertDialog(
+                            title: const Text('에러'),
+                            content: const Text(
+                                "금일 식단이 아직 등록되지 않았습니다. 식단 등록창으로 이동하시겠습니까?"),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('취소'),
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                },
+                              ),
+                              TextButton(
+                                child: const Text('이동'),
+                                onPressed: () async {
+                                  if (cafeteriaId != null) {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => WeekDiet(
+                                          cafeteriaName: cafeteriaName!,
+                                          cafeteriaId: cafeteriaId!,
+                                        ),
+                                      ),
+                                    );
+                                    // if (result == true) {
+                                    setState(() {});
+                                    // }
+                                  }
+                                  Navigator.of(ctx).pop();
+                                  Navigator.of(ctx).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: AlertDialog(
+                            title: const Text('에러'),
+                            content: Text(e.toString()),
+                            actions: <Widget>[
+                              TextButton(
+                                child: const Text('확인'),
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                  _image = null;
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: AlertDialog(
                         title: const Text('에러'),
-                        content: Text(e.toString()),
+                        content: const Text('이미지를 등록해주세요.'),
                         actions: <Widget>[
                           TextButton(
                             child: const Text('확인'),
@@ -273,10 +339,9 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                         ],
                       ),
-                    );
-                  }
+                    ),
+                  );
                 }
-                _image = null;
                 //
               },
               child: const Text("등록"),
@@ -1157,7 +1222,7 @@ class _AdminPageState extends State<AdminPage> {
                         child: TextButton(
                           onPressed: () async {
                             if (cafeteriaId != null) {
-                              final result = await Navigator.push(
+                              await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => WeekDiet(
@@ -1391,63 +1456,63 @@ class _AdminPageState extends State<AdminPage> {
                 height: 20,
               ),
 //공지게시판 작성
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadiusDirectional.circular(20),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3), // 그림자 위치 조정
-                    ),
-                  ],
-                ),
-                height: 120,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: 10,
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('알림'),
-                          content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('확인'),
-                              onPressed: () {
-                                Navigator.of(ctx).pop();
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => const WriteAnnounceScreen(),
-                      //   ),
-                      // );
-                    },
-                    child: const Center(
-                      child: Text(
-                        "공지 작성",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: Color(0xFF282828),
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // Container(
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadiusDirectional.circular(20),
+              //     color: Colors.white,
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.grey.withOpacity(0.5),
+              //         spreadRadius: 1,
+              //         blurRadius: 5,
+              //         offset: const Offset(0, 3), // 그림자 위치 조정
+              //       ),
+              //     ],
+              //   ),
+              //   height: 120,
+              //   child: Padding(
+              //     padding: const EdgeInsets.symmetric(
+              //       vertical: 15,
+              //       horizontal: 10,
+              //     ),
+              //     child: TextButton(
+              //       onPressed: () {
+              //         showDialog(
+              //           context: context,
+              //           builder: (ctx) => AlertDialog(
+              //             title: const Text('알림'),
+              //             content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
+              //             actions: <Widget>[
+              //               TextButton(
+              //                 child: const Text('확인'),
+              //                 onPressed: () {
+              //                   Navigator.of(ctx).pop();
+              //                 },
+              //               ),
+              //             ],
+              //           ),
+              //         );
+              //         // Navigator.push(
+              //         //   context,
+              //         //   MaterialPageRoute(
+              //         //     builder: (context) => const WriteAnnounceScreen(),
+              //         //   ),
+              //         // );
+              //       },
+              //       child: const Center(
+              //         child: Text(
+              //           "공지 작성",
+              //           textAlign: TextAlign.center,
+              //           style: TextStyle(
+              //             color: Color(0xFF282828),
+              //             fontSize: 20,
+              //             fontWeight: FontWeight.bold,
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ],
           ),
         ),

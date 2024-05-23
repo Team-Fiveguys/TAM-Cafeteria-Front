@@ -597,10 +597,10 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                             )
                           : const TimeIndicator(
                               name: "명돈이네",
-                              lunchHour: "11:00 ~ 15:00|17:00 ~ 18:15",
+                              lunchHour: "11:00 ~ 15:00",
                             ),
-                      SizedBox(
-                        height: widget.breakfastHour != null ? 12 : 2,
+                      const SizedBox(
+                        height: 12,
                       ),
                       FutureBuilder(
                         future: widget.cafeteriaName == "학생회관"
