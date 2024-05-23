@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/screens/add_cafeteria_screen.dart';
+import 'package:tam_cafeteria_front/screens/cover_management_screen.dart';
 import 'package:tam_cafeteria_front/screens/notification_send_screen.dart';
 import 'package:tam_cafeteria_front/screens/user_manage_screen.dart';
 import 'package:tam_cafeteria_front/screens/week_diet_add_screen.dart';
@@ -1052,109 +1053,148 @@ class _AdminPageState extends State<AdminPage> {
                 height: 30,
               ),
               //식수 관리
-              // Container(
-              //   decoration: BoxDecoration(
-              //     borderRadius: BorderRadiusDirectional.circular(20),
-              //     color: Colors.white,
-              //     boxShadow: [
-              //       BoxShadow(
-              //         color: Colors.grey.withOpacity(0.5),
-              //         spreadRadius: 1,
-              //         blurRadius: 5,
-              //         offset: const Offset(0, 3), // 그림자 위치 조정
-              //       ),
-              //     ],
-              //   ),
-              //   height: 220,
-              //   child: Padding(
-              //     padding: const EdgeInsets.symmetric(
-              //       vertical: 15,
-              //       horizontal: 10,
-              //     ),
-              //     child: Column(
-              //       children: [
-              //         const Row(
-              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //           children: [
-              //             Text(
-              //               '식수 관리',
-              //               style: TextStyle(
-              //                 color: Color(0xFF282828),
-              //                 fontSize: 20,
-              //                 fontWeight: FontWeight.bold,
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //         const SizedBox(
-              //           height: 15,
-              //         ),
-              //         Row(
-              //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //           children: [
-              //             Expanded(
-              //               child: Container(
-              //                 padding: const EdgeInsets.all(10),
-              //                 decoration: BoxDecoration(
-              //                   border: Border.all(
-              //                     color: const Color(0xFF999999),
-              //                     width: 1,
-              //                   ),
-              //                   borderRadius: BorderRadius.circular(20),
-              //                 ),
-              //                 height: 130,
-              //                 child: const Column(
-              //                   children: [
-              //                     Text(
-              //                       '예상 식수',
-              //                       style: TextStyle(
-              //                         color: Color(0xFF999999),
-              //                         fontSize: 20,
-              //                         fontWeight: FontWeight.bold,
-              //                       ),
-              //                     ),
-              //                   ],
-              //                 ),
-              //               ),
-              //             ),
-              //             const SizedBox(
-              //               width: 10,
-              //             ),
-              //             Expanded(
-              //               child: Container(
-              //                 padding: const EdgeInsets.all(10),
-              //                 decoration: BoxDecoration(
-              //                   border: Border.all(
-              //                     color: const Color(0xFF999999),
-              //                     width: 1,
-              //                   ),
-              //                   borderRadius: BorderRadius.circular(20),
-              //                 ),
-              //                 height: 130,
-              //                 child: const Column(
-              //                   children: [
-              //                     Text(
-              //                       '실제 식수',
-              //                       style: TextStyle(
-              //                         color: Color(0xFF999999),
-              //                         fontSize: 20,
-              //                         fontWeight: FontWeight.bold,
-              //                       ),
-              //                     ),
-              //                   ],
-              //                 ),
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadiusDirectional.circular(20),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3), // 그림자 위치 조정
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '식수 관리',
+                            style: TextStyle(
+                              color: Color(0xFF282828),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              if (cafeteriaId == 3) {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('에러'),
+                                    content:
+                                        const Text("이 식당은 식수 관리를 지원하지 않습니다."),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('확인'),
+                                        onPressed: () {
+                                          Navigator.of(ctx).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                return;
+                              }
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CoverManagement(
+                                    cafeteriaId: cafeteriaId ?? 1,
+                                    cafeteriaName: cafeteriaName ?? "명진당",
+                                  ),
+                                ),
+                              );
+                              setState(() {});
+                            },
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("설정하러가기"),
+                                Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFF999999),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              height: 130,
+                              child: const Column(
+                                children: [
+                                  Text(
+                                    '예상 식수',
+                                    style: TextStyle(
+                                      color: Color(0xFF999999),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFF999999),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              height: 130,
+                              child: const Column(
+                                children: [
+                                  Text(
+                                    '실제 식수',
+                                    style: TextStyle(
+                                      color: Color(0xFF999999),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
-              // const SizedBox(
-              //   height: 30,
-              // ),
+              const SizedBox(
+                height: 30,
+              ),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

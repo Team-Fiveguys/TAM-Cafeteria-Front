@@ -35,6 +35,7 @@ class User {
 
 class ApiService {
   static const String baseUrl = "dev.tam-cafeteria.site";
+  static const String aiBaseUrl = "3.36.217.214:8080";
 
   static Future<void> postDietPhoto(
       XFile image, String date, String meals, int cafeteriaId) async {
@@ -1500,5 +1501,80 @@ class ApiService {
       print("$jsonResponse");
       throw Exception(jsonResponse['message']);
     }
+  }
+
+  //============AI API============
+  //============AI API============
+  //============AI API============
+  //============AI API============
+
+  static Future<String?> getSemesterStartDateAI() async {
+    // final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/start_date";
+    final url = Uri.http(aiBaseUrl, path);
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : getSemesterStartDateAI : $jsonResponse');
+      return jsonResponse['start_date'];
+    } else {
+      print(jsonResponse);
+      // throw Exception(jsonResponse['message']);
+    }
+    return null;
+  }
+
+  static Future<String?> postPredictCoversAI(
+      String startDate,
+      String date,
+      int cafeteriaId,
+      bool festival,
+      bool snack,
+      bool reservist,
+      bool spicy) async {
+    // final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/predict1";
+    final url = Uri.http(aiBaseUrl, path);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({
+        'start_date': startDate,
+        'local_date': date,
+        'cafeteria_id': cafeteriaId,
+        'festival': festival,
+        'snack': snack,
+        'reservist': reservist,
+      }),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postPredictCoversAI : $jsonResponse');
+      return jsonResponse['predict_result'].toString();
+    } else {
+      print(jsonResponse);
+    }
+    throw Exception('예측 실패');
   }
 }
