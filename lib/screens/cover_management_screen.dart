@@ -3,23 +3,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:tam_cafeteria_front/models/diet_model.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class CoverManagement extends StatefulWidget {
-  const CoverManagement({super.key});
-
+  const CoverManagement({
+    super.key,
+    required this.cafeteriaId,
+    required this.cafeteriaName,
+  });
+  final int cafeteriaId;
+  final String cafeteriaName;
   @override
   State<CoverManagement> createState() => _CoverManagementState();
 }
 
 class _CoverManagementState extends State<CoverManagement> {
   TextEditingController todayCover = TextEditingController();
-
+  TextEditingController startDateController = TextEditingController();
   DateTime now = DateTime.now();
   late DateTime firstDay;
   late DateTime lastDay;
   late DateTime _selectedDay;
   final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
-  CalendarFormat calendarFormat = CalendarFormat.twoWeeks;
+  CalendarFormat calendarFormat = CalendarFormat.month;
   final List<String> daysOfWeek = ['월', '화', '수', '목', '금', '토', '일'];
 
   bool isExam = false;
@@ -30,13 +37,65 @@ class _CoverManagementState extends State<CoverManagement> {
   bool isHoliday = false;
   bool isSpicy = false;
 
+  bool isLoading = false;
+
+  String predictResult = "결과 보기를 눌러 \n예측 식수값을 확인하세요";
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _selectedDay = now;
-    firstDay = now.subtract(const Duration(days: 7));
-    lastDay = firstDay.add(const Duration(days: 21));
+    firstDay = DateTime(2023, 3, 20);
+    lastDay = now.add(const Duration(days: 14));
+  }
+
+  Future<String?> loadSemesterStartDate = ApiService.getSemesterStartDateAI();
+
+  Future<void> postPredictCovers() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final startDate = startDateController.text;
+    final date = dateFormat.format(_selectedDay);
+
+    try {
+      final result = await ApiService.postPredictCoversAI(
+              startDate,
+              date,
+              widget.cafeteriaId,
+              isFestival,
+              isDessertDistribution,
+              isReserveForce,
+              isSpicy)
+          .timeout(const Duration(seconds: 10), onTimeout: () {
+        // 타임아웃 시 실행될 로직
+        return "에러"; // 타임아웃이 발생하면 "에러"라는 문자열을 반환합니다.
+      });
+
+      setState(() {
+        predictResult = result!;
+        isLoading = false;
+      });
+    } on Exception catch (e) {
+      // 타임아웃 외의 다른 에러 처리
+      setState(() {
+        predictResult = e.toString();
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<String> getMainMenu() async {
+    final date = dateFormat.format(_selectedDay);
+    final diet = await ApiService.getDiets(date, "LUNCH", widget.cafeteriaId);
+    if (diet != null) {
+      if (diet.names.isNotEmpty) {
+        return diet.names[0];
+      }
+    }
+    return "식단 미등록";
   }
 
   @override
@@ -93,9 +152,9 @@ class _CoverManagementState extends State<CoverManagement> {
                         size: 20,
                       ),
                     ),
-                    title: const Text(
-                      '식수 관리',
-                      style: TextStyle(
+                    title: Text(
+                      '식수 관리 (${widget.cafeteriaName})',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -141,7 +200,7 @@ class _CoverManagementState extends State<CoverManagement> {
                             children: [
                               const Flexible(
                                 child: Text(
-                                  "오늘 식수 입력",
+                                  "실제 식수",
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold),
@@ -185,7 +244,7 @@ class _CoverManagementState extends State<CoverManagement> {
                             height: 30,
                           ),
                           Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               const Text(
                                 '개강일',
@@ -194,20 +253,55 @@ class _CoverManagementState extends State<CoverManagement> {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(
-                                width: 20,
-                              ),
                               SizedBox(
-                                width: 150,
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(15),
+                                width: 140,
+                                child: FutureBuilder(
+                                    future: loadSemesterStartDate,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        //  startDateController.text = snapshot.data
+                                        print(
+                                            "coverManagement : snapshot data : ${snapshot.data.toString()}");
+                                        startDateController.text =
+                                            snapshot.data ?? "";
+                                      }
+                                      if (snapshot.hasError) {
+                                        print(snapshot.error);
+                                        startDateController.text =
+                                            snapshot.data ?? "";
+                                      }
+
+                                      return TextField(
+                                        controller: startDateController,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.fromLTRB(
+                                                  10, 5, 5, 5),
+                                          hintText: "ex) 2024-01-01",
+                                        ),
+                                      );
+                                    }),
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.blue,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    shape: const RoundedRectangleBorder(
+                                      // 테두리 모양을 정의
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(
+                                              15)), // 테두리의 둥근 모서리 정도 설정
+                                      // 테두리의 색상과 두께 설정
                                     ),
-                                    contentPadding:
-                                        const EdgeInsets.fromLTRB(20, 5, 5, 5),
-                                  ),
-                                ),
+                                    minimumSize: const Size(60, 45)),
+                                onPressed: () {},
+                                child: const Text("저장"),
                               ),
                             ],
                           ),
@@ -233,11 +327,15 @@ class _CoverManagementState extends State<CoverManagement> {
                             selectedDayPredicate: (day) =>
                                 isSameDay(_selectedDay, day),
                             onDaySelected: (selectDay, focusedDay) {
+                              getMainMenu();
                               setState(() {
                                 _selectedDay = selectDay;
                                 now = focusedDay;
-                                // selectedDay = dateFormat.format(now);
-                                print("$selectDay, $focusedDay");
+                                // isDessertDistribution = false;
+                                // isFestival = false;
+                                // isReserveForce = false;
+                                // is
+                                predictResult = "";
                               });
                             },
                             calendarBuilders: CalendarBuilders(
@@ -255,8 +353,23 @@ class _CoverManagementState extends State<CoverManagement> {
                               },
                             ),
                           ),
-                          const SizedBox(
+                          SizedBox(
                             height: 30,
+                            child: FutureBuilder(
+                              future: getMainMenu(),
+                              builder: (context, snapshot) {
+                                String mainMenu = "식단 미등록";
+                                if (snapshot.hasData) {
+                                  mainMenu = snapshot.data!;
+                                }
+                                return Text(
+                                  '메인 메뉴 : $mainMenu',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                           // Row(
                           //   children: [
@@ -357,15 +470,34 @@ class _CoverManagementState extends State<CoverManagement> {
                             ],
                           ),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              postPredictCovers();
+                            },
                             child: const Text("결과 보기"),
                           ),
                           const SizedBox(
                             height: 30,
                           ),
-                          const Text('예측 식수 :  '),
+                          isLoading
+                              ? const CircularProgressIndicator()
+                              : Center(
+                                  child: Text(
+                                  '예측 식수 :  $predictResult',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                )),
+
+                          const SizedBox(
+                            height: 30,
+                          ),
                         ],
                       ),
+                    ),
+                    const SizedBox(
+                      height: 30,
                     ),
                   ],
                 ),

@@ -1018,10 +1018,32 @@ class _AdminPageState extends State<AdminPage> {
                           ),
                           TextButton(
                             onPressed: () async {
+                              if (cafeteriaId == 3) {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('에러'),
+                                    content:
+                                        const Text("이 식당은 식수 관리를 지원하지 않습니다."),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('확인'),
+                                        onPressed: () {
+                                          Navigator.of(ctx).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                return;
+                              }
                               await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const CoverManagement(),
+                                  builder: (context) => CoverManagement(
+                                    cafeteriaId: cafeteriaId ?? 1,
+                                    cafeteriaName: cafeteriaName ?? "명진당",
+                                  ),
                                 ),
                               );
                               setState(() {});
