@@ -363,7 +363,7 @@ class _AppState extends ConsumerState<App> {
         await initiallizingFCM();
       }
     });
-    _selectedIndex = isAdmin ? 1 : 0;
+    _selectedIndex = isAdmin ? 2 : 0;
     _widgetOptions = <Widget>[
       MainScreen(),
       const MenuBoardScreen(),
@@ -463,7 +463,7 @@ class _AppState extends ConsumerState<App> {
     // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
-      // const MenuBoardScreen(),
+      const MenuBoardScreen(),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -564,10 +564,10 @@ class _AppState extends ConsumerState<App> {
                             icon: Icon(Icons.home),
                             label: '홈',
                           ),
-                          // const BottomNavigationBarItem(
-                          //   icon: Icon(Icons.forum),
-                          //   label: '게시판',
-                          // ),
+                          const BottomNavigationBarItem(
+                            icon: Icon(Icons.forum),
+                            label: '게시판',
+                          ),
                           BottomNavigationBarItem(
                             icon: const Icon(Icons.person),
                             label: isAdmin ? '관리자페이지' : '마이페이지',
@@ -732,20 +732,31 @@ class _AppState extends ConsumerState<App> {
               ),
             ),
           ),
-          isLoading ? _buildLoadingScreen() : Container(),
+          isLoading ? buildLoadingScreenInMain() : Container(),
         ],
       ),
     );
   }
+}
 
-  Widget _buildLoadingScreen() {
-    return Container(
-      color: Colors.black.withOpacity(0.5), // 전체 화면을 어둡게 하여 로딩 인디케이터를 부각
-      child: const Center(
-        child: CircularProgressIndicator(
-          color: Colors.blue,
-        ), // 로딩 인디케이터
-      ),
-    );
-  }
+Widget buildLoadingScreenInMain() {
+  return Container(
+    color: Colors.black.withOpacity(0.5), // 전체 화면을 어둡게 하여 로딩 인디케이터를 부각
+    child: const Center(
+      child: CircularProgressIndicator(
+        color: Colors.blue,
+      ), // 로딩 인디케이터
+    ),
+  );
+}
+
+Widget buildLoadingScreen() {
+  return Container(
+    // 전체 화면을 어둡게 하여 로딩 인디케이터를 부각
+    child: const Center(
+      child: CircularProgressIndicator(
+        color: Colors.blue,
+      ), // 로딩 인디케이터
+    ),
+  );
 }

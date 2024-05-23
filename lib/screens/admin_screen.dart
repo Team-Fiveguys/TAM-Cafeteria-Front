@@ -244,13 +244,13 @@ class _AdminPageState extends State<AdminPage> {
                           (meals == "BREAKFAST" &&
                               breakfastImageUrl != null &&
                               breakfastImageUrl != "사진이 등록되어있지 않습니다.")) {
-                        await ApiService.putDietPhoto(_image!,
-                            dateFormat.format(now), meals, cafeteriaId!);
+                        ApiService.putDietPhoto(_image!, dateFormat.format(now),
+                            meals, cafeteriaId!);
                       } else {
-                        await ApiService.postDietPhoto(_image!,
+                        ApiService.postDietPhoto(_image!,
                             dateFormat.format(now), meals, cafeteriaId!);
                       }
-                      await ApiService.postNotificationToSubscriber(
+                      ApiService.postNotificationToSubscriber(
                           "[$cafeteriaName] [$selectedMeals] 사진 등록",
                           "$cafeteriaName $selectedMeals 사진 등록되었어요. 확인해보세요!",
                           channel,
@@ -768,7 +768,7 @@ class _AdminPageState extends State<AdminPage> {
                                             crossAxisCount:
                                                 2, // 한 줄에 표시할 아이템의 수를 2로 설정합니다.
                                             childAspectRatio:
-                                                3, // 아이템의 가로 세로 비율을 조정합니다.
+                                                2, // 아이템의 가로 세로 비율을 조정합니다.
                                           ),
                                           itemCount: snapshot.data!.length,
                                           itemBuilder: (context, index) {
