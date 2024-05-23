@@ -21,14 +21,12 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
   void _deletePost() async {
     try {
       await ApiService.deletePost(widget.postId);
-      // 삭제 성공 시, 알림을 표시하거나 적절한 동작을 수행할 수 있습니다.
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('게시물이 성공적으로 삭제되었습니다.')),
       );
-      // 게시물이 삭제되었으므로 화면을 닫습니다.
+
       Navigator.of(context).pop();
     } catch (e) {
-      // 삭제 실패 시, 오류를 표시하거나 적절한 동작을 수행할 수 있습니다.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('게시물 삭제 중 오류가 발생했습니다: $e')),
       );

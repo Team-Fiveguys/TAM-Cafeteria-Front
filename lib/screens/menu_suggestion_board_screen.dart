@@ -16,6 +16,27 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   final ApiService _apiService = ApiService();
 
   @override
+
+  // Future<void> initializeAsyncTask() async {
+  //   if (selectedItem != null) {
+  //     cafeteriaName = selectedItem!;
+  //   }
+  //   final pref = await SharedPreferences.getInstance();
+
+  //   setState(() {
+  //     selectedItem = pref.getString('cafeteriaName') ?? '명진당';
+  //     cafeteriaName = pref.getString('cafeteriaName') ?? '명진당';
+  //     if (cafeteriaName == "명진당") {
+  //       cafeteriaId = 1;
+  //     }
+  //     if (cafeteriaName == "학생회관") {
+  //       cafeteriaId = 2;
+  //     }
+  //     if (cafeteriaName == "명돈이네") {
+  //       cafeteriaId = 3;
+  //     }
+  //   });
+  // }
   void initState() {
     super.initState();
     _futureBoardList = _apiService.fetchMenuBoardList(1, 1, "TIME");
