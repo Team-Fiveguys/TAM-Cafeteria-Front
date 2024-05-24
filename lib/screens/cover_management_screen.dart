@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:tam_cafeteria_front/models/covers_model.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
@@ -48,9 +49,16 @@ class _CoverManagementState extends State<CoverManagement> {
     _selectedDay = now;
     firstDay = DateTime(2023, 3, 20);
     lastDay = now.add(const Duration(days: 14));
+    loadCoversResult();
   }
 
   Future<String?> loadSemesterStartDate = ApiService.getSemesterStartDateAI();
+
+  Future<String?> loadRealCoversCount() async {
+    final date = dateFormat.format(_selectedDay);
+    final result = await ApiService.getRealCovers(date, widget.cafeteriaId);
+    return result;
+  }
 
   Future<void> postPredictCovers() async {
     setState(() {
@@ -61,18 +69,29 @@ class _CoverManagementState extends State<CoverManagement> {
     final date = dateFormat.format(_selectedDay);
 
     try {
-      final result = await ApiService.postPredictCoversAI(
-              startDate,
-              date,
-              widget.cafeteriaId,
-              isFestival,
-              isDessertDistribution,
-              isReserveForce,
-              isSpicy)
-          .timeout(const Duration(seconds: 10), onTimeout: () {
-        // 타임아웃 시 실행될 로직
-        return "에러"; // 타임아웃이 발생하면 "에러"라는 문자열을 반환합니다.
-      });
+      String? result = "에러";
+      if (widget.cafeteriaId == 1) {
+        result = await ApiService.postPredict1CoversAI(
+                startDate,
+                date,
+                widget.cafeteriaId,
+                isFestival,
+                isDessertDistribution,
+                isReserveForce,
+                isSpicy)
+            .timeout(const Duration(seconds: 10), onTimeout: () {
+          // 타임아웃 시 실행될 로직
+          return "에러"; // 타임아웃이 발생하면 "에러"라는 문자열을 반환합니다.
+        });
+      }
+      if (widget.cafeteriaId == 2) {
+        result = await ApiService.postPredict2CoversAI(
+                startDate, date, widget.cafeteriaId)
+            .timeout(const Duration(seconds: 10), onTimeout: () {
+          // 타임아웃 시 실행될 로직
+          return "에러"; // 타임아웃이 발생하면 "에러"라는 문자열을 반환합니다.
+        });
+      }
 
       setState(() {
         predictResult = result!;
@@ -96,6 +115,22 @@ class _CoverManagementState extends State<CoverManagement> {
       }
     }
     return "식단 미등록";
+  }
+
+  Future<void> loadCoversResult() async {
+    final date = dateFormat.format(_selectedDay);
+    Covers? covers = await ApiService.getCoversResult(date, widget.cafeteriaId);
+    if (covers != null) {
+      isDessertDistribution = covers.isSnack ?? false;
+      isFestival = covers.isFestival ?? false;
+      isReserveForce = covers.isReservist ?? false;
+      isSpicy = covers.isSpicy ?? false;
+      predictResult = covers.predictResult.toString();
+    } else {
+      predictResult = "결과 보기를 눌러 \n예측 식수값을 확인하세요";
+    }
+    print('loadResult : $isReserveForce');
+    setState(() {});
   }
 
   @override
@@ -209,17 +244,29 @@ class _CoverManagementState extends State<CoverManagement> {
                               SizedBox(
                                 width: 100,
                                 height: 45,
-                                child: TextField(
-                                  controller: todayCover,
-                                  decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                    hintText: 'ex) 600',
-                                    contentPadding:
-                                        const EdgeInsets.fromLTRB(20, 5, 5, 5),
-                                  ),
-                                ),
+                                child: FutureBuilder(
+                                    future: loadRealCoversCount(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        todayCover.text = snapshot.data ?? "";
+                                        if (todayCover.text == "0") {
+                                          todayCover.clear();
+                                        }
+                                      }
+                                      return TextField(
+                                        controller: todayCover,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                          hintText: 'ex) 600',
+                                          contentPadding:
+                                              const EdgeInsets.fromLTRB(
+                                                  20, 5, 5, 5),
+                                        ),
+                                      );
+                                    }),
                               ),
                               TextButton(
                                 style: TextButton.styleFrom(
@@ -235,7 +282,39 @@ class _CoverManagementState extends State<CoverManagement> {
                                       // 테두리의 색상과 두께 설정
                                     ),
                                     minimumSize: const Size(60, 45)),
-                                onPressed: () {},
+                                onPressed: () {
+                                  final date = dateFormat.format(_selectedDay);
+                                  String msg = "실제 식수를 입력해주세요";
+                                  if (todayCover.text.isNotEmpty) {
+                                    ApiService.postRealCovers(date,
+                                        widget.cafeteriaId, todayCover.text);
+                                    msg = "저장되었습니다";
+                                  }
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Container(
+                                        height: 200,
+                                        color: Colors.white,
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              Text(msg),
+                                              ElevatedButton(
+                                                child: const Text('닫기'),
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
                                 child: const Text("저장"),
                               ),
                             ],
@@ -300,7 +379,38 @@ class _CoverManagementState extends State<CoverManagement> {
                                       // 테두리의 색상과 두께 설정
                                     ),
                                     minimumSize: const Size(60, 45)),
-                                onPressed: () {},
+                                onPressed: () {
+                                  String msg = "개강일을 입력해주세요";
+                                  if (startDateController.text.isNotEmpty) {
+                                    ApiService.postSemesterStartDate(
+                                        startDateController.text);
+                                    msg = "저장되었습니다";
+                                  }
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return Container(
+                                        height: 200,
+                                        color: Colors.white,
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: <Widget>[
+                                              Text(msg),
+                                              ElevatedButton(
+                                                child: const Text('닫기'),
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
                                 child: const Text("저장"),
                               ),
                             ],
@@ -326,17 +436,19 @@ class _CoverManagementState extends State<CoverManagement> {
                             calendarFormat: calendarFormat,
                             selectedDayPredicate: (day) =>
                                 isSameDay(_selectedDay, day),
-                            onDaySelected: (selectDay, focusedDay) {
+                            onDaySelected: (selectDay, focusedDay) async {
                               getMainMenu();
                               setState(() {
                                 _selectedDay = selectDay;
                                 now = focusedDay;
-                                // isDessertDistribution = false;
-                                // isFestival = false;
-                                // isReserveForce = false;
-                                // is
-                                predictResult = "";
+                                isDessertDistribution = false;
+                                isFestival = false;
+                                isReserveForce = false;
+                                isSpicy = false;
+                                // predictResult = "";
                               });
+                              // loadRealCoversCount();
+                              await loadCoversResult();
                             },
                             calendarBuilders: CalendarBuilders(
                               dowBuilder: (context, day) {
@@ -371,104 +483,67 @@ class _CoverManagementState extends State<CoverManagement> {
                               },
                             ),
                           ),
-                          // Row(
-                          //   children: [
-                          //     Checkbox(
-                          //       activeColor: Colors.blue,
-                          //       value: isExam,
-                          //       onChanged: (bool? value) async {
-                          //         setState(() {
-                          //           isExam = value!;
-                          //         });
-                          //       },
-                          //     ),
-                          //     const Text('시험기간 유무'),
-                          //   ],
-                          // ),
-                          Row(
-                            children: [
-                              Checkbox(
-                                activeColor: Colors.blue,
-                                value: isFestival,
-                                onChanged: (bool? value) async {
-                                  setState(() {
-                                    isFestival = value!;
-                                  });
-                                },
-                              ),
-                              const Text('축제 유무'),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Checkbox(
-                                activeColor: Colors.blue,
-                                value: isDessertDistribution,
-                                onChanged: (bool? value) async {
-                                  setState(() {
-                                    isDessertDistribution = value!;
-                                  });
-                                },
-                              ),
-                              const Text('간식배부 유무'),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Checkbox(
-                                activeColor: Colors.blue,
-                                value: isReserveForce,
-                                onChanged: (bool? value) async {
-                                  setState(() {
-                                    isReserveForce = value!;
-                                  });
-                                },
-                              ),
-                              const Text('예비군 유무'),
-                            ],
-                          ),
-                          // Row(
-                          //   children: [
-                          //     Checkbox(
-                          //       activeColor: Colors.blue,
-                          //       value: isVaccation,
-                          //       onChanged: (bool? value) async {
-                          //         setState(() {
-                          //           isVaccation = value!;
-                          //         });
-                          //       },
-                          //     ),
-                          //     const Text('방학 유무'),
-                          //   ],
-                          // ),
-                          // Row(
-                          //   children: [
-                          //     Checkbox(
-                          //       activeColor: Colors.blue,
-                          //       value: isHoliday,
-                          //       onChanged: (bool? value) async {
-                          //         setState(() {
-                          //           isHoliday = value!;
-                          //         });
-                          //       },
-                          //     ),
-                          //     const Text('공휴일 유무'),
-                          //   ],
-                          // ),
-                          Row(
-                            children: [
-                              Checkbox(
-                                activeColor: Colors.blue,
-                                value: isSpicy,
-                                onChanged: (bool? value) async {
-                                  setState(() {
-                                    isSpicy = value!;
-                                  });
-                                },
-                              ),
-                              const Text('매움 유무'),
-                            ],
-                          ),
+                          if (widget.cafeteriaId == 1)
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      activeColor: Colors.blue,
+                                      value: isFestival,
+                                      onChanged: (bool? value) async {
+                                        setState(() {
+                                          isFestival = value!;
+                                        });
+                                      },
+                                    ),
+                                    const Text('축제 유무'),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      activeColor: Colors.blue,
+                                      value: isDessertDistribution,
+                                      onChanged: (bool? value) async {
+                                        setState(() {
+                                          isDessertDistribution = value!;
+                                        });
+                                      },
+                                    ),
+                                    const Text('간식배부 유무'),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      activeColor: Colors.blue,
+                                      value: isReserveForce,
+                                      onChanged: (bool? value) async {
+                                        setState(() {
+                                          isReserveForce = value!;
+                                        });
+                                      },
+                                    ),
+                                    const Text('예비군 유무'),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      activeColor: Colors.blue,
+                                      value: isSpicy,
+                                      onChanged: (bool? value) async {
+                                        setState(() {
+                                          isSpicy = value!;
+                                        });
+                                      },
+                                    ),
+                                    const Text('매움 유무'),
+                                  ],
+                                ),
+                              ],
+                            ),
                           TextButton(
                             onPressed: () {
                               postPredictCovers();
@@ -489,7 +564,6 @@ class _CoverManagementState extends State<CoverManagement> {
                                     fontSize: 15,
                                   ),
                                 )),
-
                           const SizedBox(
                             height: 30,
                           ),

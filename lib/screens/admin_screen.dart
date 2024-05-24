@@ -48,6 +48,9 @@ class _AdminPageState extends State<AdminPage> {
   bool? _breakfastisSoldOut;
   bool? _lunchisSoldOut;
 
+  String predictCovers = "미설정";
+  String realCovers = "미설정";
+
   final List<String> menuList = [
     "마제소바",
     "도토리묵야채무침calclalcal",
@@ -400,6 +403,23 @@ class _AdminPageState extends State<AdminPage> {
       serverWaitingStatus = await ApiService.getCongestionStatus(cafeteriaId!);
     }
     currentWaitingStatus = serverWaitingStatus;
+  }
+
+  Future<void> getCovers() async {
+    final date = dateFormat.format(now);
+    final pcInstance = await ApiService.getCoversResult(date, cafeteriaId ?? 1);
+    if (pcInstance != null) {
+      predictCovers = pcInstance.predictResult.toString();
+    } else {
+      predictCovers = "미설정";
+    }
+
+    final rcInstance = await ApiService.getRealCovers(date, cafeteriaId ?? 1);
+    if (rcInstance != null) {
+      realCovers = rcInstance == "0" ? "미설정" : rcInstance;
+    } else {
+      realCovers = "미설정";
+    }
   }
 
   @override
@@ -1143,18 +1163,32 @@ class _AdminPageState extends State<AdminPage> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               height: 130,
-                              child: const Column(
-                                children: [
-                                  Text(
-                                    '예상 식수',
-                                    style: TextStyle(
-                                      color: Color(0xFF999999),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              child: FutureBuilder(
+                                  future: getCovers(),
+                                  builder: (context, snapshot) {
+                                    return Column(
+                                      children: [
+                                        const Text(
+                                          '예상 식수',
+                                          style: TextStyle(
+                                            color: Color(0xFF999999),
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 15,
+                                        ),
+                                        Text(
+                                          predictCovers,
+                                          style: const TextStyle(
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }),
                             ),
                           ),
                           const SizedBox(
@@ -1171,18 +1205,32 @@ class _AdminPageState extends State<AdminPage> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               height: 130,
-                              child: const Column(
-                                children: [
-                                  Text(
-                                    '실제 식수',
-                                    style: TextStyle(
-                                      color: Color(0xFF999999),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              child: FutureBuilder(
+                                  future: getCovers(),
+                                  builder: (context, snapshot) {
+                                    return Column(
+                                      children: [
+                                        const Text(
+                                          '실제 식수',
+                                          style: TextStyle(
+                                            color: Color(0xFF999999),
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 15,
+                                        ),
+                                        Text(
+                                          realCovers,
+                                          style: const TextStyle(
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }),
                             ),
                           ),
                         ],
