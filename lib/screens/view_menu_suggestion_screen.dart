@@ -38,6 +38,17 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
     }
   }
 
+  void reportPost() async {
+    try {
+      // 게시물을 신고합니다.
+      await ApiService.reportPost(widget.postId);
+      // 성공적으로 신고했을 때의 작업을 추가할 수 있습니다.
+      print('게시물을 성공적으로 신고했습니다.');
+    } catch (e) {
+      print('게시물 신고 중 오류 발생: $e');
+    }
+  }
+
   String formatDate(String uploadTime) {
     // DateTime 파싱
     DateTime dateTime = DateTime.parse(uploadTime);
@@ -147,17 +158,15 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
                         ],
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(widget.publisherName),
-                          const SizedBox(
-                            width: 8,
-                          ),
                           const Text('|'),
-                          const SizedBox(
-                            width: 8,
-                          ),
                           Text(formatDate(widget.uploadTime)),
+                          ElevatedButton(
+                            onPressed: reportPost,
+                            child: const Text('신고하기'),
+                          ),
                         ],
                       ),
                     ],

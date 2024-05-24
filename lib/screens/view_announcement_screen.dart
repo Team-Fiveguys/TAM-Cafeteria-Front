@@ -20,7 +20,7 @@ class ViewAnnouncementScreen extends StatefulWidget {
 class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
   late TextEditingController _titleController;
   late TextEditingController _contentController;
-  bool _isEditing = false; // Flag to determine editing mode
+  bool _isEditing = false;
 
   @override
   void initState() {
@@ -196,7 +196,6 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          // Toggle editing mode
                           setState(() {
                             _isEditing = !_isEditing;
                           });
@@ -204,9 +203,7 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                         child: Text(_isEditing ? '취소' : '수정'),
                       ),
                       ElevatedButton(
-                        onPressed: _isEditing
-                            ? _updatePost
-                            : null, // Disable save button when not editing
+                        onPressed: _isEditing ? _updatePost : null,
                         child: const Text('저장'),
                       ),
                     ],

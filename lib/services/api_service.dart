@@ -1732,4 +1732,30 @@ class ApiService {
       print('오류 발생: $error');
     }
   }
+
+  static Future<void> reportPost(int postId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final url = Uri.https(baseUrl, '/posts/$postId/report');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({
+        'id': postId,
+      }),
+    );
+
+    final decodedResponse = utf8.decode(response.bodyBytes);
+    final jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService: reportPost: $jsonResponse');
+    } else {
+      print(jsonResponse);
+      throw Exception(jsonResponse['message']);
+    }
+  }
 }
