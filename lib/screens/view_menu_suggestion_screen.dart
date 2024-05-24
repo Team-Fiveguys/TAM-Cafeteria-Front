@@ -23,15 +23,13 @@ class ViewMenuSuggestionScreen extends StatefulWidget {
 }
 
 class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
-  bool isLiked = false; // 현재 좋아요 상태를 추적합니다.
+  bool isLiked = false;
 
   void toggleLike() async {
     try {
-      // 좋아요 상태를 토글합니다.
-      await ApiService.togglePostLike(widget.postId); // 게시물 ID를 사용하여 좋아요 토글
+      await ApiService.togglePostLike(widget.postId);
       setState(() {
         isLiked = !isLiked;
-        // 좋아요 상태를 업데이트합니다.
       });
     } catch (e) {
       print('좋아요 상태 토글 중 오류 발생: $e');
@@ -40,9 +38,7 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
 
   void reportPost() async {
     try {
-      // 게시물을 신고합니다.
       await ApiService.reportPost(widget.postId);
-      // 성공적으로 신고했을 때의 작업을 추가할 수 있습니다.
       print('게시물을 성공적으로 신고했습니다.');
     } catch (e) {
       print('게시물 신고 중 오류 발생: $e');
@@ -50,10 +46,8 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
   }
 
   String formatDate(String uploadTime) {
-    // DateTime 파싱
     DateTime dateTime = DateTime.parse(uploadTime);
 
-    // 원하는 형식으로 포맷팅
     String formattedDate = '${dateTime.year}-${dateTime.month}-${dateTime.day}';
 
     return formattedDate;
@@ -158,11 +152,11 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
                         ],
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(widget.publisherName),
                           const Text('|'),
                           Text(formatDate(widget.uploadTime)),
+                          const Spacer(),
                           ElevatedButton(
                             onPressed: reportPost,
                             child: const Text('신고하기'),
