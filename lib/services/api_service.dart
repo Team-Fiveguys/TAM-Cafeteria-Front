@@ -35,7 +35,7 @@ class User {
 
 class ApiService {
   static const String baseUrl = "dev.tam-cafeteria.site";
-  static const String aiBaseUrl = "3.36.217.214:8080";
+  static const String aiBaseUrl = "ai.tam-cafeteria.site";
 
   static Future<void> postDietPhoto(
       XFile image, String date, String meals, int cafeteriaId) async {
@@ -1511,7 +1511,7 @@ class ApiService {
   static Future<String?> getSemesterStartDateAI() async {
     // final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/start_date";
-    final url = Uri.http(aiBaseUrl, path);
+    final url = Uri.https(aiBaseUrl, path);
 
     final response = await http.get(
       url,
@@ -1546,7 +1546,7 @@ class ApiService {
       bool spicy) async {
     // final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/predict1";
-    final url = Uri.http(aiBaseUrl, path);
+    final url = Uri.https(aiBaseUrl, path);
 
     final response = await http.post(
       url,
