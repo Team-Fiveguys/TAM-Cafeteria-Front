@@ -1537,6 +1537,7 @@ class ApiService {
             'publisherName': item['publisherName'],
             'uploadTime': item['uploadTime'],
             'likeCount': item['likeCount'],
+            'content': item['content'],
           };
         }).toList();
         print(jsonResponse);
@@ -1554,7 +1555,6 @@ class ApiService {
   Future<List<Map<String, dynamic>>> fetchNoticeBoardList(
     int cafeteriaId,
     int page,
-    String orderType,
   ) async {
     try {
       final accessToken = await TokenManagerWithSP.loadToken();
@@ -1563,7 +1563,6 @@ class ApiService {
       final url = Uri.https(baseUrl, path, {
         'cafeteriaId': '$cafeteriaId',
         'page': '$page',
-        'orderType': orderType
       });
 
       final response = await http.get(

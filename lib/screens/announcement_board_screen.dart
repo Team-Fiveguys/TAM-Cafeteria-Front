@@ -17,17 +17,24 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   @override
   void initState() {
     super.initState();
-    _futureAnnounceList = _apiService.fetchNoticeBoardList(1, 1, "TIME");
+    _futureAnnounceList = _apiService.fetchNoticeBoardList(
+      1,
+      1,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset(
-          'assets/images/app_bar_logo.png',
-          fit: BoxFit.contain,
-          height: 50, // SizedBox를 제거하고 직접 높이를 지정합니다.
+        title: Expanded(
+          child: SizedBox(
+            height: 50,
+            child: Image.asset(
+              'assets/images/app_bar_logo.png',
+              fit: BoxFit.contain,
+            ),
+          ),
         ),
         centerTitle: true,
       ),
@@ -90,8 +97,10 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
               ).then((value) {
                 if (value == true) {
                   setState(() {
-                    _futureAnnounceList =
-                        _apiService.fetchNoticeBoardList(1, 1, "TIME");
+                    _futureAnnounceList = _apiService.fetchNoticeBoardList(
+                      1,
+                      1,
+                    );
                   });
                 }
               });
