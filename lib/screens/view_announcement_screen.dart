@@ -18,6 +18,24 @@ class ViewAnnouncementScreen extends StatefulWidget {
 }
 
 class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
+  late TextEditingController _titleController;
+  late TextEditingController _contentController;
+  bool _isEditing = false; // Flag to determine editing mode
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.title);
+    _contentController = TextEditingController(text: widget.content);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
   void _deletePost() async {
     try {
       await ApiService.deletePost(widget.postId);
@@ -29,6 +47,25 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('게시물 삭제 중 오류가 발생했습니다: $e')),
+      );
+    }
+  }
+
+  void _updatePost() async {
+    try {
+      await ApiService.updatePost(
+          widget.postId, _titleController.text, _contentController.text);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('게시물이 성공적으로 수정되었습니다.')),
+      );
+
+      // Set back to static text mode after updating
+      setState(() {
+        _isEditing = false;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시물 수정 중 오류가 발생했습니다: $e')),
       );
     }
   }
@@ -96,13 +133,25 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                         ),
                       ],
                     ),
-                    child: Text(
-                      widget.title,
-                      style: const TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: _isEditing
+                        ? TextField(
+                            controller: _titleController,
+                            style: const TextStyle(
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: '제목을 입력하세요',
+                            ),
+                          )
+                        : Text(
+                            widget.title,
+                            style: const TextStyle(
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                   ),
                   const SizedBox(height: 20.0),
                   Container(
@@ -119,15 +168,48 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                       ],
                     ),
                     child: SingleChildScrollView(
-                      child: Text(
-                        widget.content,
-                        style: const TextStyle(fontSize: 18.0),
-                      ),
+                      child: _isEditing
+                          ? TextField(
+                              controller: _contentController,
+                              style: const TextStyle(fontSize: 18.0),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '내용을 입력하세요',
+                              ),
+                              maxLines: null,
+                            )
+                          : Text(
+                              widget.content,
+                              style: const TextStyle(fontSize: 18.0),
+                            ),
                     ),
                   ),
-                  ElevatedButton(
-                    onPressed: _deletePost,
-                    child: const Text('삭제'),
+                  const SizedBox(height: 20.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton(
+                        onPressed: _deletePost,
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white),
+                        child: const Text('삭제'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Toggle editing mode
+                          setState(() {
+                            _isEditing = !_isEditing;
+                          });
+                        },
+                        child: Text(_isEditing ? '취소' : '수정'),
+                      ),
+                      ElevatedButton(
+                        onPressed: _isEditing
+                            ? _updatePost
+                            : null, // Disable save button when not editing
+                        child: const Text('저장'),
+                      ),
+                    ],
                   ),
                 ],
               ),

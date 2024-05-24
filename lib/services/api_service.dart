@@ -1700,4 +1700,36 @@ class ApiService {
       throw Exception(jsonResponse['message']);
     }
   }
+
+  static Future<void> updatePost(
+      int postId, String newTitle, String newContent) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      final String path = "/posts/$postId";
+      final Uri url = Uri.https(baseUrl, path);
+
+      final Map<String, String> requestBody = {
+        'title': newTitle,
+        'content': newContent,
+      };
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(requestBody),
+      );
+      final String decodedResponse = utf8.decode(response.bodyBytes);
+      final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+      if (response.statusCode == 200) {
+        print('게시글이 성공적으로 수정되었습니다: $jsonResponse');
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+        throw Exception(jsonResponse['message']);
+      }
+    } catch (error) {
+      print('오류 발생: $error');
+    }
+  }
 }
