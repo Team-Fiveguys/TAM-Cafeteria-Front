@@ -3,6 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/screens/announcement_board_screen.dart';
 import 'package:tam_cafeteria_front/screens/menu_suggestion_board_screen.dart';
 
+//api연동은 다 되었습니다.
+//enter_board 식당 아이디 별 들어가는 버튼 + ui 수정
+//메뉴추천 게시물 리스트 보여주는 건 이대로 유지
+// 메뉴추천 게시물 view에서 ui수정 , 좋아요 버튼 누르고 나갔다 들어와도 눌러진거 안눌러진거 유지, 자기 게시글  삭제
+//공지게시판 리스트 ui 수정, admin만 수정 삭제 뜨게하기
 class EnterBoardScreen extends StatelessWidget {
   const EnterBoardScreen({super.key});
 
