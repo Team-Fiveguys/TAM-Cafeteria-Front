@@ -274,146 +274,137 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Image.asset(
-          'assets/images/app_bar_logo.png',
-          fit: BoxFit.contain,
-          height: 50,
-        ),
-        centerTitle: true,
-      ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: _futureBoardList,
-          builder: (context, boardSnapshot) {
-            if (boardSnapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (boardSnapshot.hasError) {
-              return Center(child: Text('Error: ${boardSnapshot.error}'));
-            } else {
-              final boardList = boardSnapshot.data!;
-              return FutureBuilder<List<Map<String, dynamic>>>(
-                future: _futureHotBoardList,
-                builder: (context, hotBoardSnapshot) {
-                  if (hotBoardSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (hotBoardSnapshot.hasError) {
-                    return Center(
-                        child: Text('Error: ${hotBoardSnapshot.error}'));
-                  } else {
-                    final hotBoardList = hotBoardSnapshot.data!;
-                    final topHotBoards = hotBoardList.take(3).toList();
+    return FutureBuilder<List<Map<String, dynamic>>>(
+        future: _futureBoardList,
+        builder: (context, boardSnapshot) {
+          if (boardSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (boardSnapshot.hasError) {
+            return Center(child: Text('Error: ${boardSnapshot.error}'));
+          } else {
+            final boardList = boardSnapshot.data!;
+            return FutureBuilder<List<Map<String, dynamic>>>(
+              future: _futureHotBoardList,
+              builder: (context, hotBoardSnapshot) {
+                if (hotBoardSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (hotBoardSnapshot.hasError) {
+                  return Center(
+                      child: Text('Error: ${hotBoardSnapshot.error}'));
+                } else {
+                  final hotBoardList = hotBoardSnapshot.data!;
+                  final topHotBoards = hotBoardList.take(3).toList();
 
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListView(
-                        children: [
-                          Container(
-                            alignment: Alignment.center,
-                            width: double.infinity,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(41),
-                              color: const Color(0xff002967),
+                  return Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(41),
+                            color: const Color(0xff002967),
+                          ),
+                          child: const Text(
+                            '메뉴건의 게시판',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
                             ),
-                            child: const Text(
-                              '메뉴건의 게시판',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: topHotBoards.length,
+                              itemBuilder: (context, index) {
+                                final board = topHotBoards[index];
+                                return _buildHotPost(
+                                  board['id'],
+                                  board['title'],
+                                  board['content'],
+                                  board['likeCount'],
+                                  board['publisherName'],
+                                  board['uploadTime'],
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 10),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: topHotBoards.length,
-                                itemBuilder: (context, index) {
-                                  final board = topHotBoards[index];
-                                  return _buildHotPost(
-                                    board['id'],
-                                    board['title'],
-                                    board['content'],
-                                    board['likeCount'],
-                                    board['publisherName'],
-                                    board['uploadTime'],
-                                  );
-                                },
-                                separatorBuilder: (context, index) =>
-                                    const SizedBox(height: 10),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 10),
-                              ListView.separated(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: boardList.length,
-                                itemBuilder: (context, index) {
-                                  final board = boardList[index];
-                                  return _buildPost(
-                                    board['id'],
-                                    board['title'],
-                                    board['content'],
-                                    board['likeCount'],
-                                    board['publisherName'],
-                                    board['uploadTime'],
-                                  );
-                                },
-                                separatorBuilder: (context, index) =>
-                                    const SizedBox(height: 10),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                },
-              );
-            }
-          }),
-      floatingActionButton: Builder(
-        builder: (context) {
-          return FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const WriteMenuScreen(),
-                ),
-              ).then((value) {
-                if (value == true) {
-                  setState(() {
-                    _futureBoardList =
-                        _apiService.fetchMenuBoardList(1, 1, "TIME");
-                    _futureHotBoardList =
-                        _apiService.fetchMenuBoardList(1, 1, "LIKE");
-                  });
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: boardList.length,
+                              itemBuilder: (context, index) {
+                                final board = boardList[index];
+                                return _buildPost(
+                                  board['id'],
+                                  board['title'],
+                                  board['content'],
+                                  board['likeCount'],
+                                  board['publisherName'],
+                                  board['uploadTime'],
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 10),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
                 }
-              });
-            },
-            icon: Image.asset(
-              'assets/images/write_board_icon.png',
-              width: 70,
-              height: 70,
-            ),
-            label: const Text(''),
-            backgroundColor: Colors.black,
-            shape: const CircleBorder(),
-          );
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    );
+              },
+            );
+          }
+        });
+    //   floatingActionButton: Builder(
+    //     builder: (context) {
+    //       return FloatingActionButton.extended(
+    //         onPressed: () {
+    //           Navigator.push(
+    //             context,
+    //             MaterialPageRoute(
+    //               builder: (context) => const WriteMenuScreen(),
+    //             ),
+    //           ).then((value) {
+    //             if (value == true) {
+    //               setState(() {
+    //                 _futureBoardList =
+    //                     _apiService.fetchMenuBoardList(1, 1, "TIME");
+    //                 _futureHotBoardList =
+    //                     _apiService.fetchMenuBoardList(1, 1, "LIKE");
+    //               });
+    //             }
+    //           });
+    //         },
+    //         icon: Image.asset(
+    //           'assets/images/write_board_icon.png',
+    //           width: 70,
+    //           height: 70,
+    //         ),
+    //         label: const Text(''),
+    //         backgroundColor: Colors.black,
+    //         shape: const CircleBorder(),
+    //       );
+    //     },
+    //   ),
+    //   floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    // );
   }
 }

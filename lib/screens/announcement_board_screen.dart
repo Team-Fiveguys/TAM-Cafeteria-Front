@@ -25,99 +25,86 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Expanded(
-          child: SizedBox(
-            height: 50,
-            child: Image.asset(
-              'assets/images/app_bar_logo.png',
-              fit: BoxFit.contain,
-            ),
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _futureAnnounceList,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            final announceList = snapshot.data!;
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(41),
-                      color: const Color(0xff002967),
-                    ),
-                    child: const Text(
-                      '공지 게시판',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _futureAnnounceList,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          final announceList = snapshot.data!;
+          return Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(41),
+                    color: const Color(0xff002967),
+                  ),
+                  child: const Text(
+                    '공지 게시판',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 20.0),
-                  for (int i = 0; i < announceList.length; i++) ...[
-                    buildAnnouncementItem(
-                      context,
-                      index: i,
-                      title: announceList[i]['title'],
-                      publisherName: announceList[i]['publisherName'],
-                      boardId: announceList[i]['id'],
-                    ),
-                    const SizedBox(height: 20.0),
-                  ],
-                ],
-              ),
-            );
-          }
-        },
-      ),
-      floatingActionButton: Builder(
-        builder: (context) {
-          return FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const WriteAnnounceScreen(),
                 ),
-              ).then((value) {
-                if (value == true) {
-                  setState(() {
-                    _futureAnnounceList = _apiService.fetchNoticeBoardList(
-                      1,
-                      1,
-                    );
-                  });
-                }
-              });
-            },
-            icon: Image.asset(
-              'assets/images/write_board_icon.png',
-              width: 70,
-              height: 70,
+                const SizedBox(height: 20.0),
+                for (int i = 0; i < announceList.length; i++) ...[
+                  buildAnnouncementItem(
+                    context,
+                    index: i,
+                    title: announceList[i]['title'],
+                    publisherName: announceList[i]['publisherName'],
+                    boardId: announceList[i]['id'],
+                  ),
+                  const SizedBox(height: 20.0),
+                ],
+              ],
             ),
-            label: const Text(''),
-            backgroundColor: Colors.black,
-            shape: const CircleBorder(),
           );
-        },
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        }
+      },
     );
+    //   floatingActionButton: Builder(
+    //     builder: (context) {
+    //       return FloatingActionButton.extended(
+    //         onPressed: () {
+    //           Navigator.push(
+    //             context,
+    //             MaterialPageRoute(
+    //               builder: (context) => const WriteAnnounceScreen(),
+    //             ),
+    //           ).then((value) {
+    //             if (value == true) {
+    //               setState(() {
+    //                 _futureAnnounceList = _apiService.fetchNoticeBoardList(
+    //                   1,
+    //                   1,
+    //                 );
+    //               });
+    //             }
+    //           });
+    //         },
+    //         icon: Image.asset(
+    //           'assets/images/write_board_icon.png',
+    //           width: 70,
+    //           height: 70,
+    //         ),
+    //         label: const Text(''),
+    //         backgroundColor: Colors.black,
+    //         shape: const CircleBorder(),
+    //       );
+    //     },
+    //   ),
+    //   floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+    // );
   }
 
   Widget buildAnnouncementItem(BuildContext context,
