@@ -14,11 +14,17 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   late Future<List<Map<String, dynamic>>> _futureBoardList;
   late Future<List<Map<String, dynamic>>> _futureHotBoardList;
   final ApiService _apiService = ApiService();
+  int _boardPageNumber = 1;
 
   @override
   void initState() {
     super.initState();
-    _futureBoardList = _apiService.fetchMenuBoardList(1, 1, "TIME");
+    _loadBoardList();
+  }
+
+  void _loadBoardList() {
+    _futureBoardList =
+        _apiService.fetchMenuBoardList(1, _boardPageNumber, "TIME");
     _futureHotBoardList = _apiService.fetchMenuBoardList(1, 1, "LIKE");
   }
 
@@ -296,77 +302,87 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                   final hotBoardList = hotBoardSnapshot.data!;
                   final topHotBoards = hotBoardList.take(3).toList();
 
-                  return Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          width: double.infinity,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(41),
-                            color: const Color(0xff002967),
-                          ),
-                          child: const Text(
-                            '메뉴건의 게시판',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  return NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      if (scrollInfo.metrics.maxScrollExtent ==
+                          scrollInfo.metrics.pixels) {
+                        // 스크롤이 끝까지 내려갔을 때
+                        _boardPageNumber++; // 페이지 번호 증가
+                        _loadBoardList(); // 추가 페이지 로드
+                      }
+                      return true;
+                    },
+                    child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
                           children: [
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: topHotBoards.length,
-                              itemBuilder: (context, index) {
-                                final board = topHotBoards[index];
-                                return _buildHotPost(
-                                  board['id'],
-                                  board['title'],
-                                  board['content'],
-                                  board['likeCount'],
-                                  board['publisherName'],
-                                  board['uploadTime'],
-                                );
-                              },
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 10),
+                            Container(
+                              alignment: Alignment.center,
+                              width: double.infinity,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(41),
+                                color: const Color(0xff002967),
+                              ),
+                              child: const Text(
+                                '메뉴건의 게시판',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: topHotBoards.length,
+                                  itemBuilder: (context, index) {
+                                    final board = topHotBoards[index];
+                                    return _buildHotPost(
+                                      board['id'],
+                                      board['title'],
+                                      board['content'],
+                                      board['likeCount'],
+                                      board['publisherName'],
+                                      board['uploadTime'],
+                                    );
+                                  },
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(height: 10),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 10),
+                                ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: boardList.length,
+                                  itemBuilder: (context, index) {
+                                    final board = boardList[index];
+                                    return _buildPost(
+                                      board['id'],
+                                      board['title'],
+                                      board['content'],
+                                      board['likeCount'],
+                                      board['publisherName'],
+                                      board['uploadTime'],
+                                    );
+                                  },
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(height: 10),
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 10),
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: boardList.length,
-                              itemBuilder: (context, index) {
-                                final board = boardList[index];
-                                return _buildPost(
-                                  board['id'],
-                                  board['title'],
-                                  board['content'],
-                                  board['likeCount'],
-                                  board['publisherName'],
-                                  board['uploadTime'],
-                                );
-                              },
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 10),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                        )),
                   );
                 }
               },

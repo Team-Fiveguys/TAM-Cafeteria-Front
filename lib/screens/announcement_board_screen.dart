@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/screens/view_announcement_screen.dart';
-import 'package:tam_cafeteria_front/screens/write_announce_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class AnnounceBoardScreen extends StatefulWidget {
@@ -11,30 +10,41 @@ class AnnounceBoardScreen extends StatefulWidget {
 }
 
 class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
+  late ScrollController _scrollController;
   late Future<List<Map<String, dynamic>>> _futureBoardList;
   late Future<List<Map<String, dynamic>>> _futureHotBoardList;
   final ApiService _apiService = ApiService();
+  int _page = 1; // Track the current page
 
   @override
   void initState() {
     super.initState();
-    _futureBoardList = _apiService.fetchNoticeBoardList(
-      1,
-      1,
-    );
-    _futureHotBoardList = _apiService.fetchNoticeBoardList(
-      1,
-      1,
-    );
+    _scrollController = ScrollController();
+    _futureBoardList = _apiService.fetchNoticeBoardList(1, _page);
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      // If scrolled to the bottom, load the next page
+      _page++;
+      _fetchNextPage();
+    }
+  }
+
+  void _fetchNextPage() async {
+    final List<Map<String, dynamic>> nextPage =
+        await _apiService.fetchNoticeBoardList(1, _page);
+    setState(() {
+      _futureBoardList =
+          _futureBoardList.then((existingList) => existingList + nextPage);
+    });
   }
 
   void reloadPage() {
     setState(() {
       _futureBoardList = _apiService.fetchNoticeBoardList(
-        1,
-        1,
-      );
-      _futureHotBoardList = _apiService.fetchNoticeBoardList(
         1,
         1,
       );
@@ -142,112 +152,66 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-        future: _futureBoardList,
-        builder: (context, boardSnapshot) {
-          if (boardSnapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (boardSnapshot.hasError) {
-            return Center(child: Text('Error: ${boardSnapshot.error}'));
-          } else {
-            final boardList = boardSnapshot.data!;
-            return FutureBuilder<List<Map<String, dynamic>>>(
-              future: _futureHotBoardList,
-              builder: (context, hotBoardSnapshot) {
-                if (hotBoardSnapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (hotBoardSnapshot.hasError) {
-                  return Center(
-                      child: Text('Error: ${hotBoardSnapshot.error}'));
-                } else {
-                  final hotBoardList = hotBoardSnapshot.data!;
-                  final topHotBoards = hotBoardList.take(3).toList();
-
-                  return Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          width: double.infinity,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(41),
-                            color: const Color(0xff002967),
-                          ),
-                          child: const Text(
-                            '메뉴건의 게시판',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 10),
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: boardList.length,
-                              itemBuilder: (context, index) {
-                                final board = boardList[index];
-                                return _buildPost(
-                                  board['id'],
-                                  board['title'],
-                                  board['content'],
-                                  board['publisherName'],
-                                  board['uploadTime'],
-                                );
-                              },
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 10),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                }
-              },
-            );
-          }
-        });
-    //   floatingActionButton: Builder(
-    //     builder: (context) {
-    //       return FloatingActionButton.extended(
-    //         onPressed: () {
-    //           Navigator.push(
-    //             context,
-    //             MaterialPageRoute(
-    //               builder: (context) => const WriteMenuScreen(),
-    //             ),
-    //           ).then((value) {
-    //             if (value == true) {
-    //               setState(() {
-    //                 _futureBoardList =
-    //                     _apiService.fetchMenuBoardList(1, 1, "TIME");
-    //                 _futureHotBoardList =
-    //                     _apiService.fetchMenuBoardList(1, 1, "LIKE");
-    //               });
-    //             }
-    //           });
-    //         },
-    //         icon: Image.asset(
-    //           'assets/images/write_board_icon.png',
-    //           width: 70,
-    //           height: 70,
-    //         ),
-    //         label: const Text(''),
-    //         backgroundColor: Colors.black,
-    //         shape: const CircleBorder(),
-    //       );
-    //     },
-    //   ),
-    //   floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    // );
+      future: _futureBoardList,
+      builder: (context, boardSnapshot) {
+        if (boardSnapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (boardSnapshot.hasError) {
+          return Center(child: Text('Error: ${boardSnapshot.error}'));
+        } else {
+          final boardList = boardSnapshot.data!;
+          return ListView.separated(
+            controller: _scrollController,
+            shrinkWrap: true,
+            itemCount: boardList.length,
+            itemBuilder: (context, index) {
+              final board = boardList[index];
+              return _buildPost(
+                board['id'],
+                board['title'],
+                board['content'],
+                board['publisherName'],
+                board['uploadTime'],
+              );
+            },
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
+          );
+        }
+      },
+    );
   }
+
+  //   floatingActionButton: Builder(
+  //     builder: (context) {
+  //       return FloatingActionButton.extended(
+  //         onPressed: () {
+  //           Navigator.push(
+  //             context,
+  //             MaterialPageRoute(
+  //               builder: (context) => const WriteMenuScreen(),
+  //             ),
+  //           ).then((value) {
+  //             if (value == true) {
+  //               setState(() {
+  //                 _futureBoardList =
+  //                     _apiService.fetchMenuBoardList(1, 1, "TIME");
+  //                 _futureHotBoardList =
+  //                     _apiService.fetchMenuBoardList(1, 1, "LIKE");
+  //               });
+  //             }
+  //           });
+  //         },
+  //         icon: Image.asset(
+  //           'assets/images/write_board_icon.png',
+  //           width: 70,
+  //           height: 70,
+  //         ),
+  //         label: const Text(''),
+  //         backgroundColor: Colors.black,
+  //         shape: const CircleBorder(),
+  //       );
+  //     },
+  //   ),
+  //   floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+  // );
 }
