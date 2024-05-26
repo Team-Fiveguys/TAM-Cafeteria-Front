@@ -12,6 +12,9 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
 
+  int titleMaxLength = 30;
+  int contentMaxLength = 50;
+
   void _postArticle() async {
     final String title = _titleController.text;
     final String content = _contentController.text;
@@ -97,11 +100,15 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                     ),
                     child: TextFormField(
                       controller: _titleController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '원하는 메뉴를 작성해주세요',
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16.0),
+                        suffix: Text(
+                            '${_titleController.text.length}/$titleMaxLength'),
                       ),
+                      maxLength: titleMaxLength,
                     ),
                   ),
                   const SizedBox(height: 16.0),
@@ -113,11 +120,15 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                     ),
                     child: TextFormField(
                       controller: _contentController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '글쓰기',
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16.0),
+                        suffix: Text(
+                            '${_contentController.text.length}/$contentMaxLength'),
                       ),
+                      maxLength: contentMaxLength,
                       maxLines: null,
                     ),
                   ),
