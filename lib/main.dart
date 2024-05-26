@@ -221,11 +221,13 @@ class App extends ConsumerStatefulWidget {
 
 class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
   bool isAdmin = false;
+  bool isRealAdmin = false;
   int _selectedIndex = 0; // 현재 선택된 탭의 인덱스
   bool switchOn = false;
   int testValue = 1;
   bool isLoading = false;
   bool isNoti = false;
+  String userId = "";
   DateTime? currentBackPressTime;
 
   final ScrollController _scrollController = ScrollController();
@@ -237,7 +239,10 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
 
   List<Widget> _widgetOptions = <Widget>[
     MainScreen(),
-    const MenuBoardScreen(),
+    const MenuBoardScreen(
+      userId: "",
+      isAdmin: false,
+    ),
     const MyPage(),
   ];
 
@@ -343,12 +348,14 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
   void decodeJwt(String? token) {
     if (token == null) {
       setState(() {
+        isRealAdmin = false;
         isAdmin = false;
         _selectedIndex = 0;
       });
       return;
     }
     final parts = token.split('.');
+
     if (parts.length != 3) {
       throw Exception('Invalid token');
     }
@@ -357,9 +364,11 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     var normalized = base64Url.normalize(payload);
     var decoded = utf8.decode(base64Url.decode(normalized));
     final payloadMap = json.decode(decoded);
-    // print('main App : decodeJwt : payloadMap $payloadMap');
+    print('main App : decodeJwt : payloadMap $payloadMap');
     setState(() {
+      isRealAdmin = payloadMap['role'] == "ADMIN";
       isAdmin = payloadMap['role'] == "ADMIN";
+      userId = payloadMap['sub'].toString();
     });
   }
 
@@ -375,7 +384,12 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
         _selectedIndex = isAdmin ? 2 : 0;
         _widgetOptions = <Widget>[
           MainScreen(),
-          isNoti ? const AnnounceBoardScreen() : const MenuBoardScreen(),
+          isNoti
+              ? const AnnounceBoardScreen()
+              : MenuBoardScreen(
+                  userId: userId,
+                  isAdmin: isRealAdmin,
+                ),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -389,11 +403,17 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
       });
     } else {
       setState(() {
+        isRealAdmin = false;
         isAdmin = false;
         _selectedIndex = isAdmin ? 2 : 0;
         _widgetOptions = <Widget>[
           MainScreen(),
-          isNoti ? const AnnounceBoardScreen() : const MenuBoardScreen(),
+          isNoti
+              ? const AnnounceBoardScreen()
+              : MenuBoardScreen(
+                  userId: userId,
+                  isAdmin: isRealAdmin,
+                ),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -435,7 +455,12 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     _selectedIndex = isAdmin ? 2 : 0;
     _widgetOptions = <Widget>[
       MainScreen(),
-      isNoti ? const AnnounceBoardScreen() : const MenuBoardScreen(),
+      isNoti
+          ? const AnnounceBoardScreen()
+          : MenuBoardScreen(
+              userId: userId,
+              isAdmin: isRealAdmin,
+            ),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -473,6 +498,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     } else {
       setState(() {
         _selectedIndex = index; // 선택된 탭의 인덱스를 업데이트
+        isNoti = false;
       });
     }
   }
@@ -600,8 +626,11 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
           child: FloatingActionButton(
             // mini: true,
             backgroundColor: Colors.white,
-            foregroundColor:
-                isNoti ? Colors.amber[800] : Theme.of(context).primaryColor,
+            foregroundColor: _selectedIndex == 1
+                ? isNoti
+                    ? Colors.amber[800]
+                    : Theme.of(context).primaryColor
+                : Theme.of(context).primaryColor,
             elevation: 0,
             child: const Column(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -697,7 +726,12 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
-      isNoti ? const AnnounceBoardScreen() : const MenuBoardScreen(),
+      isNoti
+          ? const AnnounceBoardScreen()
+          : MenuBoardScreen(
+              userId: userId,
+              isAdmin: isRealAdmin,
+            ),
       isAdmin
           ? AdminPage(
               testValue: testValue,

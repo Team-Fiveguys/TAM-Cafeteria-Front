@@ -60,11 +60,11 @@ class EnterBoardScreen extends StatelessWidget {
                 backgroundColor: Colors.white, // Text color
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const MenuBoardScreen()),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => const MenuBoardScreen()),
+                // );
               },
               child: const Text('메뉴 건의 게시판'),
             ),

@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class ViewMenuSuggestionScreen extends StatefulWidget {
@@ -7,6 +9,10 @@ class ViewMenuSuggestionScreen extends StatefulWidget {
   final String content;
   final String publisherName;
   final String uploadTime;
+  final int likeCount;
+  final String userId;
+  final String publisherId;
+  final bool isAdmin;
 
   const ViewMenuSuggestionScreen({
     Key? key,
@@ -15,6 +21,10 @@ class ViewMenuSuggestionScreen extends StatefulWidget {
     required this.content,
     required this.publisherName,
     required this.uploadTime,
+    required this.likeCount,
+    required this.userId,
+    required this.publisherId,
+    required this.isAdmin,
   }) : super(key: key);
 
   @override
@@ -25,11 +35,36 @@ class ViewMenuSuggestionScreen extends StatefulWidget {
 class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
   bool isLiked = false;
 
+  bool isAbleDelete = false;
+
+  int likeCountValue = 0;
+  @override
+  void initState() {
+    super.initState();
+    likeCountValue = widget.likeCount;
+    isAbleDelete = widget.isAdmin || widget.userId == widget.publisherId;
+    print('isAbleDelete : $isAbleDelete');
+    loadLike();
+  }
+
+  Future<void> loadLike() async {
+    final instance = await ApiService.fetchBoardDetail(widget.postId);
+    setState(() {
+      likeCountValue = instance['likeCount'];
+      isLiked = instance['toggleLike'];
+    });
+  }
+
   void toggleLike() async {
     try {
       await ApiService.togglePostLike(widget.postId);
       setState(() {
         isLiked = !isLiked;
+        if (isLiked) {
+          likeCountValue++;
+        } else {
+          likeCountValue--;
+        }
       });
     } catch (e) {
       print('좋아요 상태 토글 중 오류 발생: $e');
@@ -48,9 +83,57 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
   String formatDate(String uploadTime) {
     DateTime dateTime = DateTime.parse(uploadTime);
 
-    String formattedDate = '${dateTime.year}-${dateTime.month}-${dateTime.day}';
+    String formattedDate =
+        DateFormat('yyyy-MM-dd HH:mm').format(dateTime.toLocal());
 
     return formattedDate;
+  }
+
+  void delPost() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('알림'),
+        content: const Text('이 게시물을 삭제하시겠습니까?'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('삭제'),
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              try {
+                await ApiService.deletePost(widget.postId);
+                Navigator.of(context).pop();
+              } on Exception catch (e) {
+                // TODO
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('에러'),
+                    content: Text(e.toString()),
+                    actions: <Widget>[
+                      TextButton(
+                        child: const Text('확인'),
+                        onPressed: () {
+                          Navigator.of(ctx).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+          TextButton(
+            child: const Text('취소'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              // Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -65,110 +148,195 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Container(
-              alignment: Alignment.center,
-              height: 56,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(41),
-                color: const Color(0xff002967),
-              ),
-              child: const Text(
-                '메뉴 추천 게시물',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                alignment: Alignment.center,
+                height: 56,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(41),
+                  color: const Color(0xff002967),
+                ),
+                child: const Text(
+                  '메뉴 건의 게시글(식당이름)',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(19),
-                border: Border.all(
+              const SizedBox(height: 25),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
                   color: Colors.white,
+                  borderRadius: BorderRadius.circular(19),
+                  border: Border.all(
+                    color: Colors.white,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.4),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.4),
-                    spreadRadius: 2.0,
-                    blurRadius: 1.0,
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.title,
-                          style: const TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
                       ),
-                      IconButton(
-                        icon: Icon(
-                          isLiked ? Icons.favorite : Icons.favorite_border,
-                          color: isLiked ? Colors.red : null,
+                      child: Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
                         ),
-                        onPressed: toggleLike,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 20.0),
-                  Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 400,
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(19),
-                                border: Border.all(
-                                  color: Colors.grey,
+                    ),
+                    const SizedBox(height: 10),
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(19),
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                  ),
                                 ),
-                              ),
-                              child: SingleChildScrollView(
-                                child: Text(
-                                  widget.content,
-                                  style: const TextStyle(fontSize: 18.0),
+                                child: SingleChildScrollView(
+                                  child: Text(
+                                    widget.content,
+                                    style: const TextStyle(fontSize: 18.0),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 11,
+                                  child: Image.asset(
+                                    'assets/images/like_count.png',
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 3,
+                                ),
+                                Text('$likeCountValue | '),
+                                Text(widget.publisherName),
+                              ],
+                            ),
+                            Text(formatDate(widget.uploadTime)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                // mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
+                      minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
+                    ),
+                    icon: Icon(
+                      isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                      size: 18,
+                    ),
+                    label: Text(
+                      "좋아요",
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColorDark,
+                        fontSize: 12,
                       ),
-                      Row(
-                        children: [
-                          Text(widget.publisherName),
-                          const Text('|'),
-                          Text(formatDate(widget.uploadTime)),
-                          const Spacer(),
-                          ElevatedButton(
-                            onPressed: reportPost,
-                            child: const Text('신고하기'),
-                          ),
-                        ],
+                    ),
+                    onPressed: toggleLike,
+                  ),
+                  if (isAbleDelete)
+                    TextButton.icon(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
+                        minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
                       ),
-                    ],
+                      onPressed: () {
+                        delPost();
+                      },
+                      icon: Icon(
+                        Icons.delete,
+                        color: Theme.of(context).primaryColorDark,
+                        size: 18,
+                      ),
+                      label: Text(
+                        '삭제',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: TextStyle(
+                          color: Theme.of(context).primaryColorDark,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  TextButton.icon(
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
+                      minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
+                    ),
+                    onPressed: reportPost,
+                    icon: const Icon(
+                      Icons.report_gmailerrorred_rounded,
+                      color: Colors.red,
+                      size: 18,
+                    ),
+                    label: Text(
+                      '신고',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColorDark,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

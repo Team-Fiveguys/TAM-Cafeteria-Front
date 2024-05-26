@@ -1653,7 +1653,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> fetchBoardDetail(int id) async {
+  static Future<Map<String, dynamic>> fetchBoardDetail(int id) async {
     try {
       final accessToken = await TokenManagerWithSP.loadToken();
       final path = "/posts/$id";

@@ -55,7 +55,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
       String uploadTime) {
     return GestureDetector(
       onTap: () async {
-        final postDetail = await _apiService.fetchBoardDetail(id);
+        final postDetail = await ApiService.fetchBoardDetail(id);
         // 'ViewMenuSuggestionScreen'으로 이동합니다. 이 때, 몇 가지 매개변수를 전달합니다.
         Navigator.push(
           context,

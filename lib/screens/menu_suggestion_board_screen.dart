@@ -4,8 +4,13 @@ import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class MenuBoardScreen extends StatefulWidget {
-  const MenuBoardScreen({Key? key}) : super(key: key);
-
+  const MenuBoardScreen({
+    Key? key,
+    required this.userId,
+    required this.isAdmin,
+  }) : super(key: key);
+  final String userId;
+  final bool isAdmin;
   @override
   State<MenuBoardScreen> createState() => _MenuBoardScreenState();
 }
@@ -43,7 +48,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
       String publisherName, String uploadTime) {
     return GestureDetector(
       onTap: () async {
-        final postDetail = await _apiService.fetchBoardDetail(id);
+        final postDetail = await ApiService.fetchBoardDetail(id);
         // 'ViewMenuSuggestionScreen'으로 이동합니다. 이 때, 몇 가지 매개변수를 전달합니다.
         Navigator.push(
           context,
@@ -54,6 +59,10 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
               publisherName: publisherName,
               uploadTime: uploadTime,
               postId: id,
+              likeCount: likeCount,
+              userId: widget.userId,
+              publisherId: postDetail['userId'].toString(),
+              isAdmin: widget.isAdmin,
             ),
           ),
         ).then((value) {
@@ -146,7 +155,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
 
     return GestureDetector(
       onTap: () async {
-        final postDetail = await _apiService.fetchBoardDetail(id);
+        final postDetail = await ApiService.fetchBoardDetail(id);
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -156,6 +165,10 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
               publisherName: publisherName,
               uploadTime: uploadTime,
               postId: id,
+              likeCount: likeCount,
+              userId: widget.userId,
+              publisherId: postDetail['userId'].toString(),
+              isAdmin: widget.isAdmin,
             ),
           ),
         ).then((value) {
