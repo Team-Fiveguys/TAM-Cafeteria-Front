@@ -2,15 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class ViewAnnouncementScreen extends StatefulWidget {
-  final int postId;
+  final int postId; // 게시물 ID를 받을 변수 추가
   final String title;
   final String content;
+  final String publisherName;
+  final String uploadTime;
 
   const ViewAnnouncementScreen({
     Key? key,
-    required this.postId,
+    required this.postId, // 생성자에 postId를 추가
     required this.title,
     required this.content,
+    required this.publisherName,
+    required this.uploadTime,
   }) : super(key: key);
 
   @override

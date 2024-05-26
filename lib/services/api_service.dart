@@ -1582,6 +1582,7 @@ class ApiService {
           return {
             'id': item['id'],
             'title': item['title'],
+            'content': item['content'],
             'publisherName': item['publisherName'],
             'uploadTime': item['uploadTime'],
             'likeCount': item['likeCount'],

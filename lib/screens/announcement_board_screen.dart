@@ -11,67 +11,211 @@ class AnnounceBoardScreen extends StatefulWidget {
 }
 
 class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
+  late Future<List<Map<String, dynamic>>> _futureBoardList;
+  late Future<List<Map<String, dynamic>>> _futureHotBoardList;
   final ApiService _apiService = ApiService();
-  late Future<List<Map<String, dynamic>>> _futureAnnounceList;
 
   @override
   void initState() {
     super.initState();
-    _futureAnnounceList = _apiService.fetchNoticeBoardList(
+    _futureBoardList = _apiService.fetchNoticeBoardList(
       1,
       1,
+    );
+    _futureHotBoardList = _apiService.fetchNoticeBoardList(
+      1,
+      1,
+    );
+  }
+
+  void reloadPage() {
+    setState(() {
+      _futureBoardList = _apiService.fetchNoticeBoardList(
+        1,
+        1,
+      );
+      _futureHotBoardList = _apiService.fetchNoticeBoardList(
+        1,
+        1,
+      );
+    });
+  }
+
+  String formatDate(String uploadTime) {
+    // DateTime 파싱
+    DateTime dateTime = DateTime.parse(uploadTime);
+
+    // 원하는 형식으로 포맷팅
+    String formattedDate = '${dateTime.year}-${dateTime.month}-${dateTime.day}';
+
+    return formattedDate;
+  }
+
+  Widget _buildPost(int id, String title, String content, String publisherName,
+      String uploadTime) {
+    return GestureDetector(
+      onTap: () async {
+        final postDetail = await _apiService.fetchBoardDetail(id);
+        // 'ViewMenuSuggestionScreen'으로 이동합니다. 이 때, 몇 가지 매개변수를 전달합니다.
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ViewAnnouncementScreen(
+              title: postDetail['title'],
+              content: postDetail['content'],
+              publisherName: publisherName,
+              uploadTime: uploadTime,
+              postId: id,
+            ),
+          ),
+        ).then((value) {
+          setState(() {
+            _futureBoardList = _apiService.fetchNoticeBoardList(
+              1,
+              1,
+            );
+            _futureHotBoardList = _apiService.fetchNoticeBoardList(
+              1,
+              1,
+            );
+          });
+        });
+      },
+      child: Container(
+        height: 99,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: const Color(0xff002967),
+          ),
+          borderRadius: BorderRadius.circular(19),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 11, 0, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    const SizedBox(height: 4.0),
+                    Text(
+                      content,
+                      style: const TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.black,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    Row(
+                      children: [
+                        Text(formatDate(uploadTime)),
+                        const SizedBox(width: 8),
+                        Text(publisherName),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _futureAnnounceList,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else {
-          final announceList = snapshot.data!;
-          return Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  alignment: Alignment.center,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(41),
-                    color: const Color(0xff002967),
-                  ),
-                  child: const Text(
-                    '공지 게시판',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
+        future: _futureBoardList,
+        builder: (context, boardSnapshot) {
+          if (boardSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (boardSnapshot.hasError) {
+            return Center(child: Text('Error: ${boardSnapshot.error}'));
+          } else {
+            final boardList = boardSnapshot.data!;
+            return FutureBuilder<List<Map<String, dynamic>>>(
+              future: _futureHotBoardList,
+              builder: (context, hotBoardSnapshot) {
+                if (hotBoardSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (hotBoardSnapshot.hasError) {
+                  return Center(
+                      child: Text('Error: ${hotBoardSnapshot.error}'));
+                } else {
+                  final hotBoardList = hotBoardSnapshot.data!;
+                  final topHotBoards = hotBoardList.take(3).toList();
+
+                  return Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        Container(
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(41),
+                            color: const Color(0xff002967),
+                          ),
+                          child: const Text(
+                            '메뉴건의 게시판',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 10),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: boardList.length,
+                              itemBuilder: (context, index) {
+                                final board = boardList[index];
+                                return _buildPost(
+                                  board['id'],
+                                  board['title'],
+                                  board['content'],
+                                  board['publisherName'],
+                                  board['uploadTime'],
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 10),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 20.0),
-                for (int i = 0; i < announceList.length; i++) ...[
-                  buildAnnouncementItem(
-                    context,
-                    index: i,
-                    title: announceList[i]['title'],
-                    publisherName: announceList[i]['publisherName'],
-                    boardId: announceList[i]['id'],
-                  ),
-                  const SizedBox(height: 20.0),
-                ],
-              ],
-            ),
-          );
-        }
-      },
-    );
+                  );
+                }
+              },
+            );
+          }
+        });
     //   floatingActionButton: Builder(
     //     builder: (context) {
     //       return FloatingActionButton.extended(
@@ -79,15 +223,15 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
     //           Navigator.push(
     //             context,
     //             MaterialPageRoute(
-    //               builder: (context) => const WriteAnnounceScreen(),
+    //               builder: (context) => const WriteMenuScreen(),
     //             ),
     //           ).then((value) {
     //             if (value == true) {
     //               setState(() {
-    //                 _futureAnnounceList = _apiService.fetchNoticeBoardList(
-    //                   1,
-    //                   1,
-    //                 );
+    //                 _futureBoardList =
+    //                     _apiService.fetchMenuBoardList(1, 1, "TIME");
+    //                 _futureHotBoardList =
+    //                     _apiService.fetchMenuBoardList(1, 1, "LIKE");
     //               });
     //             }
     //           });
@@ -105,74 +249,5 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
     //   ),
     //   floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     // );
-  }
-
-  Widget buildAnnouncementItem(BuildContext context,
-      {required int index,
-      required String title,
-      required String publisherName,
-      required int boardId}) {
-    return GestureDetector(
-      onTap: () async {
-        final postDetail = await _apiService.fetchBoardDetail(boardId);
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ViewAnnouncementScreen(
-              title: postDetail['title'],
-              content: postDetail['content'],
-              postId: boardId,
-            ),
-          ),
-        );
-      },
-      child: Container(
-        height: 80,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(
-            color: const Color(0xff002967),
-          ),
-          borderRadius: BorderRadius.circular(19),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 11, 0, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    const SizedBox(height: 8.0),
-                    Text(
-                      ' $publisherName',
-                      style: const TextStyle(fontSize: 14.0),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(0, 11, 20, 10),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
