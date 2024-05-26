@@ -71,6 +71,33 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
     }
   }
 
+  void reportPostConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("게시물 신고"),
+          content: const Text("정말로 이 게시물을 신고하시겠습니까?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                reportPost();
+                Navigator.of(context).pop();
+              },
+              child: const Text("예"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("아니요"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void reportPost() async {
     try {
       await ApiService.reportPost(widget.postId);
@@ -314,10 +341,10 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
                   TextButton.icon(
                     style: TextButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
-                      minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
+                          vertical: 4, horizontal: 8),
+                      minimumSize: const Size(5, 5),
                     ),
-                    onPressed: reportPost,
+                    onPressed: reportPostConfirmation,
                     icon: const Icon(
                       Icons.report_gmailerrorred_rounded,
                       color: Colors.red,
