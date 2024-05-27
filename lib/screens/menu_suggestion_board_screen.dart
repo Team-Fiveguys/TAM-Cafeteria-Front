@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/screens/view_menu_suggestion_screen.dart';
 import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MenuBoardScreen extends StatefulWidget {
   const MenuBoardScreen({
@@ -22,17 +23,45 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   late Future<List<Map<String, dynamic>>> _futureHotBoardList;
   final ApiService _apiService = ApiService();
   int _boardPageNumber = 1;
+  int? cafeteriaId;
+  String? selectedItem = '명진당';
+  late String? cafeteriaName;
+  final bool _showBackToTopButton = false;
+
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    _loadBoardList();
+    _scrollController = ScrollController()..addListener(_scrollListener);
+    _loadBoardList(1);
   }
 
-  void _loadBoardList() {
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _loadNextPage();
+    }
+  }
+
+  void _loadNextPage() {
+    setState(() {
+      _boardPageNumber++;
+      _loadBoardList(cafeteriaId!);
+    });
+  }
+
+  void _loadBoardList(int cafeteriaId) {
     _futureBoardList =
-        _apiService.fetchMenuBoardList(1, _boardPageNumber, "TIME");
-    _futureHotBoardList = _apiService.fetchMenuBoardList(1, 1, "LIKE");
+        _apiService.fetchMenuBoardList(cafeteriaId, _boardPageNumber, "TIME");
+    _futureHotBoardList =
+        _apiService.fetchMenuBoardList(cafeteriaId, 1, "LIKE");
+  }
+
+  // 사용자가 선택한 식당 정보를 저장합니다.
+  void saveMyCafeteria(String cafeteria) async {
+    final pref = await SharedPreferences.getInstance();
+    await pref.setString('cafeteriaName', cafeteria);
   }
 
   void reloadPage() {
@@ -64,6 +93,27 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
     }
   }
 
+  Future<void> initializeAsyncTask() async {
+    if (selectedItem != null) {
+      cafeteriaName = selectedItem!;
+    }
+    final pref = await SharedPreferences.getInstance();
+
+    setState(() {
+      selectedItem = pref.getString('cafeteriaName') ?? '명진당';
+      cafeteriaName = pref.getString('cafeteriaName') ?? '명진당';
+      if (cafeteriaName == "명진당") {
+        cafeteriaId = 1;
+      }
+      if (cafeteriaName == "학생회관") {
+        cafeteriaId = 2;
+      }
+      if (cafeteriaName == "명돈이네") {
+        cafeteriaId = 3;
+      }
+    });
+  }
+
   Widget _buildPost(int id, String title, String content, int likeCount,
       String publisherName, String uploadTime) {
     publisherName = maskPublisherName(publisherName, widget.isAdmin);
@@ -88,8 +138,10 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
           ),
         ).then((value) {
           setState(() {
-            _futureBoardList = _apiService.fetchMenuBoardList(1, 1, "TIME");
-            _futureHotBoardList = _apiService.fetchMenuBoardList(1, 1, "LIKE");
+            _futureBoardList =
+                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "TIME");
+            _futureHotBoardList =
+                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
           });
         });
       },
@@ -218,8 +270,10 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
           ),
         ).then((value) {
           setState(() {
-            _futureBoardList = _apiService.fetchMenuBoardList(1, 1, "TIME");
-            _futureHotBoardList = _apiService.fetchMenuBoardList(1, 1, "LIKE");
+            _futureBoardList =
+                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "TIME");
+            _futureHotBoardList =
+                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
           });
         });
       },
@@ -378,7 +432,9 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                           scrollInfo.metrics.pixels) {
                         // 스크롤이 끝까지 내려갔을 때
                         _boardPageNumber++; // 페이지 번호 증가
-                        _loadBoardList(); // 추가 페이지 로드
+                        _loadBoardList(
+                          cafeteriaId!,
+                        );
                       }
                       return true;
                     },
@@ -403,7 +459,92 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TextButton.icon(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => WriteMenuScreen(
+                                            cafeteriaId: cafeteriaId),
+                                      ),
+                                    ).then((value) {
+                                      if (value == true) {
+                                        setState(() {
+                                          _futureBoardList =
+                                              _apiService.fetchMenuBoardList(
+                                                  cafeteriaId!, 1, "TIME");
+                                          _futureHotBoardList =
+                                              _apiService.fetchMenuBoardList(
+                                                  cafeteriaId!, 1, "LIKE");
+                                        });
+                                      }
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.edit_square,
+                                    color: Theme.of(context).primaryColorDark,
+                                  ),
+                                  label: Text(
+                                    '글쓰기',
+                                    style: TextStyle(
+                                      color: Theme.of(context).primaryColorDark,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                    ),
+                                    alignment: Alignment.centerRight,
+                                    child: DropdownButton<String>(
+                                      value: selectedItem, // 현재 선택된 항목
+                                      icon: const Icon(Icons
+                                          .arrow_drop_down_sharp), // 아래 화살표 아이콘
+                                      iconSize: 24,
+                                      elevation: 20,
+                                      dropdownColor: Colors.white,
+                                      style: const TextStyle(
+                                          color: Colors.black), // 텍스트 스타일
+                                      underline: Container(
+                                        height: 2,
+                                        color: Colors.black,
+                                      ), // 현재 선택된 항목
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          selectedItem = newValue;
+                                          // 선택된 항목에 따라 cafeteriaId 설정
+                                          if (newValue == "명진당") {
+                                            cafeteriaId = 1;
+                                          } else if (newValue == "학생회관") {
+                                            cafeteriaId = 2;
+                                          } else {
+                                            cafeteriaId = 3;
+                                          }
+                                          // cafeteriaId와 함께 게시글 목록 다시 불러오기
+                                          _loadBoardList(cafeteriaId!);
+                                        });
+                                      },
+                                      items: <String>[
+                                        '명진당',
+                                        '학생회관',
+                                        '명돈이네',
+                                      ] // 선택 가능한 항목 리스트
+                                          .map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Text(value),
+                                          );
+                                        },
+                                      ).toList(),
+                                    )),
+                              ],
+                            ),
+                            const Divider(),
+                            const SizedBox(height: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -459,38 +600,5 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
             );
           }
         });
-    //   floatingActionButton: Builder(
-    //     builder: (context) {
-    //       return FloatingActionButton.extended(
-    //         onPressed: () {
-    //           Navigator.push(
-    //             context,
-    //             MaterialPageRoute(
-    //               builder: (context) => const WriteMenuScreen(),
-    //             ),
-    //           ).then((value) {
-    //             if (value == true) {
-    //               setState(() {
-    //                 _futureBoardList =
-    //                     _apiService.fetchMenuBoardList(1, 1, "TIME");
-    //                 _futureHotBoardList =
-    //                     _apiService.fetchMenuBoardList(1, 1, "LIKE");
-    //               });
-    //             }
-    //           });
-    //         },
-    //         icon: Image.asset(
-    //           'assets/images/write_board_icon.png',
-    //           width: 70,
-    //           height: 70,
-    //         ),
-    //         label: const Text(''),
-    //         backgroundColor: Colors.black,
-    //         shape: const CircleBorder(),
-    //       );
-    //     },
-    //   ),
-    //   floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-    // );
   }
 }

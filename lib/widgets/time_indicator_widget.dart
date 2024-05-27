@@ -14,12 +14,12 @@ class TimeIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? myeongBunLunch;
-    String? myeongBunDinner;
-    if (name == "명돈이네") {
-      myeongBunLunch = lunchHour!.split("|")[0];
-      myeongBunDinner = lunchHour!.split("|")[1];
-    }
+    // String? myeongBunLunch;
+    // String? myeongBunDinner;
+    // if (name == "명돈이네") {
+    //   myeongBunLunch = lunchHour!.split("|")[0];
+    //   myeongBunDinner = lunchHour!.split("|")[1];
+    // }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
@@ -38,26 +38,13 @@ class TimeIndicator extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                breakfastHour != null
-                    ? '$breakfastHour'
-                    : name == "명돈이네"
-                        ? myeongBunLunch!
-                        : '$lunchHour',
+                breakfastHour != null ? '$breakfastHour' : '$lunchHour',
                 style: TextStyle(
                   fontSize: 8,
                   color: Theme.of(context).primaryColorLight,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
-              if (name == "명돈이네")
-                Text(
-                  myeongBunDinner!,
-                  style: TextStyle(
-                    fontSize: 8,
-                    color: Theme.of(context).primaryColorLight,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
             ],
           ),
         ),

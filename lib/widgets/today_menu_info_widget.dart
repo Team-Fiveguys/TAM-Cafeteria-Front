@@ -338,6 +338,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
     }
 
     if (isDayOff || isSoldOut) isOperating = false;
+
     // 조건에 따라 테두리 색상을 결정합니다.
     return BoxDecoration(
       color: Colors.white,
@@ -597,10 +598,10 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                             )
                           : const TimeIndicator(
                               name: "명돈이네",
-                              lunchHour: "11:00 ~ 15:00|17:00 ~ 18:15",
+                              lunchHour: "11:00 ~ 15:00",
                             ),
-                      SizedBox(
-                        height: widget.breakfastHour != null ? 12 : 2,
+                      const SizedBox(
+                        height: 12,
                       ),
                       FutureBuilder(
                         future: widget.cafeteriaName == "학생회관"

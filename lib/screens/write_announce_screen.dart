@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
+// ignore: must_be_immutable
 class WriteAnnounceScreen extends StatefulWidget {
-  const WriteAnnounceScreen({Key? key}) : super(key: key);
+  int? cafeteriaId;
+  WriteAnnounceScreen({Key? key, this.cafeteriaId}) : super(key: key);
 
   @override
   State<WriteAnnounceScreen> createState() => _WriteAnnounceScreenState();
@@ -17,7 +19,7 @@ class _WriteAnnounceScreenState extends State<WriteAnnounceScreen> {
     final String title = _titleController.text;
     final String content = _contentController.text;
     const String boardType = "NOTICE";
-    const int cafeteriaId = 1;
+    final int cafeteriaId = widget.cafeteriaId!;
 
     try {
       await ApiService.createPost(boardType, title, content, cafeteriaId);
