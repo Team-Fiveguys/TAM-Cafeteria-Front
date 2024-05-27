@@ -111,14 +111,33 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                    RichText(
+                      text: TextSpan(
+                        style: DefaultTextStyle.of(context).style,
+                        children: <TextSpan>[
+                          // 'isAdmin'이 true일 경우 id 부분을 작은 글씨로 표시
+                          if (widget.isAdmin)
+                            TextSpan(
+                              text: '($id) ',
+                              style: const TextStyle(
+                                fontSize: 14.0, // id 부분의 글자 크기를 작게 설정
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          // 제목(title) 부분
+                          TextSpan(
+                            text: title,
+                            style: const TextStyle(
+                              fontSize: 18.0, // 제목 부분의 기본 글자 크기
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
-                      overflow: TextOverflow.ellipsis,
+                      overflow: TextOverflow
+                          .ellipsis, // 이 부분은 RichText에 직접 적용되지 않습니다.
                       maxLines: 1,
                     ),
                     const SizedBox(height: 4.0),
@@ -234,18 +253,36 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            width: MediaQuery.of(context).size.width - 100,
-                            child: Text(
-                              title,
-                              style: const TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
+                              width: MediaQuery.of(context).size.width - 100,
+                              child: RichText(
+                                text: TextSpan(
+                                  style: DefaultTextStyle.of(context).style,
+                                  children: <TextSpan>[
+                                    // 'isAdmin'이 true일 경우 id 부분을 작은 글씨로 표시
+                                    if (widget.isAdmin)
+                                      TextSpan(
+                                        text: '($id) ',
+                                        style: const TextStyle(
+                                          fontSize: 14.0, // id 부분의 글자 크기를 작게 설정
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    // 제목(title) 부분
+                                    TextSpan(
+                                      text: title,
+                                      style: const TextStyle(
+                                        fontSize: 18.0, // 제목 부분의 기본 글자 크기
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                overflow: TextOverflow
+                                    .ellipsis, // 이 부분은 RichText에 직접 적용되지 않습니다.
+                                maxLines: 1,
+                              )),
                           const SizedBox(height: 4.0),
                           SizedBox(
                             width: MediaQuery.of(context).size.width - 100,

@@ -34,10 +34,10 @@ class ViewMenuSuggestionScreen extends StatefulWidget {
 
 class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
   bool isLiked = false;
-
   bool isAbleDelete = false;
-
   int likeCountValue = 0;
+  String? selectedCategory;
+
   @override
   void initState() {
     super.initState();
@@ -76,21 +76,61 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("게시물 신고"),
-          content: const Text("정말로 이 게시물을 신고하시겠습니까?"),
+          title: const Text("게시글 신고"),
+          content: const SingleChildScrollView(
+            child: Column(
+              children: [
+                Text("정말로 이 게시글을 신고하시겠습니까?"),
+                // const Text("분류"),
+                // DropdownButton<String>(
+                //   hint: const Text("카테고리 선택"),
+                //   value: selectedCategory,
+                //   dropdownColor: Colors.white,
+                //   onChanged: (String? newValue) {
+                //     // StatefulBuilder의 setState를 사용
+                //     setState(() {
+                //       selectedCategory = newValue;
+                //     });
+                //   },
+                //   items: <String>['한식', '중식', '일식', '양식']
+                //       .map<DropdownMenuItem<String>>((String value) {
+                //     return DropdownMenuItem<String>(
+                //       value: value,
+                //       child: Text(value),
+                //     );
+                //   }).toList(),
+                // ),
+                // const SizedBox(
+                //   height: 10,
+                // ),
+                // const Text('신고 내용'),
+                // const SizedBox(
+                //   height: 5,
+                // ),
+                // TextField(
+                //   maxLines: 5,
+                //   decoration: InputDecoration(
+                //     border: OutlineInputBorder(
+                //       borderRadius: BorderRadius.circular(15),
+                //     ),
+                //   ),
+                // ),
+              ],
+            ),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 reportPost();
                 Navigator.of(context).pop();
               },
-              child: const Text("예"),
+              child: const Text("신고"),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text("아니요"),
+              child: const Text("취소"),
             ),
           ],
         );
@@ -102,8 +142,23 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
     try {
       await ApiService.reportPost(widget.postId);
       print('게시물을 성공적으로 신고했습니다.');
-    } catch (e) {
-      print('게시물 신고 중 오류 발생: $e');
+    } on Exception catch (e) {
+      // TODO
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('에러'),
+          content: Text(e.toString()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('확인'),
+              onPressed: () {
+                Navigator.of(ctx).pop();
+              },
+            ),
+          ],
+        ),
+      );
     }
   }
 
