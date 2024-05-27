@@ -82,7 +82,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   }
 
   String maskPublisherName(String name, bool isAdmin) {
-    if (isAdmin) {
+    if (isAdmin || name == "익명") {
       return name;
     } else {
       if (name.length == 2) {
@@ -561,7 +561,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                       board['title'],
                                       board['content'],
                                       board['likeCount'],
-                                      board['publisherName'],
+                                      board['publisherName'] ?? "익명",
                                       board['uploadTime'],
                                     );
                                   },
@@ -585,7 +585,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                                       board['title'],
                                       board['content'],
                                       board['likeCount'],
-                                      board['publisherName'],
+                                      board['publisherName'] ?? "익명",
                                       board['uploadTime'],
                                     );
                                   },

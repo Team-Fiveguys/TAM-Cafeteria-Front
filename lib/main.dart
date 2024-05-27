@@ -401,7 +401,9 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
         _widgetOptions = <Widget>[
           MainScreen(),
           isNoti
-              ? const AnnounceBoardScreen()
+              ? AnnounceBoardScreen(
+                  isAdmin: isRealAdmin,
+                )
               : MenuBoardScreen(
                   userId: userId,
                   isAdmin: isRealAdmin,
@@ -425,7 +427,9 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
         _widgetOptions = <Widget>[
           MainScreen(),
           isNoti
-              ? const AnnounceBoardScreen()
+              ? AnnounceBoardScreen(
+                  isAdmin: isRealAdmin,
+                )
               : MenuBoardScreen(
                   userId: userId,
                   isAdmin: isRealAdmin,
@@ -473,7 +477,9 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     _widgetOptions = <Widget>[
       MainScreen(),
       isNoti
-          ? const AnnounceBoardScreen()
+          ? AnnounceBoardScreen(
+              isAdmin: isRealAdmin,
+            )
           : MenuBoardScreen(
               userId: userId,
               isAdmin: isRealAdmin,
@@ -755,7 +761,9 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     _widgetOptions = <Widget>[
       MainScreen(),
       isNoti
-          ? const AnnounceBoardScreen()
+          ? AnnounceBoardScreen(
+              isAdmin: isRealAdmin,
+            )
           : MenuBoardScreen(
               userId: userId,
               isAdmin: isRealAdmin,

@@ -98,11 +98,11 @@ class EnterBoardScreen extends StatelessWidget {
                 backgroundColor: Colors.white, // Text color
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const AnnounceBoardScreen()),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => const AnnounceBoardScreen()),
+                // );
               },
               child: const Text('공지게시판'),
             ),
