@@ -227,6 +227,9 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
   bool isLoading = false;
   bool isNoti = false;
   DateTime? currentBackPressTime;
+  bool _showBackToTopButton = false;
+
+  late ScrollController _scrollControllerUp;
 
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _isVisible = ValueNotifier(true);
@@ -333,6 +336,17 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     });
   }
 
+  @override
+  void disposeUp() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(0,
+        duration: const Duration(seconds: 3), curve: Curves.linear);
+  }
+
   void switchAdminPage() {
     //마이페이지에서 호출
     setState(() {
@@ -412,6 +426,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     // _permissionWithNotification();
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -446,6 +461,16 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
               switchAdmin: switchAdminPage,
             ),
     ];
+    _scrollControllerUp = ScrollController()
+      ..addListener(() {
+        setState(() {
+          if (_scrollController.offset >= 400) {
+            _showBackToTopButton = true;
+          } else {
+            _showBackToTopButton = false;
+          }
+        });
+      });
   }
 
   @override
@@ -862,6 +887,10 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
           ),
         ),
         isLoading ? _buildLoadingScreen() : Container(),
+        FloatingActionButton(
+          onPressed: _scrollToTop,
+          child: const Icon(Icons.arrow_upward),
+        )
       ],
     );
   }
