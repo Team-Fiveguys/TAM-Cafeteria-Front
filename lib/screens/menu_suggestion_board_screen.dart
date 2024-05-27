@@ -25,7 +25,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   int _boardPageNumber = 1;
   int? cafeteriaId;
   String? selectedItem = '명진당';
-  late String? cafeteriaName;
+  late String? cafeteriaBoardName;
   final bool _showBackToTopButton = false;
 
   late ScrollController _scrollController;
@@ -33,10 +33,13 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   @override
   void initState() {
     super.initState();
-    cafeteriaId = 1; // Initialize cafeteriaId to 1
     _scrollController = ScrollController()..addListener(_scrollListener);
-    _loadBoardList(cafeteriaId!); // Load board list with initial cafeteriaId
-    initializeAsyncTask();
+
+    // 초기화
+    _futureBoardList = Future.value([]);
+    _futureHotBoardList = Future.value([]);
+
+    initializeAsyncTask(); // 저장된 식당 정보를 로드하여 초기화
   }
 
   void _scrollListener() {
@@ -54,16 +57,18 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   }
 
   void _loadBoardList(int cafeteriaId) {
-    _futureBoardList =
-        _apiService.fetchMenuBoardList(cafeteriaId, _boardPageNumber, "TIME");
-    _futureHotBoardList =
-        _apiService.fetchMenuBoardList(cafeteriaId, 1, "LIKE");
+    setState(() {
+      _futureBoardList =
+          _apiService.fetchMenuBoardList(cafeteriaId, _boardPageNumber, "TIME");
+      _futureHotBoardList =
+          _apiService.fetchMenuBoardList(cafeteriaId, 1, "LIKE");
+    });
   }
 
   // 사용자가 선택한 식당 정보를 저장합니다.
-  void saveMyCafeteria(String cafeteria) async {
+  void saveMyCafeteria(String cafeteriaBoardName) async {
     final pref = await SharedPreferences.getInstance();
-    await pref.setString('cafeteriaName', cafeteria);
+    await pref.setString('cafeteriaBoardName', cafeteriaBoardName);
   }
 
   void reloadPage() {
@@ -75,9 +80,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
 
   String formatDate(String uploadTime) {
     DateTime dateTime = DateTime.parse(uploadTime);
-
     String formattedDate = DateFormat('MM-dd HH:mm').format(dateTime.toLocal());
-
     return formattedDate;
   }
 
@@ -96,23 +99,23 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   }
 
   Future<void> initializeAsyncTask() async {
-    if (selectedItem != null) {
-      cafeteriaName = selectedItem!;
-    }
     final pref = await SharedPreferences.getInstance();
+    selectedItem = pref.getString('cafeteriaBoardName') ?? '명진당';
+    cafeteriaBoardName = selectedItem;
+
+    if (cafeteriaBoardName == "명진당") {
+      cafeteriaId = 1;
+    } else if (cafeteriaBoardName == "학생회관") {
+      cafeteriaId = 2;
+    } else if (cafeteriaBoardName == "명돈이네") {
+      cafeteriaId = 3;
+    }
 
     setState(() {
-      selectedItem = pref.getString('cafeteriaName') ?? '명진당';
-      cafeteriaName = pref.getString('cafeteriaName') ?? '명진당';
-      if (cafeteriaName == "명진당") {
-        cafeteriaId = 1;
-      }
-      if (cafeteriaName == "학생회관") {
-        cafeteriaId = 2;
-      }
-      if (cafeteriaName == "명돈이네") {
-        cafeteriaId = 3;
-      }
+      _futureBoardList = _apiService.fetchMenuBoardList(
+          cafeteriaId!, _boardPageNumber, "TIME");
+      _futureHotBoardList =
+          _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
     });
   }
 
