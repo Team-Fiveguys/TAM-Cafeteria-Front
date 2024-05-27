@@ -249,7 +249,8 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
                 ).then((value) {
                   if (value == true) {
                     setState(() {
-                      _apiService.fetchNoticeBoardList(cafeteriaId!, _page);
+                      _futureBoardList =
+                          _apiService.fetchNoticeBoardList(cafeteriaId!, _page);
                     });
                   }
                 });
