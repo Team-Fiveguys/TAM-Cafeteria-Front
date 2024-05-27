@@ -335,6 +335,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     setState(() {
       switchOn = true;
       isAdmin = false;
+      _isVisible.value = true;
     });
   }
 
@@ -342,6 +343,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     //마이페이지에서 호출
     setState(() {
       switchOn = false;
+      _isVisible.value = true;
     });
   }
 
@@ -706,6 +708,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
           backgroundColor: const Color(0xff6E6E6E),
           fontSize: 15,
           toastLength: Toast.LENGTH_SHORT);
+      _isVisible.value = true;
       return false;
     }
     return true;

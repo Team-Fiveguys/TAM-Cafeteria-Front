@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/screens/view_menu_suggestion_screen.dart';
 import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
@@ -41,17 +43,30 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   }
 
   String formatDate(String uploadTime) {
-    // DateTime 파싱
     DateTime dateTime = DateTime.parse(uploadTime);
 
-    // 원하는 형식으로 포맷팅
-    String formattedDate = '${dateTime.year}-${dateTime.month}-${dateTime.day}';
+    String formattedDate = DateFormat('MM-dd HH:mm').format(dateTime.toLocal());
 
     return formattedDate;
   }
 
+  String maskPublisherName(String name, bool isAdmin) {
+    if (isAdmin) {
+      return name;
+    } else {
+      if (name.length == 2) {
+        return '${name[0]}*';
+      } else if (name.length > 2) {
+        return name[0] + '*' * (name.length - 2) + name[name.length - 1];
+      } else {
+        return name; // 이름이 한 글자일 경우 그대로 반환
+      }
+    }
+  }
+
   Widget _buildPost(int id, String title, String content, int likeCount,
       String publisherName, String uploadTime) {
+    publisherName = maskPublisherName(publisherName, widget.isAdmin);
     return GestureDetector(
       onTap: () async {
         final postDetail = await ApiService.fetchBoardDetail(id);
@@ -130,7 +145,12 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                         const SizedBox(width: 8), //
                         Text(formatDate(uploadTime)),
                         const SizedBox(width: 8),
-                        Text(publisherName),
+                        Expanded(
+                          child: Text(
+                            publisherName,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ],
                     )
                   ],
@@ -146,7 +166,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   Widget _buildHotPost(int id, String title, String content, int likeCount,
       String publisherName, String uploadTime) {
     bool isLiked = false; // 현재 좋아요 상태를 추적합니다.
-
+    publisherName = maskPublisherName(publisherName, widget.isAdmin);
     void toggleLike() async {
       try {
         // 좋아요 상태를 전환합니다.

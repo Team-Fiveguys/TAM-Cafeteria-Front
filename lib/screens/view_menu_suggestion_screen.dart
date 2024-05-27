@@ -110,8 +110,7 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
   String formatDate(String uploadTime) {
     DateTime dateTime = DateTime.parse(uploadTime);
 
-    String formattedDate =
-        DateFormat('yyyy-MM-dd HH:mm').format(dateTime.toLocal());
+    String formattedDate = DateFormat('MM-dd HH:mm').format(dateTime.toLocal());
 
     return formattedDate;
   }
