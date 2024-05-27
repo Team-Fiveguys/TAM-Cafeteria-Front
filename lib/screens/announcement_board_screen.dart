@@ -24,6 +24,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   @override
   void initState() {
     super.initState();
+    cafeteriaId = 1;
     _scrollController = ScrollController();
     _futureBoardList = _apiService.fetchNoticeBoardList(1, _page);
     _scrollController.addListener(_scrollListener);

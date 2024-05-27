@@ -21,7 +21,14 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
     final String title = _titleController.text;
     final String content = _contentController.text;
     const String boardType = "MENU_REQUEST";
-    final int cafeteriaId = widget.cafeteriaId!;
+    final int? cafeteriaId = widget.cafeteriaId;
+
+    if (cafeteriaId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('카페테리아 ID가 없습니다.')),
+      );
+      return;
+    }
 
     try {
       await ApiService.createPost(boardType, title, content, cafeteriaId);

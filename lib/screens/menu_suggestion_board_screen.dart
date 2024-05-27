@@ -33,8 +33,10 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   @override
   void initState() {
     super.initState();
+    cafeteriaId = 1; // Initialize cafeteriaId to 1
     _scrollController = ScrollController()..addListener(_scrollListener);
-    _loadBoardList(1);
+    _loadBoardList(cafeteriaId!); // Load board list with initial cafeteriaId
+    initializeAsyncTask();
   }
 
   void _scrollListener() {

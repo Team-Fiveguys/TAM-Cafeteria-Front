@@ -65,7 +65,7 @@ class _WriteAnnounceScreenState extends State<WriteAnnounceScreen> {
                 color: const Color(0xff002967),
               ),
               child: const Text(
-                '메뉴건의 글쓰기',
+                '공지 글쓰기',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20.0,
