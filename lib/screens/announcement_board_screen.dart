@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/screens/view_announcement_screen.dart';
+import 'package:tam_cafeteria_front/screens/write_announce_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -236,6 +237,24 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
                     },
                   ).toList(),
                 )),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        WriteAnnounceScreen(cafeteriaId: cafeteriaId),
+                  ),
+                ).then((value) {
+                  if (value == true) {
+                    setState(() {
+                      _apiService.fetchNoticeBoardList(cafeteriaId!, _page);
+                    });
+                  }
+                });
+              },
+              child: const Text('글쓰기'),
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

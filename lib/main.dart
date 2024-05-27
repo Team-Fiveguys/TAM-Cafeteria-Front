@@ -887,10 +887,10 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
           ),
         ),
         isLoading ? _buildLoadingScreen() : Container(),
-        FloatingActionButton(
-          onPressed: _scrollToTop,
-          child: const Icon(Icons.arrow_upward),
-        )
+        // FloatingActionButton(
+        //   onPressed: _scrollToTop,
+        //   child: const Icon(Icons.arrow_upward),
+        // )
       ],
     );
   }

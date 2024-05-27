@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class WriteMenuScreen extends StatefulWidget {
-  const WriteMenuScreen({Key? key}) : super(key: key);
+  final int? cafeteriaId;
+
+  const WriteMenuScreen({Key? key, this.cafeteriaId}) : super(key: key);
 
   @override
   State<WriteMenuScreen> createState() => _WriteMenuScreenState();
@@ -16,7 +18,7 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
     final String title = _titleController.text;
     final String content = _contentController.text;
     const String boardType = "MENU_REQUEST";
-    const int cafeteriaId = 1;
+    final int cafeteriaId = widget.cafeteriaId!;
 
     try {
       await ApiService.createPost(boardType, title, content, cafeteriaId);
