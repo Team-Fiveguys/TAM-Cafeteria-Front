@@ -242,11 +242,11 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
 
   List<Widget> _widgetOptions = <Widget>[
     MainScreen(),
-    // MenuBoardScreen(
-    //   userId: "",
-    //   isAdmin: false,
-    //   scrollVisible: ValueNotifier(true),
-    // ),
+    MenuBoardScreen(
+      userId: "",
+      isAdmin: false,
+      scrollVisible: ValueNotifier(true),
+    ),
     const MyPage(),
   ];
 
@@ -343,11 +343,11 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     });
   }
 
-  @override
-  void disposeUp() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void disposeUp() {
+  //   _scrollController.dispose();
+  //   super.dispose();
+  // }
 
   void _scrollToTop() {
     _scrollController.animateTo(0,
@@ -398,19 +398,19 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
       setState(() {
         print('autoLoginCheck :: $token');
 
-        _selectedIndex = isAdmin ? 1 : 0; //TODO : 게시판 완성되면 2로 고치기
+        _selectedIndex = isAdmin ? 2 : 0; //TODO : 게시판 완성되면 2로 고치기
         _widgetOptions = <Widget>[
           MainScreen(),
-          // isNoti
-          //     ? AnnounceBoardScreen(
-          //         isAdmin: isRealAdmin,
-          //         scrollVisible: _isVisible,
-          //       )
-          //     : MenuBoardScreen(
-          //         userId: userId,
-          //         isAdmin: isRealAdmin,
-          //         scrollVisible: _isVisible,
-          //       ),
+          isNoti
+              ? AnnounceBoardScreen(
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                )
+              : MenuBoardScreen(
+                  userId: userId,
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                ),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -426,19 +426,19 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
       setState(() {
         isRealAdmin = false;
         isAdmin = false;
-        _selectedIndex = isAdmin ? 1 : 0;
+        _selectedIndex = isAdmin ? 2 : 0;
         _widgetOptions = <Widget>[
           MainScreen(),
-          // isNoti
-          //     ? AnnounceBoardScreen(
-          //         isAdmin: isRealAdmin,
-          //         scrollVisible: _isVisible,
-          //       )
-          //     : MenuBoardScreen(
-          //         userId: userId,
-          //         isAdmin: isRealAdmin,
-          //         scrollVisible: _isVisible,
-          //       ),
+          isNoti
+              ? AnnounceBoardScreen(
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                )
+              : MenuBoardScreen(
+                  userId: userId,
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                ),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -480,19 +480,19 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
         await initiallizingFCM();
       }
     });
-    _selectedIndex = isAdmin ? 1 : 0;
+    _selectedIndex = isAdmin ? 2 : 0;
     _widgetOptions = <Widget>[
       MainScreen(),
-      // isNoti
-      //     ? AnnounceBoardScreen(
-      //         isAdmin: isRealAdmin,
-      //         scrollVisible: _isVisible,
-      //       )
-      //     : MenuBoardScreen(
-      //         userId: userId,
-      //         isAdmin: isRealAdmin,
-      //         scrollVisible: _isVisible,
-      //       ),
+      isNoti
+          ? AnnounceBoardScreen(
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            )
+          : MenuBoardScreen(
+              userId: userId,
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            ),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -535,8 +535,8 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     if (index != 0 && !isLoggedIn) {
       // 홈이 아닌 다른 탭을 선택하고, isToken이 false라면
       navigateToLoginScreen(context);
-      // } else if (index == 1) {
-      //   _showFanMenu();
+    } else if (index == 1) {
+      _showFanMenu();
     } else {
       setState(() {
         _selectedIndex = index; // 선택된 탭의 인덱스를 업데이트
@@ -769,16 +769,16 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
-      // isNoti
-      //     ? AnnounceBoardScreen(
-      //         isAdmin: isRealAdmin,
-      //         scrollVisible: _isVisible,
-      //       )
-      //     : MenuBoardScreen(
-      //         userId: userId,
-      //         isAdmin: isRealAdmin,
-      //         scrollVisible: _isVisible,
-      //       ),
+      isNoti
+          ? AnnounceBoardScreen(
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            )
+          : MenuBoardScreen(
+              userId: userId,
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            ),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -808,10 +808,10 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
                           icon: Icon(Icons.home),
                           label: '홈',
                         ),
-                        // const BottomNavigationBarItem(
-                        //   icon: Icon(Icons.forum),
-                        //   label: '게시판',
-                        // ),
+                        const BottomNavigationBarItem(
+                          icon: Icon(Icons.forum),
+                          label: '게시판',
+                        ),
                         BottomNavigationBarItem(
                           icon: const Icon(Icons.person),
                           label: isAdmin ? '관리자페이지' : '마이페이지',
@@ -935,10 +935,12 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
                   testValue = 2;
                 });
               },
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: _widgetOptions.elementAt(_selectedIndex),
-              ),
+              child: _selectedIndex == 1
+                  ? _widgetOptions.elementAt(_selectedIndex)
+                  : SingleChildScrollView(
+                      controller: _scrollController,
+                      child: _widgetOptions.elementAt(_selectedIndex),
+                    ),
             ),
           ),
         ),

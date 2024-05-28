@@ -35,7 +35,7 @@ class User {
 }
 
 class ApiService {
-  static const String baseUrl = "release.tam-cafeteria.site";
+  static const String baseUrl = "dev.tam-cafeteria.site";
   static const String aiBaseUrl = "ai.tam-cafeteria.site";
 
   static Future<void> postDietPhoto(
@@ -1542,7 +1542,7 @@ class ApiService {
             'content': item['content'],
           };
         }).toList();
-        print(jsonResponse);
+        // print(jsonResponse);
         return boardList;
       } else {
         print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
