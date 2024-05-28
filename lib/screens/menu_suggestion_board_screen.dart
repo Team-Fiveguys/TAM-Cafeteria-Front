@@ -25,7 +25,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   int _boardPageNumber = 1;
   int? cafeteriaId;
   String? selectedItem = '명진당';
-  late String? cafeteriaBoardName;
+  late String? cafeteriaName;
   final bool _showBackToTopButton = false;
 
   late ScrollController _scrollController;
@@ -66,9 +66,9 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   }
 
   // 사용자가 선택한 식당 정보를 저장합니다.
-  void saveMyCafeteria(String cafeteriaBoardName) async {
+  void saveMyCafeteria(String cafeteria) async {
     final pref = await SharedPreferences.getInstance();
-    await pref.setString('cafeteriaBoardName', cafeteriaBoardName);
+    await pref.setString('cafeteriaName', cafeteria);
   }
 
   void reloadPage() {
@@ -98,16 +98,17 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
     }
   }
 
+//adminpage 선택으로 돌아가지는 이슈가
   Future<void> initializeAsyncTask() async {
     final pref = await SharedPreferences.getInstance();
-    selectedItem = pref.getString('cafeteriaBoardName') ?? '명진당';
-    cafeteriaBoardName = selectedItem;
+    selectedItem = pref.getString('cafeteriaName') ?? '명진당';
+    cafeteriaName = selectedItem;
 
-    if (cafeteriaBoardName == "명진당") {
+    if (cafeteriaName == "명진당") {
       cafeteriaId = 1;
-    } else if (cafeteriaBoardName == "학생회관") {
+    } else if (cafeteriaName == "학생회관") {
       cafeteriaId = 2;
-    } else if (cafeteriaBoardName == "명돈이네") {
+    } else if (cafeteriaName == "명돈이네") {
       cafeteriaId = 3;
     }
 

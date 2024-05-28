@@ -109,13 +109,10 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                     ),
                     child: TextFormField(
                       controller: _titleController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: '원하는 메뉴를 작성해주세요',
                         border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 16.0),
-                        suffix: Text(
-                            '${_titleController.text.length}/$titleMaxLength'),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                       ),
                       maxLength: titleMaxLength,
                     ),
@@ -129,13 +126,10 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                     ),
                     child: TextFormField(
                       controller: _contentController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: '글쓰기',
                         border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 16.0),
-                        suffix: Text(
-                            '${_contentController.text.length}/$contentMaxLength'),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
                       ),
                       maxLength: contentMaxLength,
                       maxLines: null,
