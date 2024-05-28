@@ -13,6 +13,7 @@ class AnnounceBoardScreen extends StatefulWidget {
   }) : super(key: key);
   final bool isAdmin;
   final ValueNotifier<bool> scrollVisible;
+
   @override
   State<AnnounceBoardScreen> createState() => _AnnounceBoardScreenState();
 }
@@ -55,9 +56,11 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
     });
     _page++;
     noticeList +=
+    List<Map<String, dynamic>> newNotices =
         await _apiService.fetchNoticeBoardList(cafeteriaId ?? 1, _page);
     setState(() {
       _isLoading = false;
+      noticeList.addAll(newNotices);
     });
   }
 
@@ -67,14 +70,14 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   }
 
   void _loadBoardList(int cafeteriaId) async {
-    _futureBoardList = _apiService.fetchNoticeBoardList(
-      cafeteriaId,
-      1,
-    );
-    if (noticeList.isEmpty) {
-      noticeList = await _apiService.fetchNoticeBoardList(cafeteriaId, 1);
-      lastPage = noticeList[0]['totalPages'] ?? 1;
-      setState(() {});
+    _futureBoardList = _apiService.fetchNoticeBoardList(cafeteriaId, 1);
+    List<Map<String, dynamic>> fetchedNotices =
+        await _apiService.fetchNoticeBoardList(cafeteriaId, 1);
+    if (fetchedNotices.isNotEmpty) {
+      setState(() {
+        noticeList = fetchedNotices;
+        lastPage = noticeList[0]['totalPages'] ?? 1;
+      });
     }
   }
 
@@ -83,17 +86,14 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
       cafeteriaName = selectedItem!;
     }
     final pref = await SharedPreferences.getInstance();
-
     setState(() {
       selectedItem = pref.getString('cafeteriaName') ?? '명진당';
-      cafeteriaName = pref.getString('cafeteriaName') ?? '명진당';
+      cafeteriaName = selectedItem;
       if (cafeteriaName == "명진당") {
         cafeteriaId = 1;
-      }
-      if (cafeteriaName == "학생회관") {
+      } else if (cafeteriaName == "학생회관") {
         cafeteriaId = 2;
-      }
-      if (cafeteriaName == "명돈이네") {
+      } else if (cafeteriaName == "명돈이네") {
         cafeteriaId = 3;
       }
     });
@@ -101,11 +101,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
 
   String formatDate(String uploadTime) {
     DateTime dateTime = DateTime.parse(uploadTime);
-
-    String formattedDate =
-        DateFormat('yyyy-MM-dd HH:mm').format(dateTime.toLocal());
-
-    return formattedDate;
+    return DateFormat('yyyy-MM-dd HH:mm').format(dateTime.toLocal());
   }
 
   String maskPublisherName(String name, bool isAdmin) {
@@ -130,7 +126,6 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
       highlightColor: Colors.transparent,
       onTap: () async {
         final postDetail = await ApiService.fetchBoardDetail(id);
-        // 'ViewMenuSuggestionScreen'으로 이동합니다. 이 때, 몇 가지 매개변수를 전달합니다.
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -321,10 +316,20 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const SizedBox(height: 10),
               const Divider(),
               noticeList.isEmpty // 게시물이 없는 경우 Divider 숨김
-                  ? Container() // 아무 내용이 없는 빈 컨테이너 반환
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text(
+                          '공지 사항이 없습니다',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ),
+                    )
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -358,38 +363,4 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
       ),
     );
   }
-
-  //   floatingActionButton: Builder(
-  //     builder: (context) {
-  //       return FloatingActionButton.extended(
-  //         onPressed: () {
-  //           Navigator.push(
-  //             context,
-  //             MaterialPageRoute(
-  //               builder: (context) => const WriteMenuScreen(),
-  //             ),
-  //           ).then((value) {
-  //             if (value == true) {
-  //               setState(() {
-  //                 _futureBoardList =
-  //                     _apiService.fetchMenuBoardList(1, 1, "TIME");
-  //                 _futureHotBoardList =
-  //                     _apiService.fetchMenuBoardList(1, 1, "LIKE");
-  //               });
-  //             }
-  //           });
-  //         },
-  //         icon: Image.asset(
-  //           'assets/images/write_board_icon.png',
-  //           width: 70,
-  //           height: 70,
-  //         ),
-  //         label: const Text(''),
-  //         backgroundColor: Colors.black,
-  //         shape: const CircleBorder(),
-  //       );
-  //     },
-  //   ),
-  //   floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-  // );
 }
