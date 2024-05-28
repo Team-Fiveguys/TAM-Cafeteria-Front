@@ -1,43 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
 
-// import 'package:flutter/material.dart';
+class ViewAnnouncementScreen extends StatefulWidget {
+  final int postId; // 게시물 ID를 받을 변수 추가
+  final String title;
+  final String content;
+  final String publisherName;
+  final String uploadTime;
 
-class ViewAnnouncement extends StatefulWidget {
-  final List<String> titles;
-  final List<String> contents;
-  int currentIndex;
-
-  ViewAnnouncement({
+  const ViewAnnouncementScreen({
     Key? key,
-    required this.titles,
-    required this.contents,
-    required this.currentIndex,
+    required this.postId, // 생성자에 postId를 추가
+    required this.title,
+    required this.content,
+    required this.publisherName,
+    required this.uploadTime,
   }) : super(key: key);
 
   @override
-  State<ViewAnnouncement> createState() => _ViewAnnouncementState();
+  State<ViewAnnouncementScreen> createState() => _ViewAnnouncementScreenState();
 }
 
-class _ViewAnnouncementState extends State<ViewAnnouncement> {
+class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
+  late TextEditingController _titleController;
+  late TextEditingController _contentController;
+  bool _isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.title);
+    _contentController = TextEditingController(text: widget.content);
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  void _deletePost() async {
+    try {
+      await ApiService.deletePost(widget.postId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('게시물이 성공적으로 삭제되었습니다.')),
+      );
+
+      Navigator.of(context).pop();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시물 삭제 중 오류가 발생했습니다: $e')),
+      );
+    }
+  }
+
+  void _updatePost() async {
+    try {
+      await ApiService.updatePost(
+          widget.postId, _titleController.text, _contentController.text);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('게시물이 성공적으로 수정되었습니다.')),
+      );
+
+      // Set back to static text mode after updating
+      setState(() {
+        _isEditing = false;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시물 수정 중 오류가 발생했습니다: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
-              child: SizedBox(
-                height: 50,
-                child: Image.asset(
-                  'assets/images/app_bar_logo.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ],
+        title: Image.asset(
+          'assets/images/app_bar_logo.png',
+          fit: BoxFit.contain,
+          height: 50,
         ),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -66,110 +112,108 @@ class _ViewAnnouncementState extends State<ViewAnnouncement> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(19),
-                border: Border.all(
-                  color: Colors.white,
-                ),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.4),
                     spreadRadius: 2.0,
-                    blurRadius: 1.0,
+                    blurRadius: 4.0,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(19),
-                            border: Border.all(
-                              color: Colors.white,
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(19),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.9),
+                          spreadRadius: 2.0,
+                          blurRadius: 1.0,
+                        ),
+                      ],
+                    ),
+                    child: _isEditing
+                        ? TextField(
+                            controller: _titleController,
+                            style: const TextStyle(
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.9),
-                                spreadRadius: 2.0,
-                                blurRadius: 1.0,
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            widget.titles[widget.currentIndex],
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: '제목을 입력하세요',
+                            ),
+                          )
+                        : Text(
+                            widget.title,
                             style: const TextStyle(
                               fontSize: 24.0,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                  ),
+                  const SizedBox(height: 20.0),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(19),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.9),
+                          spreadRadius: 2.0,
+                          blurRadius: 1.0,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: SingleChildScrollView(
+                      child: _isEditing
+                          ? TextField(
+                              controller: _contentController,
+                              style: const TextStyle(fontSize: 18.0),
+                              decoration: const InputDecoration(
+                                border: InputBorder.none,
+                                hintText: '내용을 입력하세요',
+                              ),
+                              maxLines: null,
+                            )
+                          : Text(
+                              widget.content,
+                              style: const TextStyle(fontSize: 18.0),
+                            ),
+                    ),
                   ),
                   const SizedBox(height: 20.0),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: Container(
-                          height: 400,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(19),
-                            border: Border.all(
-                              color: Colors.white,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.9),
-                                spreadRadius: 2.0,
-                                blurRadius: 1.0,
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            widget.contents[widget.currentIndex],
-                            style: const TextStyle(fontSize: 18.0),
-                          ),
-                        ),
+                      ElevatedButton(
+                        onPressed: _deletePost,
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white),
+                        child: const Text('삭제'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _isEditing = !_isEditing;
+                          });
+                        },
+                        child: Text(_isEditing ? '취소' : '수정'),
+                      ),
+                      ElevatedButton(
+                        onPressed: _isEditing ? _updatePost : null,
+                        child: const Text('저장'),
                       ),
                     ],
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 20.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    if (widget.currentIndex > 0) {
-                      setState(() {
-                        // 이전 버튼이 클릭되면 currentIndex를 감소시킴
-                        widget.currentIndex--;
-                      });
-                    }
-                  },
-                  child: const Text('이전 게시물'),
-                ),
-                const SizedBox(width: 20.0),
-                ElevatedButton(
-                  onPressed: () {
-                    if (widget.currentIndex < widget.titles.length - 1) {
-                      setState(() {
-                        // 다음 버튼이 클릭되면 currentIndex를 증가시킴
-                        widget.currentIndex++;
-                      });
-                    }
-                  },
-                  child: const Text('다음 게시물'),
-                ),
-              ],
             ),
           ],
         ),

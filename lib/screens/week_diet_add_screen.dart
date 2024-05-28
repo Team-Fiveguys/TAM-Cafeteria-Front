@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
+import 'package:tam_cafeteria_front/main.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
@@ -49,6 +50,8 @@ class _WeekDietState extends State<WeekDiet> {
   Set<DateTime> selectedDates = {};
   bool isExpanded = false;
 
+  bool isLoading = false;
+
   String? selectedCategory; // 선택된 카테고리를 저장할 변수
   final TextEditingController menuNameController = TextEditingController();
 
@@ -65,7 +68,10 @@ class _WeekDietState extends State<WeekDiet> {
     initDietList();
   }
 
-  void initDietList() async {
+  Future<void> initDietList() async {
+    setState(() {
+      isLoading = true;
+    });
     DateTime currentDate = firstDay;
     while (currentDate.isBefore(lastDay.add(const Duration(days: 1)))) {
       // lastDay를 포함하기 위해 1일 추가
@@ -85,6 +91,9 @@ class _WeekDietState extends State<WeekDiet> {
       currentDate =
           currentDate.add(const Duration(days: 1)); // currentDate를 다음 날짜로 업데이트
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> filteringMenus() async {
@@ -467,7 +476,7 @@ class _WeekDietState extends State<WeekDiet> {
   }
 
   Future<void> loadDiets() async {
-    initDietList();
+    // await initDietList();
     Diet? todayDiets = await ApiService.getDiets(
         selectedDay, selectedMeals, widget.cafeteriaId);
 
@@ -679,16 +688,16 @@ class _WeekDietState extends State<WeekDiet> {
                   color: Colors.black,
                 ),
                 onChanged: (String? newValue) async {
-                  setState(() {
-                    if (newValue == "중식") {
-                      selectedMeals = "LUNCH";
-                    }
-                    if (newValue == "조식") {
-                      selectedMeals = "BREAKFAST";
-                    }
-                    selectedItem = newValue; // 선택된 항목을 상태로 저장
-                  });
+                  if (newValue == "중식") {
+                    selectedMeals = "LUNCH";
+                  }
+                  if (newValue == "조식") {
+                    selectedMeals = "BREAKFAST";
+                  }
+                  selectedItem = newValue; // 선택된 항목을 상태로 저장
+                  await initDietList();
                   await loadDiets();
+                  setState(() {});
                 },
                 items: <String>[
                   '중식',
@@ -855,65 +864,73 @@ class _WeekDietState extends State<WeekDiet> {
                               absorbing: operationalDays[selectedDay] ?? false,
                               child: Column(
                                 children: [
-                                  ListView.builder(
-                                    itemCount:
-                                        weekMenus[selectedDay]?.length ?? 0,
-                                    itemBuilder: (context, index) {
-                                      String menu =
-                                          weekMenus[selectedDay]![index];
-                                      return Column(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 20),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              border: Border.all(
-                                                color: Theme.of(context)
-                                                    .canvasColor,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(15),
-                                            ),
-                                            height: 50,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
+                                  isLoading
+                                      ? buildLoadingScreen()
+                                      : ListView.builder(
+                                          itemCount:
+                                              weekMenus[selectedDay]?.length ??
+                                                  0,
+                                          itemBuilder: (context, index) {
+                                            String menu =
+                                                weekMenus[selectedDay]![index];
+                                            return Column(
                                               children: [
-                                                Text(
-                                                  menu,
-                                                  style: const TextStyle(
-                                                    color: Color(0xFF5A5A5A),
-                                                    fontSize: 16,
+                                                Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 20),
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    border: Border.all(
+                                                      color: Theme.of(context)
+                                                          .canvasColor,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15),
+                                                  ),
+                                                  height: 50,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Text(
+                                                        menu,
+                                                        style: const TextStyle(
+                                                          color:
+                                                              Color(0xFF5A5A5A),
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                      IconButton(
+                                                          onPressed: () {
+                                                            removeOneMenuInDiets(
+                                                                menu);
+                                                            loadDiets();
+                                                          },
+                                                          icon: const Icon(
+                                                            Icons.remove,
+                                                            size: 30,
+                                                            color: Color(
+                                                                0xFFFFB800),
+                                                          ))
+                                                    ],
                                                   ),
                                                 ),
-                                                IconButton(
-                                                    onPressed: () {
-                                                      removeOneMenuInDiets(
-                                                          menu);
-                                                      loadDiets();
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.remove,
-                                                      size: 30,
-                                                      color: Color(0xFFFFB800),
-                                                    ))
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
                                               ],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                    shrinkWrap: true, // 여기에 추가
-                                    physics:
-                                        const ClampingScrollPhysics(), // 스크롤 동작을 추가로 제어할 수 있음
-                                  ),
+                                            );
+                                          },
+                                          shrinkWrap: true, // 여기에 추가
+                                          physics:
+                                              const ClampingScrollPhysics(), // 스크롤 동작을 추가로 제어할 수 있음
+                                        ),
                                   Container(
                                     decoration: BoxDecoration(
                                       // color: const Color(0xFFD9D9D9),

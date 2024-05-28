@@ -45,15 +45,6 @@ class TimeIndicator extends StatelessWidget {
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
-              // if (name == "명돈이네")
-              //   Text(
-              //     myeongBunDinner!,
-              //     style: TextStyle(
-              //       fontSize: 8,
-              //       color: Theme.of(context).primaryColorLight,
-              //     ),
-              //     overflow: TextOverflow.ellipsis,
-              //   ),
             ],
           ),
         ),

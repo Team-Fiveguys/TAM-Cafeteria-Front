@@ -1,381 +1,394 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:tam_cafeteria_front/screens/announcement_board_screen.dart';
+import 'package:intl/intl.dart';
+import 'package:tam_cafeteria_front/screens/view_menu_suggestion_screen.dart';
+import 'package:tam_cafeteria_front/screens/write_menu_screen.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-//태그 달고
-//폰트 줄이고 메뉴A 좀 좌우 상하 길이 맞추고 좋아요 icon가져오고 숫자 늘어나게 만들고
-//일반 게시물 만들고 이거 약간 일반 게시물 hot게시물 선정할수 있게
-//글쓰기 아이콘 가져와서 넣고 글쓰기 페이지 만들기
 class MenuBoardScreen extends StatefulWidget {
-  const MenuBoardScreen({super.key});
-
+  const MenuBoardScreen({
+    Key? key,
+    required this.userId,
+    required this.isAdmin,
+    required this.scrollVisible,
+  }) : super(key: key);
+  final String userId;
+  final bool isAdmin;
+  final ValueNotifier<bool> scrollVisible;
   @override
   State<MenuBoardScreen> createState() => _MenuBoardScreenState();
 }
 
 class _MenuBoardScreenState extends State<MenuBoardScreen> {
-  // final int _likeCount = 0; // 처음에는 30으로 시작
+  late Future<List<Map<String, dynamic>>> _futureBoardList;
+  late Future<List<Map<String, dynamic>>> _futureHotBoardList;
+  final ApiService _apiService = ApiService();
+  int _boardPageNumber = 1;
+  int? cafeteriaId;
+  String? selectedItem = '명진당';
+  late String? cafeteriaName;
+  final bool _showBackToTopButton = false;
 
-  void _incrementLikeCount() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('알림'),
-        content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('확인'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-        ],
-      ),
-    );
-    // setState(() {
-    //   _likeCount++; // 숫자를 1씩 증가
-    // });
-  }
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoading = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const AnnounceBoardScreen()),
-            );
-          },
-          child: Container(
-            alignment: Alignment.center,
-            width: 900,
-            height: 56,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(41),
-              color: const Color(0xff002967),
-            ),
-            child: const Text(
-              '메뉴건의 게시판',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent &&
+          !_isLoading) {
+        _loadNextPage();
+      }
+    });
+
+    // 초기화
+    _futureBoardList = Future.value([]);
+    _futureHotBoardList = Future.value([]);
+
+    initializeAsyncTask(); // 저장된 식당 정보를 로드하여 초기화
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      _loadNextPage();
+    }
+  }
+
+  void _loadNextPage() {
+    setState(() {
+      _isLoading = true;
+    });
+    setState(() {
+      _boardPageNumber++;
+      _loadBoardList(cafeteriaId!);
+    });
+  }
+
+  void _loadBoardList(int cafeteriaId) {
+    setState(() {
+      _futureBoardList =
+          _apiService.fetchMenuBoardList(cafeteriaId, _boardPageNumber, "TIME");
+      _futureHotBoardList =
+          _apiService.fetchMenuBoardList(cafeteriaId, 1, "LIKE");
+    });
+  }
+
+  // 사용자가 선택한 식당 정보를 저장합니다.
+  void saveMyCafeteria(String cafeteria) async {
+    final pref = await SharedPreferences.getInstance();
+    await pref.setString('cafeteriaName', cafeteria);
+  }
+
+  void reloadPage() {
+    setState(() {
+      _futureBoardList = _apiService.fetchMenuBoardList(1, 1, "TIME");
+      _futureHotBoardList = _apiService.fetchMenuBoardList(1, 1, "LIKE");
+    });
+  }
+
+  String formatDate(String uploadTime) {
+    DateTime dateTime = DateTime.parse(uploadTime);
+    String formattedDate = DateFormat('MM-dd HH:mm').format(dateTime.toLocal());
+    return formattedDate;
+  }
+
+  String maskPublisherName(String name, bool isAdmin) {
+    if (isAdmin || name == "익명") {
+      return name;
+    } else {
+      if (name.length == 2) {
+        return '${name[0]}*';
+      } else if (name.length > 2) {
+        return name[0] + '*' * (name.length - 2) + name[name.length - 1];
+      } else {
+        return name; // 이름이 한 글자일 경우 그대로 반환
+      }
+    }
+  }
+
+//adminpage 선택으로 돌아가지는 이슈가
+  Future<void> initializeAsyncTask() async {
+    final pref = await SharedPreferences.getInstance();
+    selectedItem = pref.getString('cafeteriaName') ?? '명진당';
+    cafeteriaName = selectedItem;
+
+    if (cafeteriaName == "명진당") {
+      cafeteriaId = 1;
+    } else if (cafeteriaName == "학생회관") {
+      cafeteriaId = 2;
+    } else if (cafeteriaName == "명돈이네") {
+      cafeteriaId = 3;
+    }
+
+    setState(() {
+      _futureBoardList = _apiService.fetchMenuBoardList(
+          cafeteriaId!, _boardPageNumber, "TIME");
+      _futureHotBoardList =
+          _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
+    });
+  }
+
+  Widget _buildPost(int id, String title, String content, int likeCount,
+      String publisherName, String uploadTime) {
+    publisherName = maskPublisherName(publisherName, widget.isAdmin);
+    return GestureDetector(
+      onTap: () async {
+        final postDetail = await ApiService.fetchBoardDetail(id);
+        // 'ViewMenuSuggestionScreen'으로 이동합니다. 이 때, 몇 가지 매개변수를 전달합니다.
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ViewMenuSuggestionScreen(
+              title: postDetail['title'],
+              content: postDetail['content'],
+              publisherName: publisherName,
+              uploadTime: uploadTime,
+              postId: id,
+              likeCount: likeCount,
+              userId: widget.userId,
+              publisherId: postDetail['userId'].toString(),
+              isAdmin: widget.isAdmin,
             ),
           ),
+        ).then((value) {
+          setState(() {
+            _futureBoardList =
+                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "TIME");
+            _futureHotBoardList =
+                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
+          });
+        });
+      },
+      child: Container(
+        height: 99,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: const Color(0xff002967),
+          ),
+          borderRadius: BorderRadius.circular(19),
         ),
-        const SizedBox(height: 20.0),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(19),
-            border: Border.all(
-              color: Colors.white,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.4),
-                spreadRadius: 2.0,
-                blurRadius: 1.0,
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.topLeft,
-                child: const Text(
-                  'HOT 게시판',
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Stack(
-                children: [
-                  Container(
-                    height: 83,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        color: const Color(
-                          0xff002967,
-                        ),
-                      ),
-                      borderRadius: BorderRadius.circular(
-                        19,
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          child: Container(
-                            alignment: Alignment.topLeft,
-                            child: Image.asset(
-                              'assets/images/hot_badge.png',
-                              scale: 2.55,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 11, 0, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        style: DefaultTextStyle.of(context).style,
+                        children: <TextSpan>[
+                          // 'isAdmin'이 true일 경우 id 부분을 작은 글씨로 표시
+                          if (widget.isAdmin)
+                            TextSpan(
+                              text: '($id) ',
+                              style: const TextStyle(
+                                fontSize: 14.0, // id 부분의 글자 크기를 작게 설정
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          // 제목(title) 부분
+                          TextSpan(
+                            text: title,
+                            style: const TextStyle(
+                              fontSize: 18.0, // 제목 부분의 기본 글자 크기
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
                             ),
                           ),
-                        ),
-                        Row(
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.fromLTRB(20, 11, 0, 6),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '순대국밥',
-                                    style: TextStyle(
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8.0),
-                                  Text(
-                                    '너무 먹고싶어요',
-                                    style: TextStyle(fontSize: 14.0),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      // IconButton을 누르면 _incrementLikeCount 함수를 호출
-                                      _incrementLikeCount();
-                                    },
-                                    icon: const Icon(Icons.thumb_up),
-                                  ),
-                                  const Text('153'),
-                                  const SizedBox(
-                                    width: 15,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Container(
-                height: 83,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: const Color(
-                      0xff002967,
-                    ),
-                  ),
-                  borderRadius: BorderRadius.circular(
-                    19,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      child: Container(
-                        alignment: Alignment.topLeft,
-                        child: Image.asset(
-                          'assets/images/hot_badge.png',
-                          scale: 2.55,
-                        ),
+                        ],
                       ),
+                      overflow: TextOverflow
+                          .ellipsis, // 이 부분은 RichText에 직접 적용되지 않습니다.
+                      maxLines: 1,
+                    ),
+                    const SizedBox(height: 4.0),
+                    Text(
+                      content,
+                      style: const TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.black,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                    const SizedBox(
+                      height: 4,
                     ),
                     Row(
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(20, 11, 0, 6),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '삼겹살구이',
-                                style: TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8.0),
-                              Text(
-                                '고기가 최고야',
-                                style: TextStyle(fontSize: 14.0),
-                              ),
-                            ],
-                          ),
+                        Image.asset(
+                          'assets/images/like_count.png',
+                          width: 11,
                         ),
+                        const SizedBox(width: 3),
+                        Text('$likeCount'),
+                        const SizedBox(width: 8), //
+                        Text(formatDate(uploadTime)),
+                        const SizedBox(width: 8),
                         Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  // IconButton을 누르면 _incrementLikeCount 함수를 호출
-                                  _incrementLikeCount();
-                                },
-                                icon: const Icon(Icons.thumb_up),
-                              ),
-                              const Text('144'),
-                              const SizedBox(
-                                width: 15,
-                              )
-                            ],
+                          child: Text(
+                            publisherName,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
-                    ),
+                    )
                   ],
                 ),
               ),
-              const SizedBox(height: 10.0),
-              Container(
-                height: 83,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(
-                    color: const Color(
-                      0xff002967,
-                    ),
-                  ),
-                  borderRadius: BorderRadius.circular(
-                    19,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      child: Container(
-                        alignment: Alignment.topLeft,
-                        child: Image.asset(
-                          'assets/images/hot_badge.png',
-                          scale: 2.55,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(20, 11, 0, 6),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '김치찌개',
-                                style: TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8.0),
-                              Text(
-                                '돼지고기 김치찌개!',
-                                style: TextStyle(fontSize: 14.0),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  // IconButton을 누르면 _incrementLikeCount 함수를 호출
-                                  _incrementLikeCount();
-                                },
-                                icon: const Icon(Icons.thumb_up),
-                              ),
-                              const Text('99'),
-                              const SizedBox(
-                                width: 15,
-                              )
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20.0),
-        const Text(
-          '일반 게시물',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(19),
-            border: Border.all(
-              color: Colors.white,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.4),
-                spreadRadius: 2.0,
-                blurRadius: 1.0,
-              ),
-            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHotPost(int id, String title, String content, int likeCount,
+      String publisherName, String uploadTime) {
+    bool isLiked = false; // 현재 좋아요 상태를 추적합니다.
+    publisherName = maskPublisherName(publisherName, widget.isAdmin);
+    void toggleLike() async {
+      try {
+        // 좋아요 상태를 전환합니다.
+        await ApiService.togglePostLike(id);
+        setState(() {
+          isLiked = !isLiked; // 좋아요 상태를 업데이트합니다.
+        });
+      } catch (e) {
+        print('좋아요 상태 전환 중 오류 발생: $e');
+      }
+    }
+
+    return GestureDetector(
+      onTap: () async {
+        final postDetail = await ApiService.fetchBoardDetail(id);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ViewMenuSuggestionScreen(
+              title: postDetail['title'],
+              content: postDetail['content'],
+              publisherName: publisherName,
+              uploadTime: uploadTime,
+              postId: id,
+              likeCount: likeCount,
+              userId: widget.userId,
+              publisherId: postDetail['userId'].toString(),
+              isAdmin: widget.isAdmin,
+            ),
           ),
-          child: Container(
-            height: 83,
+        ).then((value) {
+          setState(() {
+            _futureBoardList =
+                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "TIME");
+            _futureHotBoardList =
+                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
+          });
+        });
+      },
+      child: Stack(
+        children: [
+          Container(
+            height: 99,
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
-                color: const Color(
-                  0xff002967,
-                ),
+                color: const Color(0xff002967),
               ),
-              borderRadius: BorderRadius.circular(
-                19,
-              ),
+              borderRadius: BorderRadius.circular(19),
             ),
             child: Stack(
               children: [
+                Positioned(
+                  child: Container(
+                    alignment: Alignment.topLeft,
+                    child: Image.asset(
+                      'assets/images/select_badge.png',
+                      scale: 2.55,
+                    ),
+                  ),
+                ),
                 Row(
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(20, 11, 0, 6),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 11, 0, 6),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '김치피자탕수육',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
+                          SizedBox(
+                              width: MediaQuery.of(context).size.width - 100,
+                              child: RichText(
+                                text: TextSpan(
+                                  style: DefaultTextStyle.of(context).style,
+                                  children: <TextSpan>[
+                                    // 'isAdmin'이 true일 경우 id 부분을 작은 글씨로 표시
+                                    if (widget.isAdmin)
+                                      TextSpan(
+                                        text: '($id) ',
+                                        style: const TextStyle(
+                                          fontSize: 14.0, // id 부분의 글자 크기를 작게 설정
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    // 제목(title) 부분
+                                    TextSpan(
+                                      text: title,
+                                      style: const TextStyle(
+                                        fontSize: 18.0, // 제목 부분의 기본 글자 크기
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                overflow: TextOverflow
+                                    .ellipsis, // 이 부분은 RichText에 직접 적용되지 않습니다.
+                                maxLines: 1,
+                              )),
+                          const SizedBox(height: 4.0),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width - 100,
+                            child: Text(
+                              content,
+                              style: const TextStyle(
+                                fontSize: 14.0,
+                                color: Colors.black,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                           ),
-                          SizedBox(height: 8.0),
-                          Text(
-                            '김피탕 먹고싶어요',
-                            style: TextStyle(fontSize: 14.0),
+                          const SizedBox(
+                            height: 5,
                           ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 11,
+                                child: Image.asset(
+                                  'assets/images/like_count.png',
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 3,
+                              ),
+                              Text('$likeCount'),
+                              const SizedBox(width: 8),
+                              Text(formatDate(uploadTime)),
+                              const SizedBox(width: 8),
+                              Text(publisherName),
+                            ],
+                          )
                         ],
                       ),
                     ),
@@ -383,16 +396,16 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          IconButton(
-                            onPressed: () {
-                              // IconButton을 누르면 _incrementLikeCount 함수를 호출
-                              _incrementLikeCount();
-                            },
-                            icon: const Icon(Icons.thumb_up),
+                          SizedBox(
+                            width: 25,
+                            height: 25,
+                            child: Image.asset(
+                              'assets/images/hot_badge.png',
+                              scale: 2.55,
+                            ),
                           ),
-                          const Text('1'),
                           const SizedBox(
-                            width: 15,
+                            width: 13,
                           )
                         ],
                       ),
@@ -402,8 +415,197 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
               ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+        future: _futureBoardList,
+        builder: (context, boardSnapshot) {
+          if (boardSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (boardSnapshot.hasError) {
+            return Center(child: Text('Error: ${boardSnapshot.error}'));
+          } else {
+            final boardList = boardSnapshot.data!;
+            return FutureBuilder<List<Map<String, dynamic>>>(
+              future: _futureHotBoardList,
+              builder: (context, hotBoardSnapshot) {
+                if (hotBoardSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (hotBoardSnapshot.hasError) {
+                  return Center(
+                      child: Text('Error: ${hotBoardSnapshot.error}'));
+                } else {
+                  final hotBoardList = hotBoardSnapshot.data!;
+                  final topHotBoards = hotBoardList.take(3).toList();
+
+                  return Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            width: double.infinity,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(41),
+                              color: const Color(0xff002967),
+                            ),
+                            child: const Text(
+                              '메뉴건의 게시판',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => WriteMenuScreen(
+                                          cafeteriaId: cafeteriaId),
+                                    ),
+                                  ).then((value) {
+                                    if (value == true) {
+                                      setState(() {
+                                        _futureBoardList =
+                                            _apiService.fetchMenuBoardList(
+                                                cafeteriaId!, 1, "TIME");
+                                        _futureHotBoardList =
+                                            _apiService.fetchMenuBoardList(
+                                                cafeteriaId!, 1, "LIKE");
+                                      });
+                                    }
+                                  });
+                                },
+                                icon: Icon(
+                                  Icons.edit_square,
+                                  color: Theme.of(context).primaryColorDark,
+                                ),
+                                label: Text(
+                                  '글쓰기',
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColorDark,
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                  ),
+                                  alignment: Alignment.centerRight,
+                                  child: DropdownButton<String>(
+                                    value: selectedItem, // 현재 선택된 항목
+                                    icon: const Icon(Icons
+                                        .arrow_drop_down_sharp), // 아래 화살표 아이콘
+                                    iconSize: 24,
+                                    elevation: 20,
+                                    dropdownColor: Colors.white,
+                                    style: const TextStyle(
+                                        color: Colors.black), // 텍스트 스타일
+                                    underline: Container(
+                                      height: 2,
+                                      color: Colors.black,
+                                    ), // 현재 선택된 항목
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        widget.scrollVisible.value = true;
+                                        selectedItem = newValue;
+                                        // 선택된 항목에 따라 cafeteriaId 설정
+                                        if (newValue == "명진당") {
+                                          cafeteriaId = 1;
+                                        } else if (newValue == "학생회관") {
+                                          cafeteriaId = 2;
+                                        } else {
+                                          cafeteriaId = 3;
+                                        }
+                                        // cafeteriaId와 함께 게시글 목록 다시 불러오기
+                                        _loadBoardList(cafeteriaId!);
+                                      });
+                                    },
+                                    items: <String>[
+                                      '명진당',
+                                      '학생회관',
+                                      '명돈이네',
+                                    ] // 선택 가능한 항목 리스트
+                                        .map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      },
+                                    ).toList(),
+                                  )),
+                            ],
+                          ),
+                          const Divider(),
+                          const SizedBox(height: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: topHotBoards.length,
+                                itemBuilder: (context, index) {
+                                  final board = topHotBoards[index];
+                                  return _buildHotPost(
+                                    board['id'],
+                                    board['title'],
+                                    board['content'],
+                                    board['likeCount'],
+                                    board['publisherName'] ?? "익명",
+                                    board['uploadTime'],
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 10),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 10),
+                              ListView.separated(
+                                controller: _scrollController,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: boardList.length,
+                                itemBuilder: (context, index) {
+                                  final board = boardList[index];
+                                  return _buildPost(
+                                    board['id'],
+                                    board['title'],
+                                    board['content'],
+                                    board['likeCount'],
+                                    board['publisherName'] ?? "익명",
+                                    board['uploadTime'],
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 10),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ));
+                }
+              },
+            );
+          }
+        });
   }
 }
