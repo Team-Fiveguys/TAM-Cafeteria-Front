@@ -25,6 +25,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   late Future<List<Map<String, dynamic>>> _futureHotBoardList;
   final ApiService _apiService = ApiService();
   int _boardPageNumber = 1;
+  int boardLastPageNumber = 1;
   int? cafeteriaId;
   String? selectedItem = '명진당';
   late String? cafeteriaName;
@@ -54,6 +55,8 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   }
 
   void _loadNextPage() async {
+    print(boardLastPageNumber);
+    if (_boardPageNumber >= boardLastPageNumber) return;
     setState(() {
       _isLoading = true;
     });
@@ -72,6 +75,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
         _apiService.fetchMenuBoardList(cafeteriaId, _boardPageNumber, "TIME");
     if (boardList.isEmpty) {
       boardList = await _futureBoardList;
+      boardLastPageNumber = boardList[0]['totalPages'] ?? 1;
       print(boardList);
       setState(() {});
     }

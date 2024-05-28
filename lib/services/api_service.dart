@@ -1531,18 +1531,20 @@ class ApiService {
         // UTF-8로 디코딩
         final String responseUtf8 = utf8.decode(response.bodyBytes);
         final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
-        final List<dynamic> resultList = jsonResponse['result'];
+        final List<dynamic> resultList =
+            jsonResponse['result']['postPreviewDTOList'];
+        final int lastPage = jsonResponse['result']['totalPages'];
         final List<Map<String, dynamic>> boardList = resultList.map((item) {
           return {
             'id': item['id'],
             'title': item['title'],
+            'content': item['content'],
             'publisherName': item['publisherName'],
             'uploadTime': item['uploadTime'],
             'likeCount': item['likeCount'],
-            'content': item['content'],
+            'totalPages': lastPage,
           };
         }).toList();
-        // print(jsonResponse);
         return boardList;
       } else {
         print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
@@ -1579,7 +1581,9 @@ class ApiService {
         // UTF-8로 디코딩
         final String responseUtf8 = utf8.decode(response.bodyBytes);
         final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
-        final List<dynamic> resultList = jsonResponse['result'];
+        final List<dynamic> resultList =
+            jsonResponse['result']['postPreviewDTOList'];
+        final int lastPage = jsonResponse['result']['totalPages'];
         final List<Map<String, dynamic>> boardList = resultList.map((item) {
           return {
             'id': item['id'],
@@ -1588,6 +1592,7 @@ class ApiService {
             'publisherName': item['publisherName'],
             'uploadTime': item['uploadTime'],
             'likeCount': item['likeCount'],
+            'totalPages': lastPage,
           };
         }).toList();
         print(jsonResponse);

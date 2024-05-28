@@ -21,6 +21,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   late Future<List<Map<String, dynamic>>> _futureBoardList;
   final ApiService _apiService = ApiService();
   int _page = 1;
+  int lastPage = 1;
   int? cafeteriaId;
   String? selectedItem = '명진당';
   late String? cafeteriaName;
@@ -48,6 +49,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   }
 
   void _fetchNextPage() async {
+    if (_page >= lastPage) return;
     setState(() {
       _isLoading = true;
     });
@@ -71,6 +73,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
     );
     if (noticeList.isEmpty) {
       noticeList = await _apiService.fetchNoticeBoardList(cafeteriaId, 1);
+      lastPage = noticeList[0]['totalPages'] ?? 1;
       setState(() {});
     }
   }
