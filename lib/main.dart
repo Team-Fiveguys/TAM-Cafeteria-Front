@@ -398,7 +398,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
       setState(() {
         print('autoLoginCheck :: $token');
 
-        _selectedIndex = isAdmin ? 2 : 0;
+        _selectedIndex = isAdmin ? 2 : 0; //TODO : 게시판 완성되면 2로 고치기
         _widgetOptions = <Widget>[
           MainScreen(),
           isNoti
@@ -790,6 +790,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
             ),
     ];
 
+
     return Stack(
       children: [
         Scaffold(
@@ -941,6 +942,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
+
         ),
         isLoading ? _buildLoadingScreen() : Container(),
         // FloatingActionButton(
@@ -948,17 +950,29 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
         //   child: const Icon(Icons.arrow_upward),
         // )
       ],
-    );
-  }
 
-  Widget _buildLoadingScreen() {
-    return Container(
-      color: Colors.black.withOpacity(0.5), // 전체 화면을 어둡게 하여 로딩 인디케이터를 부각
-      child: const Center(
-        child: CircularProgressIndicator(
-          color: Colors.blue,
-        ), // 로딩 인디케이터
-      ),
     );
   }
+}
+
+Widget buildLoadingScreenInMain() {
+  return Container(
+    color: Colors.black.withOpacity(0.5), // 전체 화면을 어둡게 하여 로딩 인디케이터를 부각
+    child: const Center(
+      child: CircularProgressIndicator(
+        color: Colors.blue,
+      ), // 로딩 인디케이터
+    ),
+  );
+}
+
+Widget buildLoadingScreen() {
+  return Container(
+    // 전체 화면을 어둡게 하여 로딩 인디케이터를 부각
+    child: const Center(
+      child: CircularProgressIndicator(
+        color: Colors.blue,
+      ), // 로딩 인디케이터
+    ),
+  );
 }
