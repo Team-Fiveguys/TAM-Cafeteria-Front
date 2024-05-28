@@ -61,6 +61,11 @@ class _AdminPageState extends State<AdminPage> {
     "배추김치&추가밥",
   ];
 
+  var mealList = <String>[
+    '중식',
+    '조식',
+  ];
+
   late String? cafeteriaName;
 
   @override
@@ -87,6 +92,16 @@ class _AdminPageState extends State<AdminPage> {
       }
       if (cafeteriaName == "명돈이네") {
         cafeteriaId = 3;
+      }
+      if (cafeteriaId != 2) {
+        mealList = <String>[
+          '중식',
+        ];
+      } else {
+        mealList = <String>[
+          '중식',
+          '조식',
+        ];
       }
     });
   }
@@ -144,10 +159,7 @@ class _AdminPageState extends State<AdminPage> {
                       .pop(); // 이미지를 선택한 후 팝업 창을 닫습니다.
                   _showImagePicker();
                 },
-                items: <String>[
-                  '중식',
-                  '조식',
-                ] // 선택 가능한 항목 리스트
+                items: mealList // 선택 가능한 항목 리스트
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -289,6 +301,7 @@ class _AdminPageState extends State<AdminPage> {
                                         builder: (context) => WeekDiet(
                                           cafeteriaName: cafeteriaName!,
                                           cafeteriaId: cafeteriaId!,
+                                          mealList: mealList,
                                         ),
                                       ),
                                     );
@@ -1316,6 +1329,7 @@ class _AdminPageState extends State<AdminPage> {
                                   builder: (context) => WeekDiet(
                                     cafeteriaName: cafeteriaName!,
                                     cafeteriaId: cafeteriaId!,
+                                    mealList: mealList,
                                   ),
                                 ),
                               );

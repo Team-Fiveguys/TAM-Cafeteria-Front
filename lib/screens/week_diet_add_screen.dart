@@ -17,9 +17,11 @@ class WeekDiet extends StatefulWidget {
     super.key,
     required this.cafeteriaName,
     required this.cafeteriaId,
+    required this.mealList,
   });
   final String cafeteriaName;
   final int cafeteriaId;
+  final List<String> mealList;
   @override
   State<WeekDiet> createState() => _WeekDietState();
 }
@@ -699,10 +701,7 @@ class _WeekDietState extends State<WeekDiet> {
                   await loadDiets();
                   setState(() {});
                 },
-                items: <String>[
-                  '중식',
-                  '조식',
-                ] // 선택 가능한 항목 리스트
+                items: widget.mealList // 선택 가능한 항목 리스트
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
