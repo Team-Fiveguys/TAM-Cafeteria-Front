@@ -4,6 +4,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mime/mime.dart';
 import 'package:path/path.dart';
+import 'package:tam_cafeteria_front/models/covers_model.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/models/cafeteria_model.dart';
 import 'package:tam_cafeteria_front/models/notification_model.dart';
@@ -1536,7 +1537,7 @@ class ApiService {
     return null;
   }
 
-  static Future<String?> postPredictCoversAI(
+  static Future<String?> postPredict1CoversAI(
       String startDate,
       String date,
       int cafeteriaId,
@@ -1561,6 +1562,7 @@ class ApiService {
         'festival': festival,
         'snack': snack,
         'reservist': reservist,
+        'spicy': spicy,
       }),
     );
 
@@ -1576,5 +1578,165 @@ class ApiService {
       print(jsonResponse);
     }
     throw Exception('예측 실패');
+  }
+
+  static Future<String?> postPredict2CoversAI(
+    String startDate,
+    String date,
+    int cafeteriaId,
+  ) async {
+    // final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/predict2";
+    final url = Uri.https(aiBaseUrl, path);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({
+        'start_date': startDate,
+        'local_date': date,
+        'cafeteria_id': cafeteriaId,
+      }),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postPredict2CoversAI : $jsonResponse');
+      return jsonResponse['predict_result'].toString();
+    } else {
+      print(jsonResponse);
+    }
+    throw Exception('예측 실패');
+  }
+
+  static Future<void> postSemesterStartDate(String startDate) async {
+    const path = "/add_semester";
+    final url = Uri.https(aiBaseUrl, path);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({
+        'start_date': startDate,
+      }),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postSemesterStartDate : $jsonResponse');
+    } else {
+      print(jsonResponse);
+    }
+    // throw Exception('예측 실패');
+  }
+
+  static Future<void> postRealCovers(
+      String date, int cafeteriaId, String headCount) async {
+    const path = "/headcount";
+    final url = Uri.https(aiBaseUrl, path);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({
+        'local_date': date,
+        'cafeteria_id': cafeteriaId,
+        'headcount': headCount,
+      }),
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : postRealCovers : $jsonResponse');
+    } else {
+      print(jsonResponse);
+    }
+    // throw Exception('예측 실패');
+  }
+
+  static Future<String?> getRealCovers(String date, int cafeteriaId) async {
+    const path = "/headcount";
+    final url = Uri.https(aiBaseUrl, path, {
+      'local_date': date,
+      'cafeteria_id': cafeteriaId.toString(),
+    });
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : getRealCovers : $jsonResponse');
+      return jsonResponse['headcount'].toString();
+    } else {
+      print(jsonResponse);
+    }
+    return null;
+  }
+
+  static Future<Covers?> getCoversResult(String date, int cafeteriaId) async {
+    const path = "/predict";
+    final url = Uri.https(aiBaseUrl, path, {
+      'local_date': date,
+      'cafeteria_id': cafeteriaId.toString(),
+    });
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : getCoversResult : $jsonResponse');
+      final instance = jsonDecode(jsonResponse['data']);
+      Covers result = Covers(
+        isSnack: instance['snack'] ?? false,
+        isFestival: instance['festival'] ?? false,
+        isReservist: instance['reservist'] ?? false,
+        isSpicy: instance['spicy'] ?? false,
+        predictResult: jsonResponse['predict_result'],
+      );
+      return result;
+    } else {
+      print(jsonResponse);
+    }
+    return null;
   }
 }
