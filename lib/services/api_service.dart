@@ -1760,6 +1760,7 @@ class ApiService {
       print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
+  }
 
   //============AI API============
   //============AI API============
@@ -1995,6 +1996,5 @@ class ApiService {
       print(jsonResponse);
     }
     return null;
-
   }
 }

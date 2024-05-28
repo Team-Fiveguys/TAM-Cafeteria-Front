@@ -790,7 +790,6 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
             ),
     ];
 
-
     return Stack(
       children: [
         Scaffold(
@@ -942,15 +941,13 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
-
         ),
-        isLoading ? _buildLoadingScreen() : Container(),
+        isLoading ? buildLoadingScreenInMain() : Container(),
         // FloatingActionButton(
         //   onPressed: _scrollToTop,
         //   child: const Icon(Icons.arrow_upward),
         // )
       ],
-
     );
   }
 }
