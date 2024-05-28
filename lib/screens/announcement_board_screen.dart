@@ -125,7 +125,9 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   Widget _buildPost(int id, String title, String content, String publisherName,
       String uploadTime) {
     publisherName = maskPublisherName(publisherName, widget.isAdmin);
-    return GestureDetector(
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       onTap: () async {
         final postDetail = await ApiService.fetchBoardDetail(id);
         // 'ViewMenuSuggestionScreen'으로 이동합니다. 이 때, 몇 가지 매개변수를 전달합니다.
@@ -149,50 +151,53 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
           });
         });
       },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Flexible(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 11, 0, 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 11, 0, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                  const SizedBox(height: 4.0),
-                  Text(
-                    content,
-                    style: const TextStyle(
-                      fontSize: 14.0,
-                      color: Colors.black,
+                    const SizedBox(height: 4.0),
+                    Text(
+                      content,
+                      style: const TextStyle(
+                        fontSize: 14.0,
+                        color: Colors.black,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                  const SizedBox(
-                    height: 4,
-                  ),
-                  Row(
-                    children: [
-                      Text(formatDate(uploadTime)),
-                      const SizedBox(width: 8),
-                      Text(publisherName),
-                    ],
-                  )
-                ],
+                    const SizedBox(
+                      height: 4,
+                    ),
+                    Row(
+                      children: [
+                        Text(formatDate(uploadTime)),
+                        const SizedBox(width: 8),
+                        Text(publisherName),
+                      ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -345,7 +350,6 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
                           },
                           separatorBuilder: (context, index) => const Divider(),
                         ),
-                        const Divider(),
                       ],
                     ),
             ],
