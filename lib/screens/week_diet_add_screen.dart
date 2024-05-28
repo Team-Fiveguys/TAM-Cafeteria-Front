@@ -341,6 +341,21 @@ class _WeekDietState extends State<WeekDiet> {
                               data = data
                                   .where((menu) => !currentMenus.contains(menu))
                                   .toList();
+                              if (data.isEmpty) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Text(
+                                      "메뉴가 없습니다!\n'메뉴 등록하기'로 메뉴를 등록해주세요",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
 
                               return ListView.builder(
                                 itemCount: menuNameController.text.isEmpty
