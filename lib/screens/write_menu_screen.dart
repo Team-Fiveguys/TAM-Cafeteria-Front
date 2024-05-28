@@ -1,132 +1,160 @@
 import 'package:flutter/material.dart';
+import 'package:tam_cafeteria_front/services/api_service.dart';
 
 class WriteMenuScreen extends StatefulWidget {
-  const WriteMenuScreen({Key? key}) : super(key: key);
+  final int? cafeteriaId;
+
+  const WriteMenuScreen({Key? key, this.cafeteriaId}) : super(key: key);
 
   @override
   State<WriteMenuScreen> createState() => _WriteMenuScreenState();
 }
 
 class _WriteMenuScreenState extends State<WriteMenuScreen> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _contentController = TextEditingController();
+
+  int titleMaxLength = 30;
+  int contentMaxLength = 50;
+
+  void _postArticle() async {
+    final String title = _titleController.text;
+    final String content = _contentController.text;
+    const String boardType = "MENU_REQUEST";
+    final int? cafeteriaId = widget.cafeteriaId;
+
+    if (cafeteriaId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('카페테리아 ID가 없습니다.')),
+      );
+      return;
+    }
+
+    try {
+      await ApiService.createPost(boardType, title, content, cafeteriaId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('게시물이 성공적으로 작성되었습니다.')),
+      );
+
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('게시물 작성에 실패했습니다: $e')),
+      );
+
+      Navigator.of(context).pop(true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: AppBar(
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
-                  child: SizedBox(
-                    height: 50,
-                    child: Image.asset(
-                      'assets/images/app_bar_logo.png',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: AppBar(
+          title: Image.asset(
+            'assets/images/app_bar_logo.png',
+            fit: BoxFit.contain,
+            height: 50, // SizedBox를 제거하고 직접 높이를 지정합니다.
           ),
+          centerTitle: true,
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                alignment: Alignment.center,
-                width: 900,
-                height: 56,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(41),
-                  color: const Color(0xff002967),
-                ),
-                child: const Text(
-                  '메뉴건의 글쓰기',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              alignment: Alignment.center,
+              width: 900,
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(41),
+                color: const Color(0xff002967),
               ),
-              const SizedBox(
-                height: 30,
-              ),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
+              child: const Text(
+                '메뉴건의 글쓰기',
+                style: TextStyle(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(19),
-                  border: Border.all(
-                    color: Colors.white,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.4),
-                      spreadRadius: 2.0,
-                      blurRadius: 1.0,
-                    ),
-                  ],
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.bold,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(19),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: TextFormField(
-                        decoration: const InputDecoration(
-                          hintText: '원하는 메뉴를 작성해주세요',
-                          border: InputBorder.none,
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16.0),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    Container(
-                      height: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(19),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: TextFormField(
-                        decoration: const InputDecoration(
-                          hintText: '글쓰기',
-                          border: InputBorder.none,
-                          contentPadding:
-                              EdgeInsets.symmetric(horizontal: 16.0),
-                        ),
-                        maxLines: null,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16.0),
-            ],
-          ),
-        ),
-        bottomNavigationBar: Container(
-          color: const Color(0xff002967),
-          height: 80,
-          child: TextButton(
-            onPressed: () {
-              // Add your posting logic here
-            },
-            child: const Text(
-              '게시하기',
-              style: TextStyle(
-                color: Colors.white,
               ),
             ),
+            const SizedBox(height: 30),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(19),
+                border: Border.all(
+                  color: Colors.white,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.4),
+                    spreadRadius: 2.0,
+                    blurRadius: 1.0,
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(19),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: TextFormField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(
+                        hintText: '원하는 메뉴를 작성해주세요',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      ),
+                      maxLength: titleMaxLength,
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(19),
+                      border: Border.all(color: Colors.grey),
+                    ),
+                    child: TextFormField(
+                      controller: _contentController,
+                      decoration: const InputDecoration(
+                        hintText: '글쓰기',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      ),
+                      maxLength: contentMaxLength,
+                      maxLines: null,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16.0),
+          ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        color: const Color(0xff002967),
+        height: 80,
+        child: TextButton(
+          onPressed: _postArticle, // 게시하기 버튼 클릭 시 _postArticle 함수 호출
+          child: const Text(
+            '게시하기',
+            style: TextStyle(
+              color: Colors.white,
+            ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

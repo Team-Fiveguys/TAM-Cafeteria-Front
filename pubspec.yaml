@@ -92,7 +92,7 @@ flutter:
     - assets/images/apple_login_logo.png
     - assets/images/kakao_login_logo.png
     - assets/images/dot_line.png
-    - assets/images/hot_badge.png
+    - assets/images/select_badge.png
     - assets/images/write_board_icon.png
     - assets/images/veryBusy.png
     - assets/images/busy.png
@@ -100,6 +100,10 @@ flutter:
     - assets/images/dayOff.png
     - assets/images/normal.png
     - assets/images/soldOut.png
+    - assets/images/hot_badge.png
+    - assets/images/like_true.png
+    - assets/images/like_false.png
+    - assets/images/like_count.png
     - assets/config/.env
     - assets/serviceTerms.txt
     - assets/personalTerms.txt

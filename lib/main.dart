@@ -15,6 +15,8 @@ import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:tam_cafeteria_front/screens/announcement_board_screen.dart';
+import 'package:tam_cafeteria_front/screens/enter_board_screen.dart';
 import 'package:tam_cafeteria_front/screens/login_screen.dart';
 import 'package:tam_cafeteria_front/screens/menu_suggestion_board_screen.dart';
 import 'package:flutter/rendering.dart';
@@ -145,7 +147,66 @@ void main() async {
           (ref) => AccessTokenNotifier(initialToken),
         ),
       ],
-      child: const App(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        builder: (context, child) {
+          return Theme(
+              data: ThemeData(
+                textTheme: GoogleFonts.robotoTextTheme(
+                  Theme.of(context).textTheme,
+                ),
+                dialogTheme: const DialogTheme(
+                  surfaceTintColor: Colors.white,
+                ),
+                textButtonTheme: const TextButtonThemeData(
+                    style: ButtonStyle(
+                        foregroundColor:
+                            MaterialStatePropertyAll(Colors.blue))),
+                switchTheme: SwitchThemeData(
+                  trackColor: MaterialStateProperty.resolveWith<Color>(
+                      (Set<MaterialState> states) {
+                    if (states.contains(MaterialState.selected)) {
+                      // 스위치가 켜져있을 때의 색상
+                      return Colors.blue;
+                    } else {
+                      // 스위치가 꺼져있을 때의 색상
+                      return Colors.grey;
+                    }
+                  }),
+                ),
+                // dialogBackgroundColor: Colors.grey[200],
+                // colorScheme: ColorScheme.fromSwatch().copyWith(
+                //   secondary: const Color(0xFFFFF7E3),
+                // ),
+                scaffoldBackgroundColor: Colors.white,
+                primaryColor: const Color(0xFF3e3e3e),
+                primaryColorLight: const Color(0xFF97948f),
+                primaryColorDark: const Color(0xFF515151),
+                dividerColor: const Color(0xFFc6c6c6),
+                cardColor: const Color(0xFFFFDA7B),
+                canvasColor: const Color(0xFF002967),
+                appBarTheme: const AppBarTheme(
+                  // elevation: 5,
+                  scrolledUnderElevation: 3,
+                  backgroundColor: Colors.white,
+                  shadowColor: Colors.black,
+                  surfaceTintColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      bottom: Radius.circular(10), // 하단 모서리의 반경을 30으로 설정
+                    ),
+                  ),
+                ),
+                indicatorColor: Colors.white,
+                progressIndicatorTheme: const ProgressIndicatorThemeData(
+                    color: Colors.blue,
+                    circularTrackColor: Colors.white,
+                    refreshBackgroundColor: Colors.white),
+              ),
+              child: child!);
+        },
+        home: const App(),
+      ),
     ),
   );
   // FirebaseAnalytics analytics = FirebaseAnalytics.instance;
@@ -158,21 +219,34 @@ class App extends ConsumerStatefulWidget {
   _AppState createState() => _AppState();
 }
 
-class _AppState extends ConsumerState<App> {
+class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
   bool isAdmin = false;
+  bool isRealAdmin = false;
   int _selectedIndex = 0; // 현재 선택된 탭의 인덱스
   bool switchOn = false;
   int testValue = 1;
   bool isLoading = false;
+  bool isNoti = false;
+  String userId = "";
   DateTime? currentBackPressTime;
+  bool _showBackToTopButton = false;
+
+  late ScrollController _scrollControllerUp;
 
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _isVisible = ValueNotifier(true);
   // final bool _isVisible = true;
 
+  AnimationController? _controller;
+  OverlayEntry? _overlayEntry;
+
   List<Widget> _widgetOptions = <Widget>[
     MainScreen(),
-    const MenuBoardScreen(),
+    MenuBoardScreen(
+      userId: "",
+      isAdmin: false,
+      scrollVisible: ValueNotifier(true),
+    ),
     const MyPage(),
   ];
 
@@ -265,25 +339,40 @@ class _AppState extends ConsumerState<App> {
     setState(() {
       switchOn = true;
       isAdmin = false;
+      _isVisible.value = true;
     });
+  }
+
+  @override
+  void disposeUp() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToTop() {
+    _scrollController.animateTo(0,
+        duration: const Duration(seconds: 3), curve: Curves.linear);
   }
 
   void switchAdminPage() {
     //마이페이지에서 호출
     setState(() {
       switchOn = false;
+      _isVisible.value = true;
     });
   }
 
   void decodeJwt(String? token) {
     if (token == null) {
       setState(() {
+        isRealAdmin = false;
         isAdmin = false;
         _selectedIndex = 0;
       });
       return;
     }
     final parts = token.split('.');
+
     if (parts.length != 3) {
       throw Exception('Invalid token');
     }
@@ -292,9 +381,11 @@ class _AppState extends ConsumerState<App> {
     var normalized = base64Url.normalize(payload);
     var decoded = utf8.decode(base64Url.decode(normalized));
     final payloadMap = json.decode(decoded);
-    // print('main App : decodeJwt : payloadMap $payloadMap');
+    print('main App : decodeJwt : payloadMap $payloadMap');
     setState(() {
+      isRealAdmin = payloadMap['role'] == "ADMIN";
       isAdmin = payloadMap['role'] == "ADMIN";
+      userId = payloadMap['sub'].toString();
     });
   }
 
@@ -310,7 +401,16 @@ class _AppState extends ConsumerState<App> {
         _selectedIndex = isAdmin ? 2 : 0; //TODO : 게시판 완성되면 2로 고치기
         _widgetOptions = <Widget>[
           MainScreen(),
-          const MenuBoardScreen(),
+          isNoti
+              ? AnnounceBoardScreen(
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                )
+              : MenuBoardScreen(
+                  userId: userId,
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                ),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -324,11 +424,21 @@ class _AppState extends ConsumerState<App> {
       });
     } else {
       setState(() {
+        isRealAdmin = false;
         isAdmin = false;
         _selectedIndex = isAdmin ? 2 : 0;
         _widgetOptions = <Widget>[
           MainScreen(),
-          const MenuBoardScreen(),
+          isNoti
+              ? AnnounceBoardScreen(
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                )
+              : MenuBoardScreen(
+                  userId: userId,
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                ),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -347,6 +457,13 @@ class _AppState extends ConsumerState<App> {
   void initState() {
     super.initState();
     // _permissionWithNotification();
+
+    _controller = AnimationController(
+      duration: const Duration(
+        milliseconds: 300,
+      ),
+      vsync: this,
+    );
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
@@ -366,7 +483,16 @@ class _AppState extends ConsumerState<App> {
     _selectedIndex = isAdmin ? 2 : 0;
     _widgetOptions = <Widget>[
       MainScreen(),
-      const MenuBoardScreen(),
+      isNoti
+          ? AnnounceBoardScreen(
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            )
+          : MenuBoardScreen(
+              userId: userId,
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            ),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -377,26 +503,205 @@ class _AppState extends ConsumerState<App> {
               switchAdmin: switchAdminPage,
             ),
     ];
+    _scrollControllerUp = ScrollController()
+      ..addListener(() {
+        setState(() {
+          if (_scrollController.offset >= 400) {
+            _showBackToTopButton = true;
+          } else {
+            _showBackToTopButton = false;
+          }
+        });
+      });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     _isVisible.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   // 사용자가 탭을 선택했을 때 호출되는 함수
   void _onItemTapped(int index, BuildContext context) {
     final isLoggedIn = ref.watch(loginStateProvider);
+    if (_overlayEntry != null) {
+      _controller?.reverse().then<void>((void value) {
+        _overlayEntry?.remove();
+        _overlayEntry = null;
+      });
+    }
     if (index != 0 && !isLoggedIn) {
       // 홈이 아닌 다른 탭을 선택하고, isToken이 false라면
       navigateToLoginScreen(context);
+    } else if (index == 1) {
+      _showFanMenu();
     } else {
       setState(() {
         _selectedIndex = index; // 선택된 탭의 인덱스를 업데이트
+        isNoti = false;
       });
     }
+  }
+
+  void _showFanMenu() {
+    print("_showFanMenu");
+    if (_overlayEntry == null) {
+      _overlayEntry = _createOverlayEntry();
+      Overlay.of(context).insert(_overlayEntry!);
+      _controller?.forward();
+    } else {
+      _controller?.reverse().then<void>((void value) {
+        _overlayEntry?.remove();
+        _overlayEntry = null;
+      });
+    }
+  }
+
+  OverlayEntry _createOverlayEntry() {
+    print("createOverlayEntry");
+    RenderBox renderBox = context.findRenderObject() as RenderBox;
+    var size = renderBox.size;
+    var offset = renderBox.localToGlobal(Offset.zero);
+
+    return OverlayEntry(
+      builder: (context) => Stack(
+        children: <Widget>[
+          // 반투명 배경
+          Positioned.fill(
+            bottom: 56,
+            child: GestureDetector(
+              onTap: () {
+                // 팝업 밖의 영역을 터치하면 팝업을 닫습니다.
+                _showFanMenu();
+              },
+              child: Container(
+                color: Colors.black54.withOpacity(0.5), // 반투명 배경 색상 조절
+              ),
+            ),
+          ),
+
+          Positioned(
+            left: (size.width - 200) / 2,
+            // right: 0,
+            bottom:
+                56, // Adjust this value based on the height of your BottomNavigationBar
+            child: Container(
+              height: 100,
+              width: 200,
+              decoration: const BoxDecoration(
+                color: Colors.white, // 색상: 파란색
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(100), // 상단 왼쪽 모서리 반원
+                  topRight: Radius.circular(100), // 상단 오른쪽 모서리 반원
+                  // 만약 하단에 반원을 원한다면, bottomLeft와 bottomRight를 사용하세요.
+                ),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  ScaleTransition(
+                    scale: CurvedAnimation(
+                      parent: _controller!,
+                      curve: Curves.easeInOut,
+                    ),
+                    child: _buildFanMenu(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFanMenu() {
+    print('_buildFanmenu');
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Transform.rotate(
+          angle: -20 * (3.14 / 180),
+          child: FloatingActionButton(
+            // shape: const CircleBorder(),
+            // mini: true,
+            backgroundColor: Colors.white,
+            foregroundColor: _selectedIndex == 1
+                ? !isNoti
+                    ? Colors.amber[800]
+                    : Theme.of(context).primaryColor
+                : Theme.of(context).primaryColor,
+            elevation: 0,
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.food_bank_rounded,
+                  size: 40,
+                ),
+                Text(
+                  "메뉴 건의",
+                  style: TextStyle(
+                    fontSize: 10,
+                  ),
+                )
+              ],
+            ),
+            onPressed: () {
+              print('제안 게시판으로 이동');
+              _showFanMenu();
+              setState(() {
+                _selectedIndex = 1;
+                isNoti = false;
+              });
+            },
+          ),
+        ),
+        const SizedBox(width: 20),
+        Transform.rotate(
+          angle: 20 * (3.14 / 180),
+          child: FloatingActionButton(
+            // mini: true,
+            backgroundColor: Colors.white,
+            foregroundColor: _selectedIndex == 1
+                ? isNoti
+                    ? Colors.amber[800]
+                    : Theme.of(context).primaryColor
+                : Theme.of(context).primaryColor,
+            elevation: 0,
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.announcement,
+                  size: 30,
+                ),
+                Text(
+                  "공지",
+                  style: TextStyle(
+                    fontSize: 10,
+                  ),
+                )
+              ],
+            ),
+            onPressed: () {
+              print('공지 게시판으로 이동');
+              _showFanMenu();
+              setState(() {
+                _selectedIndex = 1;
+                isNoti = true;
+              });
+            },
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> navigateToLoginScreen(BuildContext context) async {
@@ -443,6 +748,7 @@ class _AppState extends ConsumerState<App> {
           backgroundColor: const Color(0xff6E6E6E),
           fontSize: 15,
           toastLength: Toast.LENGTH_SHORT);
+      _isVisible.value = true;
       return false;
     }
     return true;
@@ -463,7 +769,16 @@ class _AppState extends ConsumerState<App> {
     // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
-      const MenuBoardScreen(),
+      isNoti
+          ? AnnounceBoardScreen(
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            )
+          : MenuBoardScreen(
+              userId: userId,
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            ),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -475,266 +790,167 @@ class _AppState extends ConsumerState<App> {
             ),
     ];
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        textTheme: GoogleFonts.robotoTextTheme(
-          Theme.of(context).textTheme,
-        ),
-        checkboxTheme: CheckboxThemeData(
-          side: const BorderSide(color: Colors.blue), // 테두리 색상 설정
-          fillColor: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-            if (states.contains(MaterialState.selected)) {
-              return Colors.blue; // 체크했을 때 색상 설정
-            }
-            return Colors.white; // 해제했을 때 색상 설정
-          }),
-          checkColor: MaterialStateProperty.all<Color>(Colors.white),
-        ),
-        dialogTheme: const DialogTheme(
-          surfaceTintColor: Colors.white,
-        ),
-        textButtonTheme: const TextButtonThemeData(
-            style: ButtonStyle(
-                foregroundColor: MaterialStatePropertyAll(Colors.blue))),
-        switchTheme: SwitchThemeData(
-          trackColor: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-            if (states.contains(MaterialState.selected)) {
-              // 스위치가 켜져있을 때의 색상
-              return Colors.blue;
-            } else {
-              // 스위치가 꺼져있을 때의 색상
-              return Colors.grey;
-            }
-          }),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.blue),
-            borderRadius: BorderRadius.circular(15), // 눌렀을 때 테두리 색상
-          ),
-        ),
-        textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: Color(0xFF515151), // 커서 색상
-          selectionColor: Colors.lightBlueAccent, // 선택한 텍스트 배경 색상
-          selectionHandleColor: Colors.blue, // 선택 핸들 색상
-        ),
-        scaffoldBackgroundColor: Colors.white,
-        primaryColor: const Color(0xFF3e3e3e),
-        primaryColorLight: const Color(0xFF97948f),
-        primaryColorDark: const Color(0xFF515151),
-        dividerColor: const Color(0xFFc6c6c6),
-        cardColor: const Color(0xFFFFDA7B),
-        canvasColor: const Color(0xFF002967),
-        appBarTheme: const AppBarTheme(
-          // elevation: 5,
-          scrolledUnderElevation: 3,
-          backgroundColor: Colors.white,
-          shadowColor: Colors.black,
-          surfaceTintColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(10), // 하단 모서리의 반경을 30으로 설정
-            ),
-          ),
-        ),
-        indicatorColor: Colors.white,
-        progressIndicatorTheme: const ProgressIndicatorThemeData(
-            color: Colors.blue,
-            circularTrackColor: Colors.white,
-            refreshBackgroundColor: Colors.white),
-      ),
-      home: Stack(
-        children: [
-          Scaffold(
-            bottomNavigationBar: AnimatedBuilder(
-              animation: _isVisible,
-              builder: (context, child) {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  height: _isVisible.value ? 56.0 : 0.0,
-                  child: Wrap(
-                    children: [
-                      BottomNavigationBar(
-                        backgroundColor: Colors.white,
-                        items: <BottomNavigationBarItem>[
-                          const BottomNavigationBarItem(
-                            icon: Icon(Icons.home),
-                            label: '홈',
-                          ),
-                          const BottomNavigationBarItem(
-                            icon: Icon(Icons.forum),
-                            label: '게시판',
-                          ),
-                          BottomNavigationBarItem(
-                            icon: const Icon(Icons.person),
-                            label: isAdmin ? '관리자페이지' : '마이페이지',
-                          ),
-                        ],
-                        currentIndex: _selectedIndex,
-                        selectedItemColor: Colors.amber[800],
-                        onTap: (index) => _onItemTapped(index, context),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-            floatingActionButton: _selectedIndex == 1
-                ? Builder(
-                    builder: (context) {
-                      return FloatingActionButton.extended(
-                        onPressed: () {
-                          // FloatingActionButton을 누를 때 수행할 작업
-                          showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('알림'),
-                              content: const Text('아직 개발 중인 기능입니다. 죄송합니다.'),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text('확인'),
-                                  onPressed: () {
-                                    Navigator.of(ctx).pop();
-                                  },
-                                ),
-                              ],
-                            ),
-                          );
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const WriteMenuScreen(),
-                          //   ),
-                          // );
-                        },
-                        icon: Image.asset(
-                          'assets/images/write_board_icon.png',
-                          width: 70, // 이미지의 너비 조절
-                          height: 70, // 이미지의 높이 조절
-                        ),
-                        label: const Text(''), // 라벨은 비워둠
-                        backgroundColor:
-                            Colors.black, // 배경색을 투명으로 설정하여 이미지만 보이도록 함
-                        shape: const CircleBorder(), // 원형으로 설정
-                      );
-                    },
-                  )
-                : null,
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-            appBar: AppBar(
-              // elevation: 100,
-              scrolledUnderElevation: 3,
-              backgroundColor: Colors.white,
-              leading: Opacity(
-                // 투명한 아이콘 버튼 추가
-                opacity: 0,
-                child: Builder(
-                  builder: (context) {
-                    return IconButton(
-                      icon: const Icon(Icons.menu),
-                      onPressed: () {
-                        // FirebaseMessaging.instance.subscribeToTopic('1');
-                        // FirebaseMessaging.instance.subscribeToTopic('today_diet');
-                        // ref.read(loginStateProvider.notifier).logout();
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => LoginScreen(), //알람 버튼
-                        //   ),
-                        // );
-                      }, // 아무것도 하지 않음
-                    );
-                  },
-                ),
-              ),
-              actions: [
-                Builder(
-                  builder: (context) {
-                    return IconButton(
-                      onPressed: () async {
-                        // ApiService.delAutoLogin();
-                        final isLoggedIn = ref.watch(loginStateProvider);
-                        if (!isLoggedIn) {
-                          navigateToLoginScreen(context);
-                        } else {
-                          await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const NotificationCenter()));
 
-                          // if (result == true) {
-                          // 필요한 상태 업데이트나 리렌더링 로직
-                          setState(() {
-                            getNotificationLength();
-                          });
-                        }
-                        // }
-                      },
-                      icon: FutureBuilder(
-                        future: getNotificationLength(),
-                        builder: (context, snapshot) {
-                          if (snapshot.data == null || snapshot.data == 0) {
-                            return const Icon(Icons.notifications);
-                          }
-                          return badges.Badge(
-                            badgeContent: Text(
-                              snapshot.data!.toString(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                              ),
-                            ),
-                            position: badges.BadgePosition.topEnd(
-                              top: -8,
-                              end: -3,
-                            ),
-                            child: const Icon(Icons.notifications),
-                          );
-                        },
-                      ),
-                    );
-                  },
+    return Stack(
+      children: [
+        Scaffold(
+          bottomNavigationBar: AnimatedBuilder(
+            animation: _isVisible,
+            builder: (context_, child) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                height: _isVisible.value ? 56.0 : 0.0,
+                child: Wrap(
+                  children: [
+                    BottomNavigationBar(
+                      backgroundColor: Colors.white,
+                      items: <BottomNavigationBarItem>[
+                        const BottomNavigationBarItem(
+                          icon: Icon(Icons.home),
+                          label: '홈',
+                        ),
+                        const BottomNavigationBarItem(
+                          icon: Icon(Icons.forum),
+                          label: '게시판',
+                        ),
+                        BottomNavigationBarItem(
+                          icon: const Icon(Icons.person),
+                          label: isAdmin ? '관리자페이지' : '마이페이지',
+                        ),
+                      ],
+                      currentIndex: _selectedIndex,
+                      selectedItemColor: Colors.amber[800],
+                      onTap: (index) => _onItemTapped(index, context),
+                    ),
+                  ],
                 ),
-              ],
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
-                    child: SizedBox(
-                      height: 50,
-                      child: Image.asset(
-                        'assets/images/app_bar_logo.png',
-                        fit: BoxFit.contain,
-                      ),
+              );
+            },
+          ),
+
+          appBar: AppBar(
+            // elevation: 100,
+            scrolledUnderElevation: 3,
+            backgroundColor: Colors.white,
+            leading: Opacity(
+              // 투명한 아이콘 버튼 추가
+              opacity: 0,
+              child: Builder(
+                builder: (context) {
+                  return IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () {
+                      // FirebaseMessaging.instance.subscribeToTopic('1');
+                      // FirebaseMessaging.instance.subscribeToTopic('today_diet');
+                      // ref.read(loginStateProvider.notifier).logout();
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => LoginScreen(), //알람 버튼
+                      //   ),
+                      // );
+                    }, // 아무것도 하지 않음
+                  );
+                },
+              ),
+            ),
+            actions: [
+              Builder(
+                builder: (context) {
+                  return IconButton(
+                    onPressed: () async {
+                      if (_overlayEntry != null) {
+                        _controller?.reverse().then<void>((void value) {
+                          _overlayEntry?.remove();
+                          _overlayEntry = null;
+                        });
+                      }
+                      // ApiService.delAutoLogin();
+                      final isLoggedIn = ref.watch(loginStateProvider);
+                      if (!isLoggedIn) {
+                        navigateToLoginScreen(context);
+                      } else {
+                        final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const NotificationCenter()));
+
+                        // if (result == true) {
+                        // 필요한 상태 업데이트나 리렌더링 로직
+                        setState(() {
+                          getNotificationLength();
+                        });
+                      }
+                      // }
+                    },
+                    icon: FutureBuilder(
+                      future: getNotificationLength(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data == null || snapshot.data == 0) {
+                          return const Icon(Icons.notifications);
+                        }
+                        return badges.Badge(
+                          badgeContent: Text(
+                            snapshot.data!.toString(),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
+                          ),
+                          position: badges.BadgePosition.topEnd(
+                            top: -8,
+                            end: -3,
+                          ),
+                          child: const Icon(Icons.notifications),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            ],
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  // Expanded로 Row의 자식을 감싸서 중앙 정렬 유지
+                  child: SizedBox(
+                    height: 50,
+                    child: Image.asset(
+                      'assets/images/app_bar_logo.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
-                ],
-              ),
-            ),
-            body: WillPopScope(
-              onWillPop: onWillPop,
-              child: RefreshIndicator(
-                color: Colors.blue,
-                onRefresh: () async {
-                  setState(() {
-                    testValue = 2;
-                  });
-                },
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: _widgetOptions.elementAt(_selectedIndex),
                 ),
+              ],
+            ),
+          ),
+          // ignore: deprecated_member_use
+          body: WillPopScope(
+            onWillPop: onWillPop,
+            child: RefreshIndicator(
+              color: Colors.blue,
+              onRefresh: () async {
+                setState(() {
+                  testValue = 2;
+                });
+              },
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                child: _widgetOptions.elementAt(_selectedIndex),
               ),
             ),
           ),
-          isLoading ? buildLoadingScreenInMain() : Container(),
-        ],
-      ),
+
+        ),
+        isLoading ? _buildLoadingScreen() : Container(),
+        // FloatingActionButton(
+        //   onPressed: _scrollToTop,
+        //   child: const Icon(Icons.arrow_upward),
+        // )
+      ],
+
     );
   }
 }

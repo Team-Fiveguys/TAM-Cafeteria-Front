@@ -1504,6 +1504,263 @@ class ApiService {
     }
   }
 
+  Future<List<Map<String, dynamic>>> fetchMenuBoardList(
+    int cafeteriaId,
+    int page,
+    String orderType,
+  ) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      const path = "/posts/menu-request";
+      // cafeteriaId를 쿼리 파라미터에 추가
+      final url = Uri.https(baseUrl, path, {
+        'cafeteriaId': '$cafeteriaId',
+        'page': '$page',
+        'orderType': orderType,
+      });
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // UTF-8로 디코딩
+        final String responseUtf8 = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
+        final List<dynamic> resultList = jsonResponse['result'];
+        final List<Map<String, dynamic>> boardList = resultList.map((item) {
+          return {
+            'id': item['id'],
+            'title': item['title'],
+            'publisherName': item['publisherName'],
+            'uploadTime': item['uploadTime'],
+            'likeCount': item['likeCount'],
+            'content': item['content'],
+          };
+        }).toList();
+        print(jsonResponse);
+        return boardList;
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+        return [];
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchNoticeBoardList(
+    int cafeteriaId,
+    int page,
+  ) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      const path = "/posts/notice";
+      // cafeteriaId를 쿼리 파라미터에 추가
+      final url = Uri.https(baseUrl, path, {
+        'cafeteriaId': '$cafeteriaId',
+        'page': '$page',
+      });
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // UTF-8로 디코딩
+        final String responseUtf8 = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
+        final List<dynamic> resultList = jsonResponse['result'];
+        final List<Map<String, dynamic>> boardList = resultList.map((item) {
+          return {
+            'id': item['id'],
+            'title': item['title'],
+            'content': item['content'],
+            'publisherName': item['publisherName'],
+            'uploadTime': item['uploadTime'],
+            'likeCount': item['likeCount'],
+          };
+        }).toList();
+        print(jsonResponse);
+        return boardList;
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+        return [];
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      return [];
+    }
+  }
+
+  static Future<void> createPost(
+      String boardType, String title, String content, int cafeteriaId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/posts";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.post(url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(
+          {
+            "boardType": boardType,
+            "title": title,
+            "content": content,
+            "cafeteriaId": cafeteriaId,
+          },
+        ));
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : createPost : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      throw Exception(jsonResponse['message']);
+    }
+  }
+
+  static Future<void> togglePostLike(int postId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final path = "/posts/$postId/like";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.post(url, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    });
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService : togglePostLike : $jsonResponse');
+    } else {
+      print(jsonResponse);
+      throw Exception(jsonResponse['message']);
+    }
+  }
+
+  static Future<Map<String, dynamic>> fetchBoardDetail(int id) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      final path = "/posts/$id";
+      final url = Uri.https(baseUrl, path);
+
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final String responseUtf8 = utf8.decode(response.bodyBytes);
+        final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
+        return jsonResponse['result'];
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+        return {};
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+      return {};
+    }
+  }
+
+  static Future<void> deletePost(int postId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final path = "/posts/$postId";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.delete(url, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken',
+    });
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('deletePost : $jsonResponse');
+    } else {
+      print('Error in deletePost : $jsonResponse');
+      throw Exception(jsonResponse['message']);
+    }
+  }
+
+  static Future<void> updatePost(
+      int postId, String newTitle, String newContent) async {
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      final String path = "/posts/$postId";
+      final Uri url = Uri.https(baseUrl, path);
+
+      final Map<String, String> requestBody = {
+        'title': newTitle,
+        'content': newContent,
+      };
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode(requestBody),
+      );
+      final String decodedResponse = utf8.decode(response.bodyBytes);
+      final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+      if (response.statusCode == 200) {
+        print('게시글이 성공적으로 수정되었습니다: $jsonResponse');
+      } else {
+        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+        throw Exception(jsonResponse['message']);
+      }
+    } catch (error) {
+      print('오류 발생: $error');
+    }
+  }
+
+  static Future<void> reportPost(int postId) async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    final url = Uri.https(baseUrl, '/posts/$postId/report');
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({
+        'id': postId,
+      }),
+    );
+
+    final decodedResponse = utf8.decode(response.bodyBytes);
+    final jsonResponse = jsonDecode(decodedResponse);
+
+    if (response.statusCode == 200) {
+      print('ApiService: reportPost: $jsonResponse');
+    } else {
+      print(jsonResponse);
+      throw Exception(jsonResponse['message']);
+    }
+
   //============AI API============
   //============AI API============
   //============AI API============
@@ -1738,5 +1995,6 @@ class ApiService {
       print(jsonResponse);
     }
     return null;
+
   }
 }

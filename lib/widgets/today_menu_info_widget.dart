@@ -338,6 +338,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
     }
 
     if (isDayOff || isSoldOut) isOperating = false;
+
     // 조건에 따라 테두리 색상을 결정합니다.
     return BoxDecoration(
       color: Colors.white,
