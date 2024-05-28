@@ -396,73 +396,73 @@ class LoginScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 10.0),
                         Image.asset('assets/images/dot_line.png'),
-                        Flexible(
-                          fit: FlexFit.tight,
-                          child: Container(
-                            alignment: Alignment.topRight,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        title: const Text('알림'),
-                                        content: const Text(
-                                            '아직 개발 중인 기능입니다. 죄송합니다.'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: const Text('확인'),
-                                            onPressed: () {
-                                              Navigator.of(ctx).pop();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    '아이디 찾기',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 13),
-                                  ),
-                                ),
-                                const SizedBox(width: 5.0),
-                                const Text(
-                                  '|',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                const SizedBox(width: 5.0),
-                                TextButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        title: const Text('알림'),
-                                        content: const Text(
-                                            '아직 개발 중인 기능입니다. 죄송합니다.'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: const Text('확인'),
-                                            onPressed: () {
-                                              Navigator.of(ctx).pop();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                  child: const Text(
-                                    '비밀번호 찾기',
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 13),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        // Flexible(
+                        //   fit: FlexFit.tight,
+                        //   child: Container(
+                        //     alignment: Alignment.topRight,
+                        //     child: Row(
+                        //       mainAxisAlignment: MainAxisAlignment.end,
+                        //       children: [
+                        //         TextButton(
+                        //           onPressed: () {
+                        //             showDialog(
+                        //               context: context,
+                        //               builder: (ctx) => AlertDialog(
+                        //                 title: const Text('알림'),
+                        //                 content: const Text(
+                        //                     '아직 개발 중인 기능입니다. 죄송합니다.'),
+                        //                 actions: <Widget>[
+                        //                   TextButton(
+                        //                     child: const Text('확인'),
+                        //                     onPressed: () {
+                        //                       Navigator.of(ctx).pop();
+                        //                     },
+                        //                   ),
+                        //                 ],
+                        //               ),
+                        //             );
+                        //           },
+                        //           child: const Text(
+                        //             '아이디 찾기',
+                        //             style: TextStyle(
+                        //                 color: Colors.white, fontSize: 13),
+                        //           ),
+                        //         ),
+                        //         const SizedBox(width: 5.0),
+                        //         const Text(
+                        //           '|',
+                        //           style: TextStyle(color: Colors.white),
+                        //         ),
+                        //         const SizedBox(width: 5.0),
+                        //         TextButton(
+                        //           onPressed: () {
+                        //             showDialog(
+                        //               context: context,
+                        //               builder: (ctx) => AlertDialog(
+                        //                 title: const Text('알림'),
+                        //                 content: const Text(
+                        //                     '아직 개발 중인 기능입니다. 죄송합니다.'),
+                        //                 actions: <Widget>[
+                        //                   TextButton(
+                        //                     child: const Text('확인'),
+                        //                     onPressed: () {
+                        //                       Navigator.of(ctx).pop();
+                        //                     },
+                        //                   ),
+                        //                 ],
+                        //               ),
+                        //             );
+                        //           },
+                        //           child: const Text(
+                        //             '비밀번호 찾기',
+                        //             style: TextStyle(
+                        //                 color: Colors.white, fontSize: 13),
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                         const Flexible(child: SizedBox(height: 40.0)),
                         const Center(
                           child: Text(
@@ -480,50 +480,50 @@ class LoginScreen extends ConsumerWidget {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                IconButton(
-                                  icon: Image.asset(
-                                      'assets/images/google_login_logo.png'),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        title: const Text('알림'),
-                                        content: const Text(
-                                            '아직 개발 중인 기능입니다. 죄송합니다.'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: const Text('확인'),
-                                            onPressed: () {
-                                              Navigator.of(ctx).pop();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Image.asset(
-                                      'assets/images/naver_login_logo.png'),
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        title: const Text('알림'),
-                                        content: const Text(
-                                            '아직 개발 중인 기능입니다. 죄송합니다.'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: const Text('확인'),
-                                            onPressed: () {
-                                              Navigator.of(ctx).pop();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
+                                // IconButton(
+                                //   icon: Image.asset(
+                                //       'assets/images/google_login_logo.png'),
+                                //   onPressed: () {
+                                //     showDialog(
+                                //       context: context,
+                                //       builder: (ctx) => AlertDialog(
+                                //         title: const Text('알림'),
+                                //         content: const Text(
+                                //             '아직 개발 중인 기능입니다. 죄송합니다.'),
+                                //         actions: <Widget>[
+                                //           TextButton(
+                                //             child: const Text('확인'),
+                                //             onPressed: () {
+                                //               Navigator.of(ctx).pop();
+                                //             },
+                                //           ),
+                                //         ],
+                                //       ),
+                                //     );
+                                //   },
+                                // ),
+                                // IconButton(
+                                //   icon: Image.asset(
+                                //       'assets/images/naver_login_logo.png'),
+                                //   onPressed: () {
+                                //     showDialog(
+                                //       context: context,
+                                //       builder: (ctx) => AlertDialog(
+                                //         title: const Text('알림'),
+                                //         content: const Text(
+                                //             '아직 개발 중인 기능입니다. 죄송합니다.'),
+                                //         actions: <Widget>[
+                                //           TextButton(
+                                //             child: const Text('확인'),
+                                //             onPressed: () {
+                                //               Navigator.of(ctx).pop();
+                                //             },
+                                //           ),
+                                //         ],
+                                //       ),
+                                //     );
+                                //   },
+                                // ),
                                 IconButton(
                                   icon: Image.asset(
                                       'assets/images/apple_login_logo.png'),

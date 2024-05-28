@@ -35,7 +35,7 @@ class User {
 }
 
 class ApiService {
-  static const String baseUrl = "dev.tam-cafeteria.site";
+  static const String baseUrl = "release.tam-cafeteria.site";
   static const String aiBaseUrl = "ai.tam-cafeteria.site";
 
   static Future<void> postDietPhoto(

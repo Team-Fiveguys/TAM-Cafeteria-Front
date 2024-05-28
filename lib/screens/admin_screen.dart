@@ -61,6 +61,11 @@ class _AdminPageState extends State<AdminPage> {
     "배추김치&추가밥",
   ];
 
+  var mealList = <String>[
+    '중식',
+    '조식',
+  ];
+
   late String? cafeteriaName;
 
   @override
@@ -87,6 +92,16 @@ class _AdminPageState extends State<AdminPage> {
       }
       if (cafeteriaName == "명돈이네") {
         cafeteriaId = 3;
+      }
+      if (cafeteriaId != 2) {
+        mealList = <String>[
+          '중식',
+        ];
+      } else {
+        mealList = <String>[
+          '중식',
+          '조식',
+        ];
       }
     });
   }
@@ -144,10 +159,7 @@ class _AdminPageState extends State<AdminPage> {
                       .pop(); // 이미지를 선택한 후 팝업 창을 닫습니다.
                   _showImagePicker();
                 },
-                items: <String>[
-                  '중식',
-                  '조식',
-                ] // 선택 가능한 항목 리스트
+                items: mealList // 선택 가능한 항목 리스트
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -289,6 +301,7 @@ class _AdminPageState extends State<AdminPage> {
                                         builder: (context) => WeekDiet(
                                           cafeteriaName: cafeteriaName!,
                                           cafeteriaId: cafeteriaId!,
+                                          mealList: mealList,
                                         ),
                                       ),
                                     );
@@ -726,178 +739,207 @@ class _AdminPageState extends State<AdminPage> {
                       const SizedBox(
                         height: 15,
                       ),
-                      Container(
-                        height: 130,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Theme.of(context).canvasColor,
-                          ),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 10),
-                          child: Row(
-                            children: [
-                              const Flexible(
-                                flex: 1,
-                                child: Center(
-                                  child: Text(
-                                    '조식',
-                                    style: TextStyle(
-                                      color: Color(0xFF5A5A5A),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                      if (cafeteriaId != null && cafeteriaId == 2)
+                        Column(
+                          children: [
+                            Container(
+                              height: 130,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(context).canvasColor,
                                 ),
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                              Flexible(
-                                flex: 2,
-                                child: Container(
-                                  decoration: const BoxDecoration(
-                                    border: Border(
-                                      left: BorderSide(
-                                        color: Colors.black,
-                                        width: 1,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 15, horizontal: 10),
+                                child: Row(
+                                  children: [
+                                    const Flexible(
+                                      flex: 1,
+                                      child: Center(
+                                        child: Text(
+                                          '조식',
+                                          style: TextStyle(
+                                            color: Color(0xFF5A5A5A),
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  child: FutureBuilder<List<String>>(
-                                    future: getTodayBreakfastMenu(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        // 데이터를 기다리는 동안 로딩 표시를 표시합니다.
-                                        return const Center(
-                                          child: CircularProgressIndicator(),
-                                        );
-                                      } else if (_breakfastisSoldOut == true) {
-                                        return Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              10, 0, 0, 0),
-                                          child: Image.asset(
-                                            'assets/images/soldOut.png',
+                                    Flexible(
+                                      flex: 2,
+                                      child: Container(
+                                        decoration: const BoxDecoration(
+                                          border: Border(
+                                            left: BorderSide(
+                                              color: Colors.black,
+                                              width: 1,
+                                            ),
                                           ),
-                                        );
-                                      } else {
-                                        // 데이터를 성공적으로 불러온 경우 메뉴 항목을 그리드 뷰로 표시합니다.
-                                        return GridView.builder(
-                                          gridDelegate:
-                                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                            crossAxisCount:
-                                                2, // 한 줄에 표시할 아이템의 수를 2로 설정합니다.
-                                            childAspectRatio:
-                                                2, // 아이템의 가로 세로 비율을 조정합니다.
-                                          ),
-                                          itemCount: snapshot.data!.length,
-                                          itemBuilder: (context, index) {
-                                            return Container(
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                      10, 0, 0, 0),
-                                              child: Text(
-                                                '·${snapshot.data![index]}',
-                                                style: const TextStyle(
-                                                    fontSize: 16),
-                                                maxLines: null,
-                                                overflow: TextOverflow.visible,
+                                        ),
+                                        child: FutureBuilder<List<String>>(
+                                          future: getTodayBreakfastMenu(),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              // 데이터를 기다리는 동안 로딩 표시를 표시합니다.
+                                              return const Center(
+                                                child:
+                                                    CircularProgressIndicator(),
+                                              );
+                                            } else if (_breakfastisSoldOut ==
+                                                true) {
+                                              return Container(
+                                                padding:
+                                                    const EdgeInsets.fromLTRB(
+                                                        10, 0, 0, 0),
+                                                child: Image.asset(
+                                                  'assets/images/soldOut.png',
+                                                ),
+                                              );
+                                            } else {
+                                              if (snapshot.data!.isEmpty) {
+                                                return const Center(
+                                                  child: Text(
+                                                    "식단 미등록",
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                              // 데이터를 성공적으로 불러온 경우 메뉴 항목을 그리드 뷰로 표시합니다.
+                                              return GridView.builder(
+                                                gridDelegate:
+                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                  crossAxisCount:
+                                                      2, // 한 줄에 표시할 아이템의 수를 2로 설정합니다.
+                                                  childAspectRatio:
+                                                      2, // 아이템의 가로 세로 비율을 조정합니다.
+                                                ),
+                                                itemCount:
+                                                    snapshot.data!.length,
+                                                itemBuilder: (context, index) {
+                                                  return Container(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(10, 0, 0, 0),
+                                                    child: Text(
+                                                      '·${snapshot.data![index]}',
+                                                      style: const TextStyle(
+                                                          fontSize: 16),
+                                                      maxLines: null,
+                                                      overflow:
+                                                          TextOverflow.visible,
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            FutureBuilder(
+                              future: getTodayBreakfastMenu(),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  // 데이터를 기다리는 동안 로딩 표시를 표시합니다.
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                } else if (snapshot.hasError) {
+                                  // 에러가 발생한 경우 에러 메시지를 표시합니다.
+                                  return Center(
+                                    child: Text('Error: ${snapshot.error}'),
+                                  );
+                                } else {
+                                  print(snapshot.data!.isNotEmpty);
+                                  return SizedBox(
+                                    width: 400,
+                                    child: AbsorbPointer(
+                                      absorbing: snapshot.data!.isEmpty,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              snapshot.data!.isEmpty
+                                                  ? Colors.grey
+                                                  : const Color(
+                                                      0xffffb800), // 버튼의 배경 색상
+                                        ),
+                                        onPressed: () async {
+                                          try {
+                                            if (cafeteriaId != null) {
+                                              final channel = cafeteriaId == 1
+                                                  ? "myeongJin"
+                                                  : cafeteriaId == 2
+                                                      ? "hakGwan"
+                                                      : cafeteriaId == 3
+                                                          ? "myeongDon"
+                                                          : "";
+                                              final result = await ApiService
+                                                  .patchSoldOutStatus(
+                                                      cafeteriaId!,
+                                                      dateFormat.format(now),
+                                                      "BREAKFAST");
+                                              if (result) {
+                                                print(channel);
+                                                await ApiService
+                                                    .postNotificationToSubscriber(
+                                                        "[$cafeteriaName] [조식]품절",
+                                                        "금일 $cafeteriaName 조식 품절되었습니다. 다음에 또 봐요!",
+                                                        channel,
+                                                        "dietSoldOut");
+                                              }
+                                              setState(() {
+                                                // _lunchisSoldOut =
+                                                //     !(_lunchisSoldOut ?? false);
+                                              });
+                                            }
+                                          } on Exception catch (e) {
+                                            showDialog(
+                                              context: context,
+                                              builder: (ctx) => AlertDialog(
+                                                title: const Text('에러'),
+                                                content: Text(e.toString()),
+                                                actions: <Widget>[
+                                                  TextButton(
+                                                    child: const Text('확인'),
+                                                    onPressed: () {
+                                                      Navigator.of(ctx).pop();
+                                                    },
+                                                  ),
+                                                ],
                                               ),
                                             );
-                                          },
-                                        );
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      FutureBuilder(
-                        future: getTodayBreakfastMenu(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            // 데이터를 기다리는 동안 로딩 표시를 표시합니다.
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          } else if (snapshot.hasError) {
-                            // 에러가 발생한 경우 에러 메시지를 표시합니다.
-                            return Center(
-                              child: Text('Error: ${snapshot.error}'),
-                            );
-                          } else {
-                            return SizedBox(
-                              width: 400,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color(0xffffb800), // 버튼의 배경 색상
-                                ),
-                                onPressed: () async {
-                                  try {
-                                    if (cafeteriaId != null) {
-                                      final channel = cafeteriaId == 1
-                                          ? "myeongJin"
-                                          : cafeteriaId == 2
-                                              ? "hakGwan"
-                                              : cafeteriaId == 3
-                                                  ? "myeongDon"
-                                                  : "";
-                                      final result =
-                                          await ApiService.patchSoldOutStatus(
-                                              cafeteriaId!,
-                                              dateFormat.format(now),
-                                              "BREAKFAST");
-                                      if (result) {
-                                        print(channel);
-                                        await ApiService
-                                            .postNotificationToSubscriber(
-                                                "[$cafeteriaName] [조식]품절",
-                                                "금일 $cafeteriaName 조식 품절되었습니다. 다음에 또 봐요!",
-                                                channel,
-                                                "dietSoldOut");
-                                      }
-                                      setState(() {
-                                        // _lunchisSoldOut =
-                                        //     !(_lunchisSoldOut ?? false);
-                                      });
-                                    }
-                                  } on Exception catch (e) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        title: const Text('에러'),
-                                        content: Text(e.toString()),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: const Text('확인'),
-                                            onPressed: () {
-                                              Navigator.of(ctx).pop();
-                                            },
-                                          ),
-                                        ],
+                                          }
+                                        },
+                                        child: Text(
+                                          _breakfastisSoldOut ?? false
+                                              ? "품절 해제"
+                                              : "품절 설정",
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        ),
                                       ),
-                                    );
-                                  }
-                                },
-                                child: Text(
-                                  _breakfastisSoldOut ?? false
-                                      ? "품절 해제"
-                                      : "품절 설정",
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            const SizedBox(
+                              height: 15,
+                            ),
+                          ],
+                        ),
                       Container(
                         height: 130,
                         decoration: BoxDecoration(
@@ -953,6 +995,17 @@ class _AdminPageState extends State<AdminPage> {
                                           ),
                                         );
                                       } else {
+                                        if (snapshot.data!.isEmpty) {
+                                          return const Center(
+                                            child: Text(
+                                              "식단 미등록",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          );
+                                        }
                                         // 데이터를 성공적으로 불러온 경우 메뉴 항목을 그리드 뷰로 표시합니다.
                                         return GridView.builder(
                                           gridDelegate:
@@ -1004,60 +1057,66 @@ class _AdminPageState extends State<AdminPage> {
                           } else {
                             return SizedBox(
                               width: 400,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color(0xffffb800), // 버튼의 배경 색상
-                                ),
-                                onPressed: () async {
-                                  try {
-                                    if (cafeteriaId != null) {
-                                      final channel = cafeteriaId == 1
-                                          ? "myeongJin"
-                                          : cafeteriaId == 2
-                                              ? "hakGwan"
-                                              : cafeteriaId == 3
-                                                  ? "myeongDon"
-                                                  : "";
-                                      final result =
-                                          await ApiService.patchSoldOutStatus(
-                                              cafeteriaId!,
-                                              dateFormat.format(now),
-                                              "LUNCH");
-                                      if (result) {
-                                        await ApiService
-                                            .postNotificationToSubscriber(
-                                                "[$cafeteriaName] [중식]품절",
-                                                "금일 $cafeteriaName 중식 품절되었습니다. 다음에 또 봐요!",
-                                                channel,
-                                                "dietSoldOut");
+                              child: AbsorbPointer(
+                                absorbing: snapshot.data!.isEmpty,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: snapshot.data!.isEmpty
+                                        ? Colors.grey
+                                        : const Color(0xffffb800), // 버튼의 배경 색상
+                                  ),
+                                  onPressed: () async {
+                                    try {
+                                      if (cafeteriaId != null) {
+                                        final channel = cafeteriaId == 1
+                                            ? "myeongJin"
+                                            : cafeteriaId == 2
+                                                ? "hakGwan"
+                                                : cafeteriaId == 3
+                                                    ? "myeongDon"
+                                                    : "";
+                                        final result =
+                                            await ApiService.patchSoldOutStatus(
+                                                cafeteriaId!,
+                                                dateFormat.format(now),
+                                                "LUNCH");
+                                        if (result) {
+                                          await ApiService
+                                              .postNotificationToSubscriber(
+                                                  "[$cafeteriaName] [중식]품절",
+                                                  "금일 $cafeteriaName 중식 품절되었습니다. 다음에 또 봐요!",
+                                                  channel,
+                                                  "dietSoldOut");
+                                        }
+                                        setState(() {
+                                          // _lunchisSoldOut =
+                                          //     !(_lunchisSoldOut ?? false);
+                                        });
                                       }
-                                      setState(() {
-                                        // _lunchisSoldOut =
-                                        //     !(_lunchisSoldOut ?? false);
-                                      });
+                                    } on Exception catch (e) {
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          title: const Text('에러'),
+                                          content: Text(e.toString()),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              child: const Text('확인'),
+                                              onPressed: () {
+                                                Navigator.of(ctx).pop();
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      );
                                     }
-                                  } on Exception catch (e) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        title: const Text('에러'),
-                                        content: Text(e.toString()),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: const Text('확인'),
-                                            onPressed: () {
-                                              Navigator.of(ctx).pop();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: Text(
-                                  _lunchisSoldOut ?? false ? "품절 해제" : "품절 설정",
-                                  style: const TextStyle(color: Colors.white),
+                                  },
+                                  child: Text(
+                                    _lunchisSoldOut ?? false
+                                        ? "품절 해제"
+                                        : "품절 설정",
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               ),
                             );
@@ -1073,176 +1132,176 @@ class _AdminPageState extends State<AdminPage> {
                 height: 30,
               ),
               //식수 관리
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadiusDirectional.circular(20),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3), // 그림자 위치 조정
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            '식수 관리',
-                            style: TextStyle(
-                              color: Color(0xFF282828),
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-                              if (cafeteriaId == 3) {
-                                showDialog(
-                                  context: context,
-                                  builder: (ctx) => AlertDialog(
-                                    title: const Text('에러'),
-                                    content:
-                                        const Text("이 식당은 식수 관리를 지원하지 않습니다."),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: const Text('확인'),
-                                        onPressed: () {
-                                          Navigator.of(ctx).pop();
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                );
-                                return;
-                              }
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CoverManagement(
-                                    cafeteriaId: cafeteriaId ?? 1,
-                                    cafeteriaName: cafeteriaName ?? "명진당",
-                                  ),
-                                ),
-                              );
-                              setState(() {});
-                            },
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text("설정하러가기"),
-                                Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 18,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 15,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0xFF999999),
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              height: 130,
-                              child: FutureBuilder(
-                                  future: getCovers(),
-                                  builder: (context, snapshot) {
-                                    return Column(
-                                      children: [
-                                        const Text(
-                                          '예상 식수',
-                                          style: TextStyle(
-                                            color: Color(0xFF999999),
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 15,
-                                        ),
-                                        Text(
-                                          predictCovers,
-                                          style: const TextStyle(
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0xFF999999),
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              height: 130,
-                              child: FutureBuilder(
-                                  future: getCovers(),
-                                  builder: (context, snapshot) {
-                                    return Column(
-                                      children: [
-                                        const Text(
-                                          '실제 식수',
-                                          style: TextStyle(
-                                            color: Color(0xFF999999),
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 15,
-                                        ),
-                                        Text(
-                                          realCovers,
-                                          style: const TextStyle(
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Container(
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadiusDirectional.circular(20),
+              //     color: Colors.white,
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.grey.withOpacity(0.5),
+              //         spreadRadius: 1,
+              //         blurRadius: 5,
+              //         offset: const Offset(0, 3), // 그림자 위치 조정
+              //       ),
+              //     ],
+              //   ),
+              //   child: Padding(
+              //     padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+              //     child: Column(
+              //       children: [
+              //         Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //           children: [
+              //             const Text(
+              //               '식수 관리',
+              //               style: TextStyle(
+              //                 color: Color(0xFF282828),
+              //                 fontSize: 20,
+              //                 fontWeight: FontWeight.bold,
+              //               ),
+              //             ),
+              //             TextButton(
+              //               onPressed: () async {
+              //                 if (cafeteriaId == 3) {
+              //                   showDialog(
+              //                     context: context,
+              //                     builder: (ctx) => AlertDialog(
+              //                       title: const Text('에러'),
+              //                       content:
+              //                           const Text("이 식당은 식수 관리를 지원하지 않습니다."),
+              //                       actions: <Widget>[
+              //                         TextButton(
+              //                           child: const Text('확인'),
+              //                           onPressed: () {
+              //                             Navigator.of(ctx).pop();
+              //                           },
+              //                         ),
+              //                       ],
+              //                     ),
+              //                   );
+              //                   return;
+              //                 }
+              //                 await Navigator.push(
+              //                   context,
+              //                   MaterialPageRoute(
+              //                     builder: (context) => CoverManagement(
+              //                       cafeteriaId: cafeteriaId ?? 1,
+              //                       cafeteriaName: cafeteriaName ?? "명진당",
+              //                     ),
+              //                   ),
+              //                 );
+              //                 setState(() {});
+              //               },
+              //               child: const Row(
+              //                 mainAxisSize: MainAxisSize.min,
+              //                 children: [
+              //                   Text("설정하러가기"),
+              //                   Icon(
+              //                     Icons.arrow_forward_ios_rounded,
+              //                     size: 18,
+              //                   ),
+              //                 ],
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //         const SizedBox(
+              //           height: 15,
+              //         ),
+              //         Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //           children: [
+              //             Expanded(
+              //               child: Container(
+              //                 padding: const EdgeInsets.all(10),
+              //                 decoration: BoxDecoration(
+              //                   border: Border.all(
+              //                     color: const Color(0xFF999999),
+              //                     width: 1,
+              //                   ),
+              //                   borderRadius: BorderRadius.circular(20),
+              //                 ),
+              //                 height: 130,
+              //                 child: FutureBuilder(
+              //                     future: getCovers(),
+              //                     builder: (context, snapshot) {
+              //                       return Column(
+              //                         children: [
+              //                           const Text(
+              //                             '예상 식수',
+              //                             style: TextStyle(
+              //                               color: Color(0xFF999999),
+              //                               fontSize: 20,
+              //                               fontWeight: FontWeight.bold,
+              //                             ),
+              //                           ),
+              //                           const SizedBox(
+              //                             height: 15,
+              //                           ),
+              //                           Text(
+              //                             predictCovers,
+              //                             style: const TextStyle(
+              //                               fontSize: 25,
+              //                               fontWeight: FontWeight.bold,
+              //                             ),
+              //                           ),
+              //                         ],
+              //                       );
+              //                     }),
+              //               ),
+              //             ),
+              //             const SizedBox(
+              //               width: 10,
+              //             ),
+              //             Expanded(
+              //               child: Container(
+              //                 padding: const EdgeInsets.all(10),
+              //                 decoration: BoxDecoration(
+              //                   border: Border.all(
+              //                     color: const Color(0xFF999999),
+              //                     width: 1,
+              //                   ),
+              //                   borderRadius: BorderRadius.circular(20),
+              //                 ),
+              //                 height: 130,
+              //                 child: FutureBuilder(
+              //                     future: getCovers(),
+              //                     builder: (context, snapshot) {
+              //                       return Column(
+              //                         children: [
+              //                           const Text(
+              //                             '실제 식수',
+              //                             style: TextStyle(
+              //                               color: Color(0xFF999999),
+              //                               fontSize: 20,
+              //                               fontWeight: FontWeight.bold,
+              //                             ),
+              //                           ),
+              //                           const SizedBox(
+              //                             height: 15,
+              //                           ),
+              //                           Text(
+              //                             realCovers,
+              //                             style: const TextStyle(
+              //                               fontSize: 25,
+              //                               fontWeight: FontWeight.bold,
+              //                             ),
+              //                           ),
+              //                         ],
+              //                       );
+              //                     }),
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
 
-              const SizedBox(
-                height: 30,
-              ),
+              // const SizedBox(
+              //   height: 30,
+              // ),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1316,6 +1375,7 @@ class _AdminPageState extends State<AdminPage> {
                                   builder: (context) => WeekDiet(
                                     cafeteriaName: cafeteriaName!,
                                     cafeteriaId: cafeteriaId!,
+                                    mealList: mealList,
                                   ),
                                 ),
                               );

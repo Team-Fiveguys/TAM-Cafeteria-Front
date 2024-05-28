@@ -17,9 +17,11 @@ class WeekDiet extends StatefulWidget {
     super.key,
     required this.cafeteriaName,
     required this.cafeteriaId,
+    required this.mealList,
   });
   final String cafeteriaName;
   final int cafeteriaId;
+  final List<String> mealList;
   @override
   State<WeekDiet> createState() => _WeekDietState();
 }
@@ -339,6 +341,21 @@ class _WeekDietState extends State<WeekDiet> {
                               data = data
                                   .where((menu) => !currentMenus.contains(menu))
                                   .toList();
+                              if (data.isEmpty) {
+                                return const Center(
+                                  child: Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Text(
+                                      "메뉴가 없습니다!\n'메뉴 등록하기'로 메뉴를 등록해주세요",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
 
                               return ListView.builder(
                                 itemCount: menuNameController.text.isEmpty
@@ -699,10 +716,7 @@ class _WeekDietState extends State<WeekDiet> {
                   await loadDiets();
                   setState(() {});
                 },
-                items: <String>[
-                  '중식',
-                  '조식',
-                ] // 선택 가능한 항목 리스트
+                items: widget.mealList // 선택 가능한 항목 리스트
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,

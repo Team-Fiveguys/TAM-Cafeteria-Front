@@ -218,14 +218,15 @@ class _UserManageScreenState extends State<UserManageScreen> {
                             vertical: 20.0, horizontal: 16.0),
                         title: Row(
                           children: [
-                            Text(user.name,
+                            Text(user.name.isEmpty ? "SNS USER" : user.name,
                                 style: const TextStyle(fontSize: 20.0)),
                             const SizedBox(width: 8.0), // 간격 조정
                             Text('(${user.role})',
                                 style: const TextStyle(fontSize: 20.0)),
                           ],
                         ),
-                        subtitle: Text(user.email,
+                        subtitle: Text(
+                            user.email.isEmpty ? "APPLE USER" : user.email,
                             style: const TextStyle(fontSize: 16.0)),
                         trailing: user.role == 'MEMBER'
                             ? ElevatedButton(
