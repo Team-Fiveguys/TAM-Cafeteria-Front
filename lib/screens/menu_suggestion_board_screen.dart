@@ -11,9 +11,11 @@ class MenuBoardScreen extends StatefulWidget {
     Key? key,
     required this.userId,
     required this.isAdmin,
+    required this.scrollVisible,
   }) : super(key: key);
   final String userId;
   final bool isAdmin;
+  final ValueNotifier<bool> scrollVisible;
   @override
   State<MenuBoardScreen> createState() => _MenuBoardScreenState();
 }
@@ -28,12 +30,19 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   late String? cafeteriaName;
   final bool _showBackToTopButton = false;
 
-  late ScrollController _scrollController;
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()..addListener(_scrollListener);
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+              _scrollController.position.maxScrollExtent &&
+          !_isLoading) {
+        _loadNextPage();
+      }
+    });
 
     // 초기화
     _futureBoardList = Future.value([]);
@@ -50,6 +59,9 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   }
 
   void _loadNextPage() {
+    setState(() {
+      _isLoading = true;
+    });
     setState(() {
       _boardPageNumber++;
       _loadBoardList(cafeteriaId!);
@@ -432,175 +444,164 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                   final hotBoardList = hotBoardSnapshot.data!;
                   final topHotBoards = hotBoardList.take(3).toList();
 
-                  return NotificationListener<ScrollNotification>(
-                    onNotification: (ScrollNotification scrollInfo) {
-                      if (scrollInfo.metrics.maxScrollExtent ==
-                          scrollInfo.metrics.pixels) {
-                        // 스크롤이 끝까지 내려갔을 때
-                        _boardPageNumber++; // 페이지 번호 증가
-                        _loadBoardList(
-                          cafeteriaId!,
-                        );
-                      }
-                      return true;
-                    },
-                    child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            Container(
-                              alignment: Alignment.center,
-                              width: double.infinity,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(41),
-                                color: const Color(0xff002967),
-                              ),
-                              child: const Text(
-                                '메뉴건의 게시판',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  return Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            width: double.infinity,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(41),
+                              color: const Color(0xff002967),
+                            ),
+                            child: const Text(
+                              '메뉴건의 게시판',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextButton.icon(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => WriteMenuScreen(
-                                            cafeteriaId: cafeteriaId),
-                                      ),
-                                    ).then((value) {
-                                      if (value == true) {
-                                        setState(() {
-                                          _futureBoardList =
-                                              _apiService.fetchMenuBoardList(
-                                                  cafeteriaId!, 1, "TIME");
-                                          _futureHotBoardList =
-                                              _apiService.fetchMenuBoardList(
-                                                  cafeteriaId!, 1, "LIKE");
-                                        });
-                                      }
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.edit_square,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => WriteMenuScreen(
+                                          cafeteriaId: cafeteriaId),
+                                    ),
+                                  ).then((value) {
+                                    if (value == true) {
+                                      setState(() {
+                                        _futureBoardList =
+                                            _apiService.fetchMenuBoardList(
+                                                cafeteriaId!, 1, "TIME");
+                                        _futureHotBoardList =
+                                            _apiService.fetchMenuBoardList(
+                                                cafeteriaId!, 1, "LIKE");
+                                      });
+                                    }
+                                  });
+                                },
+                                icon: Icon(
+                                  Icons.edit_square,
+                                  color: Theme.of(context).primaryColorDark,
+                                ),
+                                label: Text(
+                                  '글쓰기',
+                                  style: TextStyle(
                                     color: Theme.of(context).primaryColorDark,
                                   ),
-                                  label: Text(
-                                    '글쓰기',
-                                    style: TextStyle(
-                                      color: Theme.of(context).primaryColorDark,
-                                    ),
+                                ),
+                              ),
+                              Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
                                   ),
-                                ),
-                                Container(
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                    ),
-                                    alignment: Alignment.centerRight,
-                                    child: DropdownButton<String>(
-                                      value: selectedItem, // 현재 선택된 항목
-                                      icon: const Icon(Icons
-                                          .arrow_drop_down_sharp), // 아래 화살표 아이콘
-                                      iconSize: 24,
-                                      elevation: 20,
-                                      dropdownColor: Colors.white,
-                                      style: const TextStyle(
-                                          color: Colors.black), // 텍스트 스타일
-                                      underline: Container(
-                                        height: 2,
-                                        color: Colors.black,
-                                      ), // 현재 선택된 항목
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          selectedItem = newValue;
-                                          // 선택된 항목에 따라 cafeteriaId 설정
-                                          if (newValue == "명진당") {
-                                            cafeteriaId = 1;
-                                          } else if (newValue == "학생회관") {
-                                            cafeteriaId = 2;
-                                          } else {
-                                            cafeteriaId = 3;
-                                          }
-                                          // cafeteriaId와 함께 게시글 목록 다시 불러오기
-                                          _loadBoardList(cafeteriaId!);
-                                        });
+                                  alignment: Alignment.centerRight,
+                                  child: DropdownButton<String>(
+                                    value: selectedItem, // 현재 선택된 항목
+                                    icon: const Icon(Icons
+                                        .arrow_drop_down_sharp), // 아래 화살표 아이콘
+                                    iconSize: 24,
+                                    elevation: 20,
+                                    dropdownColor: Colors.white,
+                                    style: const TextStyle(
+                                        color: Colors.black), // 텍스트 스타일
+                                    underline: Container(
+                                      height: 2,
+                                      color: Colors.black,
+                                    ), // 현재 선택된 항목
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        widget.scrollVisible.value = true;
+                                        selectedItem = newValue;
+                                        // 선택된 항목에 따라 cafeteriaId 설정
+                                        if (newValue == "명진당") {
+                                          cafeteriaId = 1;
+                                        } else if (newValue == "학생회관") {
+                                          cafeteriaId = 2;
+                                        } else {
+                                          cafeteriaId = 3;
+                                        }
+                                        // cafeteriaId와 함께 게시글 목록 다시 불러오기
+                                        _loadBoardList(cafeteriaId!);
+                                      });
+                                    },
+                                    items: <String>[
+                                      '명진당',
+                                      '학생회관',
+                                      '명돈이네',
+                                    ] // 선택 가능한 항목 리스트
+                                        .map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
                                       },
-                                      items: <String>[
-                                        '명진당',
-                                        '학생회관',
-                                        '명돈이네',
-                                      ] // 선택 가능한 항목 리스트
-                                          .map<DropdownMenuItem<String>>(
-                                        (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value),
-                                          );
-                                        },
-                                      ).toList(),
-                                    )),
-                              ],
-                            ),
-                            const Divider(),
-                            const SizedBox(height: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: topHotBoards.length,
-                                  itemBuilder: (context, index) {
-                                    final board = topHotBoards[index];
-                                    return _buildHotPost(
-                                      board['id'],
-                                      board['title'],
-                                      board['content'],
-                                      board['likeCount'],
-                                      board['publisherName'] ?? "익명",
-                                      board['uploadTime'],
-                                    );
-                                  },
-                                  separatorBuilder: (context, index) =>
-                                      const SizedBox(height: 10),
-                                ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 10),
-                                ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: boardList.length,
-                                  itemBuilder: (context, index) {
-                                    final board = boardList[index];
-                                    return _buildPost(
-                                      board['id'],
-                                      board['title'],
-                                      board['content'],
-                                      board['likeCount'],
-                                      board['publisherName'] ?? "익명",
-                                      board['uploadTime'],
-                                    );
-                                  },
-                                  separatorBuilder: (context, index) =>
-                                      const SizedBox(height: 10),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )),
-                  );
+                                    ).toList(),
+                                  )),
+                            ],
+                          ),
+                          const Divider(),
+                          const SizedBox(height: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListView.separated(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: topHotBoards.length,
+                                itemBuilder: (context, index) {
+                                  final board = topHotBoards[index];
+                                  return _buildHotPost(
+                                    board['id'],
+                                    board['title'],
+                                    board['content'],
+                                    board['likeCount'],
+                                    board['publisherName'] ?? "익명",
+                                    board['uploadTime'],
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 10),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 10),
+                              ListView.separated(
+                                controller: _scrollController,
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: boardList.length,
+                                itemBuilder: (context, index) {
+                                  final board = boardList[index];
+                                  return _buildPost(
+                                    board['id'],
+                                    board['title'],
+                                    board['content'],
+                                    board['likeCount'],
+                                    board['publisherName'] ?? "익명",
+                                    board['uploadTime'],
+                                  );
+                                },
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 10),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ));
                 }
               },
             );

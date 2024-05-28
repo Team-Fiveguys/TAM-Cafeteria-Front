@@ -9,8 +9,10 @@ class AnnounceBoardScreen extends StatefulWidget {
   const AnnounceBoardScreen({
     Key? key,
     required this.isAdmin,
+    required this.scrollVisible,
   }) : super(key: key);
   final bool isAdmin;
+  final ValueNotifier<bool> scrollVisible;
   @override
   State<AnnounceBoardScreen> createState() => _AnnounceBoardScreenState();
 }
@@ -87,7 +89,8 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   String formatDate(String uploadTime) {
     DateTime dateTime = DateTime.parse(uploadTime);
 
-    String formattedDate = DateFormat('MM-dd HH:mm').format(dateTime.toLocal());
+    String formattedDate =
+        DateFormat('yyyy-MM-dd HH:mm').format(dateTime.toLocal());
 
     return formattedDate;
   }
@@ -108,6 +111,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
 
   Widget _buildPost(int id, String title, String content, String publisherName,
       String uploadTime) {
+    publisherName = maskPublisherName(publisherName, widget.isAdmin);
     return GestureDetector(
       onTap: () async {
         final postDetail = await ApiService.fetchBoardDetail(id);

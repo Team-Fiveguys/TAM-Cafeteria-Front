@@ -242,9 +242,10 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
 
   List<Widget> _widgetOptions = <Widget>[
     MainScreen(),
-    const MenuBoardScreen(
+    MenuBoardScreen(
       userId: "",
       isAdmin: false,
+      scrollVisible: ValueNotifier(true),
     ),
     const MyPage(),
   ];
@@ -403,10 +404,12 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
           isNoti
               ? AnnounceBoardScreen(
                   isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
                 )
               : MenuBoardScreen(
                   userId: userId,
                   isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
                 ),
           isAdmin
               ? AdminPage(
@@ -429,10 +432,12 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
           isNoti
               ? AnnounceBoardScreen(
                   isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
                 )
               : MenuBoardScreen(
                   userId: userId,
                   isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
                 ),
           isAdmin
               ? AdminPage(
@@ -454,7 +459,9 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     // _permissionWithNotification();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(
+        milliseconds: 300,
+      ),
       vsync: this,
     );
     _scrollController.addListener(() {
@@ -479,10 +486,12 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
       isNoti
           ? AnnounceBoardScreen(
               isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
             )
           : MenuBoardScreen(
               userId: userId,
               isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
             ),
       isAdmin
           ? AdminPage(
@@ -763,10 +772,12 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
       isNoti
           ? AnnounceBoardScreen(
               isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
             )
           : MenuBoardScreen(
               userId: userId,
               isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
             ),
       isAdmin
           ? AdminPage(
