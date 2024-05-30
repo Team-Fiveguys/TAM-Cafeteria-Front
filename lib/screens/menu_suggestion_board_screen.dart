@@ -73,9 +73,11 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   Future<void> _loadBoardList(int cafeteriaId) async {
     _futureBoardList =
         _apiService.fetchMenuBoardList(cafeteriaId, _boardPageNumber, "TIME");
+
     if (boardList.isEmpty) {
       boardList = await _futureBoardList;
-      boardLastPageNumber = boardList[0]['totalPages'] ?? 1;
+      boardLastPageNumber =
+          boardList.isNotEmpty ? boardList[0]['totalPages'] ?? 1 : 1;
       print(boardList);
       setState(() {});
     }
@@ -542,45 +544,62 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 ],
               ),
               const Divider(),
-              const SizedBox(height: 10),
-              FutureBuilder<List<Map<String, dynamic>>>(
-                future: _futureHotBoardList,
-                builder: (context, hotBoardSnapshot) {
-                  if (hotBoardSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (hotBoardSnapshot.hasError) {
-                    return Center(
-                        child: Text('Error: ${hotBoardSnapshot.error}'));
-                  } else {
-                    final hotBoardList = hotBoardSnapshot.data!;
-                    final topHotBoards = hotBoardList.take(3).toList();
-                    // print(boardList);
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: topHotBoards.length,
-                          itemBuilder: (context, index) {
-                            final board = topHotBoards[index];
-                            return _buildHotPost(
-                              board['id'],
-                              board['title'],
-                              board['content'],
-                              board['likeCount'],
-                              board['publisherName'] ?? "익명",
-                              board['uploadTime'],
-                            );
-                          },
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 10),
+              boardList.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.0),
+                        child: Text(
+                          '게시글이 없습니다.',
+                          style: TextStyle(
+                            fontSize: 16.0,
+                            color: Colors.black54,
+                          ),
                         ),
-                      ],
-                    );
-                  }
-                },
+                      ),
+                    )
+                  : const SizedBox(height: 10),
+              Column(
+                children: [
+                  FutureBuilder<List<Map<String, dynamic>>>(
+                    future: _futureHotBoardList,
+                    builder: (context, hotBoardSnapshot) {
+                      if (hotBoardSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (hotBoardSnapshot.hasError) {
+                        return Center(
+                            child: Text('Error: ${hotBoardSnapshot.error}'));
+                      } else {
+                        final hotBoardList = hotBoardSnapshot.data!;
+                        final topHotBoards = hotBoardList.take(3).toList();
+                        // print(boardList);
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: topHotBoards.length,
+                              itemBuilder: (context, index) {
+                                final board = topHotBoards[index];
+                                return _buildHotPost(
+                                  board['id'],
+                                  board['title'],
+                                  board['content'],
+                                  board['likeCount'],
+                                  board['publisherName'] ?? "익명",
+                                  board['uploadTime'],
+                                );
+                              },
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 10),
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
