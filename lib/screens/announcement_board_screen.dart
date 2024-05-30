@@ -317,7 +317,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Divider(),
-              _isLoading && noticeList.isEmpty // 게시물이 없는 경우 Divider 숨김
+              noticeList.isEmpty // 게시물이 없는 경우 Divider 숨김
                   ? const Center(
                       child: Padding(
                         padding: EdgeInsets.all(20.0),
