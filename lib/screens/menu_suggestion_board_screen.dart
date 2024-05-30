@@ -33,6 +33,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
 
   final ScrollController scrollController = ScrollController();
   bool _isLoading = false;
+  bool _isEmpty = false;
 
   @override
   void initState() {
@@ -50,8 +51,8 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
     _futureBoardList = Future.value([]);
     _futureHotBoardList = Future.value([]);
 
-    initializeAsyncTask();
-    _loadBoardList(cafeteriaId ?? 1); // 저장된 식당 정보를 로드하여 초기화
+    initializeAsyncTask()
+        .then((_) => _loadBoardList(cafeteriaId ?? 1)); // 저장된 식당 정보를 로드하여 초기화
   }
 
   void _loadNextPage() async {
@@ -71,6 +72,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
   }
 
   Future<void> _loadBoardList(int cafeteriaId) async {
+    _isEmpty = false;
     _futureBoardList =
         _apiService.fetchMenuBoardList(cafeteriaId, _boardPageNumber, "TIME");
 
@@ -79,6 +81,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
       boardLastPageNumber =
           boardList.isNotEmpty ? boardList[0]['totalPages'] ?? 1 : 1;
       print(boardList);
+      _isEmpty = boardList.isEmpty;
       setState(() {});
     }
     _futureHotBoardList =
@@ -544,20 +547,6 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 ],
               ),
               const Divider(),
-              boardList.isEmpty
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text(
-                          '게시글이 없습니다.',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ),
-                    )
-                  : const SizedBox(height: 10),
               Column(
                 children: [
                   FutureBuilder<List<Map<String, dynamic>>>(
@@ -565,7 +554,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                     builder: (context, hotBoardSnapshot) {
                       if (hotBoardSnapshot.connectionState ==
                           ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return const SizedBox.shrink();
                       } else if (hotBoardSnapshot.hasError) {
                         return Center(
                             child: Text('Error: ${hotBoardSnapshot.error}'));
@@ -611,6 +600,21 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: boardList.length + 1,
                     itemBuilder: (context, index) {
+                      if (_isEmpty) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Text(
+                              '게시글이 없습니다.',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
                       if (index == boardList.length) {
                         return _isLoading
                             ? const Center(child: CircularProgressIndicator())

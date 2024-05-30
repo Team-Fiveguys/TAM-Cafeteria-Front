@@ -30,12 +30,13 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
   List<Map<String, dynamic>> noticeList = [];
   final ScrollController scrollController = ScrollController();
   bool _isLoading = false;
+  bool _isEmpty = false;
 
   @override
   void initState() {
     super.initState();
     cafeteriaId = 1;
-    _futureBoardList = _apiService.fetchNoticeBoardList(1, _page);
+    // _futureBoardList = _apiService.fetchNoticeBoardList(1, _page);
     scrollController.addListener(() {
       if (scrollController.position.pixels ==
               scrollController.position.maxScrollExtent &&
@@ -45,8 +46,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
       }
     });
     _futureBoardList = Future.value([]);
-    initializeAsyncTask();
-    _loadBoardList(cafeteriaId ?? 1);
+    initializeAsyncTask().then((_) => _loadBoardList(cafeteriaId ?? 1));
   }
 
   void _fetchNextPage() async {
@@ -60,7 +60,9 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
         await _apiService.fetchNoticeBoardList(cafeteriaId ?? 1, _page);
     setState(() {
       _isLoading = false;
+
       noticeList.addAll(newNotices);
+      _isEmpty = noticeList.isEmpty;
     });
   }
 
@@ -77,6 +79,11 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
       setState(() {
         noticeList = fetchedNotices;
         lastPage = noticeList[0]['totalPages'] ?? 1;
+        _isEmpty = noticeList.isEmpty;
+      });
+    } else {
+      setState(() {
+        _isEmpty = true;
       });
     }
   }
@@ -317,46 +324,46 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Divider(),
-              _isLoading && noticeList.isEmpty // 게시물이 없는 경우 Divider 숨김
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text(
-                          '공지 사항이 없습니다',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            color: Colors.black54,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: noticeList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (_isEmpty) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Text(
+                              '공지 사항이 없습니다',
+                              style: TextStyle(
+                                fontSize: 16.0,
+                                color: Colors.black54,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: noticeList.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index == noticeList.length) {
-                              return _isLoading
-                                  ? const Center(
-                                      child: CircularProgressIndicator())
-                                  : const SizedBox.shrink();
-                            }
-                            final board = noticeList[index];
-                            return _buildPost(
-                              board['id'],
-                              board['title'],
-                              board['content'],
-                              board['publisherName'] ?? "관리자",
-                              board['uploadTime'],
-                            );
-                          },
-                          separatorBuilder: (context, index) => const Divider(),
-                        ),
-                      ],
-                    ),
+                        );
+                      }
+                      if (index == noticeList.length) {
+                        return _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : const SizedBox.shrink();
+                      }
+                      final board = noticeList[index];
+                      return _buildPost(
+                        board['id'],
+                        board['title'],
+                        board['content'],
+                        board['publisherName'] ?? "관리자",
+                        board['uploadTime'],
+                      );
+                    },
+                    separatorBuilder: (context, index) => const Divider(),
+                  ),
+                ],
+              ),
             ],
           ),
         ],
