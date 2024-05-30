@@ -4,12 +4,12 @@ import 'package:intl/intl.dart';
 
 class ViewAnnouncementScreen extends StatefulWidget {
   final int postId; // 게시물 ID를 받을 변수 추가
-  final String title;
-  final String content;
+  String title;
+  String content;
   final String publisherName;
   final String uploadTime;
 
-  const ViewAnnouncementScreen({
+  ViewAnnouncementScreen({
     Key? key,
     required this.postId, // 생성자에 postId를 추가
     required this.title,
@@ -58,10 +58,8 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
 
   String formatDate(String uploadTime) {
     DateTime dateTime = DateTime.parse(uploadTime);
-
     String formattedDate =
         DateFormat('yyyy-MM-dd HH:mm').format(dateTime.toLocal());
-
     return formattedDate;
   }
 
@@ -73,8 +71,9 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
         const SnackBar(content: Text('게시물이 성공적으로 수정되었습니다.')),
       );
 
-      // Set back to static text mode after updating
       setState(() {
+        widget.title = _titleController.text;
+        widget.content = _contentController.text;
         _isEditing = false;
       });
     } catch (e) {
