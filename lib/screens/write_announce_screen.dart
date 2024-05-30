@@ -100,10 +100,20 @@ class _WriteAnnounceScreenState extends State<WriteAnnounceScreen> {
                     ),
                     child: TextFormField(
                       controller: _titleController,
-                      decoration: const InputDecoration(
-                        hintText: '원하는 메뉴를 작성해주세요',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                      decoration: InputDecoration(
+                        hintText: '공지를 작성해주세요',
+                        border: OutlineInputBorder(
+                          // 여기서 직접 정의
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none, // 테두리 없음 설정
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          // 포커스 시 테두리를 무시하고 싶다면 이와 같이 설정
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16.0),
                       ),
                     ),
                   ),
@@ -116,10 +126,20 @@ class _WriteAnnounceScreenState extends State<WriteAnnounceScreen> {
                     ),
                     child: TextFormField(
                       controller: _contentController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '글쓰기',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                        border: OutlineInputBorder(
+                          // 여기서 직접 정의
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none, // 테두리 없음 설정
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          // 포커스 시 테두리를 무시하고 싶다면 이와 같이 설정
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16.0),
                       ),
                       maxLines: null,
                     ),
