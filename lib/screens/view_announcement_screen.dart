@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
+import 'package:intl/intl.dart';
 
 class ViewAnnouncementScreen extends StatefulWidget {
   final int postId; // 게시물 ID를 받을 변수 추가
@@ -55,6 +56,14 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
     }
   }
 
+  String formatDate(String uploadTime) {
+    DateTime dateTime = DateTime.parse(uploadTime);
+
+    String formattedDate = DateFormat('MM-dd HH:mm').format(dateTime.toLocal());
+
+    return formattedDate;
+  }
+
   void _updatePost() async {
     try {
       await ApiService.updatePost(
@@ -77,6 +86,7 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Image.asset(
           'assets/images/app_bar_logo.png',
@@ -125,27 +135,19 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(19),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.9),
-                          spreadRadius: 2.0,
-                          blurRadius: 1.0,
-                        ),
-                      ],
                     ),
                     child: _isEditing
                         ? TextField(
                             controller: _titleController,
                             style: const TextStyle(
-                              fontSize: 24.0,
+                              fontSize: 20.0,
                               fontWeight: FontWeight.bold,
                             ),
                             decoration: const InputDecoration(
-                              border: InputBorder.none,
                               hintText: '제목을 입력하세요',
                             ),
                           )
@@ -157,19 +159,16 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                             ),
                           ),
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(height: 10.0),
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    height: 90,
+                    padding: const EdgeInsets.all(15),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(19),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.9),
-                          spreadRadius: 2.0,
-                          blurRadius: 1.0,
-                        ),
-                      ],
+                      border: Border.all(
+                        color: Colors.grey,
+                      ),
                     ),
                     child: SingleChildScrollView(
                       child: _isEditing
@@ -177,9 +176,11 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                               controller: _contentController,
                               style: const TextStyle(fontSize: 18.0),
                               decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                hintText: '내용을 입력하세요',
-                              ),
+                                  border: InputBorder.none,
+                                  hintText: '내용을 입력하세요',
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.white))),
                               maxLines: null,
                             )
                           : Text(
@@ -188,27 +189,89 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                             ),
                     ),
                   ),
-                  const SizedBox(height: 20.0),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      ElevatedButton(
-                        onPressed: _deletePost,
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white),
-                        child: const Text('삭제'),
+                      Text(
+                        formatDate(widget.uploadTime),
                       ),
-                      ElevatedButton(
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
+                          minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
+                        ),
+                        onPressed: _deletePost,
+                        icon: Icon(
+                          Icons.delete,
+                          color: Theme.of(context).primaryColorDark,
+                          size: 18,
+                        ),
+                        label: Text(
+                          '삭제',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColorDark,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
+                          minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
+                        ),
                         onPressed: () {
                           setState(() {
                             _isEditing = !_isEditing;
                           });
                         },
-                        child: Text(_isEditing ? '취소' : '수정'),
+                        icon: Icon(
+                          Icons.change_circle,
+                          color: Theme.of(context).primaryColorDark,
+                          size: 18,
+                        ),
+                        label: Text(
+                          _isEditing ? '취소' : '수정',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColorDark,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
-                      ElevatedButton(
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
+                          minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
+                        ),
                         onPressed: _isEditing ? _updatePost : null,
-                        child: const Text('저장'),
+                        icon: Icon(
+                          Icons.save_alt_rounded,
+                          color: Theme.of(context).primaryColorDark,
+                          size: 18,
+                        ),
+                        label: Text(
+                          '저장',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColorDark,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                     ],
                   ),
