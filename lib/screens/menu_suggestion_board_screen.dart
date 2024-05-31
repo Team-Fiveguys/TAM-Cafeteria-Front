@@ -447,12 +447,12 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
               ),
               Container(
                 alignment: Alignment.center,
-                width: double.infinity,
-                height: 56,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(41),
-                  color: const Color(0xff002967),
+                  borderRadius: BorderRadiusDirectional.circular(36),
+                  color: Theme.of(context).canvasColor,
                 ),
+                width: 350,
+                height: 60,
                 child: const Text(
                   '메뉴건의 게시판',
                   style: TextStyle(

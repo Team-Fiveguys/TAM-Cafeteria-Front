@@ -4,12 +4,12 @@ import 'package:intl/intl.dart';
 
 class ViewAnnouncementScreen extends StatefulWidget {
   final int postId; // 게시물 ID를 받을 변수 추가
-  final String title;
-  final String content;
+  String title;
+  String content;
   final String publisherName;
   final String uploadTime;
 
-  const ViewAnnouncementScreen({
+  ViewAnnouncementScreen({
     Key? key,
     required this.postId, // 생성자에 postId를 추가
     required this.title,
@@ -58,9 +58,8 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
 
   String formatDate(String uploadTime) {
     DateTime dateTime = DateTime.parse(uploadTime);
-
-    String formattedDate = DateFormat('MM-dd HH:mm').format(dateTime.toLocal());
-
+    String formattedDate =
+        DateFormat('yyyy-MM-dd HH:mm').format(dateTime.toLocal());
     return formattedDate;
   }
 
@@ -72,8 +71,9 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
         const SnackBar(content: Text('게시물이 성공적으로 수정되었습니다.')),
       );
 
-      // Set back to static text mode after updating
       setState(() {
+        widget.title = _titleController.text;
+        widget.content = _contentController.text;
         _isEditing = false;
       });
     } catch (e) {
@@ -102,13 +102,14 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
           children: [
             Container(
               alignment: Alignment.center,
-              height: 56,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(41),
-                color: const Color(0xff002967),
+                borderRadius: BorderRadiusDirectional.circular(36),
+                color: Theme.of(context).canvasColor,
               ),
+              width: 350,
+              height: 60,
               child: const Text(
-                '게시물 보기',
+                '공지 게시글',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20.0,
@@ -193,8 +194,9 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                     height: 10,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Text(widget.publisherName),
                       Text(
                         formatDate(widget.uploadTime),
                       ),
