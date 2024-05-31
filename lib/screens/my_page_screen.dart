@@ -411,7 +411,7 @@ class _MyPageState extends State<MyPage> {
               context: context,
               // 필요한 경우 applicationName, applicationVersion 등을 설정할 수 있음
               applicationName: '탐식당',
-              applicationVersion: '1.0.3',
+              applicationVersion: '1.0.4',
               applicationIcon: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Image.asset('assets/images/app_logo.png',
