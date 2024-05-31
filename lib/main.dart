@@ -32,7 +32,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print('backgroundHandler : ${message.data}');
-  await ApiService.postNotificationToServer(message.data["id"]);
+  // await ApiService.postNotificationToServer(message.data["id"]);
   // showNotification(message);
   // 세부 내용이 필요한 경우 추가...
 }
@@ -78,7 +78,7 @@ void initializeNotification() async {
     print('onMessage listen: ${message.data}');
 
     if (notification != null) {
-      await ApiService.postNotificationToServer(message.data["id"] ?? "0");
+      // await ApiService.postNotificationToServer(message.data["id"] ?? "0");
       flutterLocalNotificationsPlugin.show(
           notification.hashCode,
           notification.title,

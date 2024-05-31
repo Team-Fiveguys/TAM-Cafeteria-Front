@@ -45,13 +45,13 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
     try {
       await ApiService.deletePost(widget.postId);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('게시물이 성공적으로 삭제되었습니다.')),
+        const SnackBar(content: Text('게시글이 성공적으로 삭제되었습니다.')),
       );
 
       Navigator.of(context).pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('게시물 삭제 중 오류가 발생했습니다: $e')),
+        SnackBar(content: Text('게시글 삭제 중 오류가 발생했습니다: $e')),
       );
     }
   }
@@ -68,7 +68,7 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
       await ApiService.updatePost(
           widget.postId, _titleController.text, _contentController.text);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('게시물이 성공적으로 수정되었습니다.')),
+        const SnackBar(content: Text('게시글이 성공적으로 수정되었습니다.')),
       );
 
       setState(() {
@@ -78,7 +78,7 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('게시물 수정 중 오류가 발생했습니다: $e')),
+        SnackBar(content: Text('게시글 수정 중 오류가 발생했습니다: $e')),
       );
     }
   }

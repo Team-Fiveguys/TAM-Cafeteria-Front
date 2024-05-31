@@ -71,7 +71,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
     await pref.setString('cafeteriaName', cafeteria);
   }
 
-  void _loadBoardList(int cafeteriaId) async {
+  Future<void> _loadBoardList(int cafeteriaId) async {
     _futureBoardList = _apiService.fetchNoticeBoardList(cafeteriaId, 1);
     List<Map<String, dynamic>> fetchedNotices =
         await _apiService.fetchNoticeBoardList(cafeteriaId, 1);
@@ -133,7 +133,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
       highlightColor: Colors.transparent,
       onTap: () async {
         final postDetail = await ApiService.fetchBoardDetail(id);
-        Navigator.push(
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ViewAnnouncementScreen(
@@ -144,14 +144,8 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
               postId: id,
             ),
           ),
-        ).then((value) {
-          setState(() {
-            _futureBoardList = _apiService.fetchNoticeBoardList(
-              cafeteriaId!,
-              1,
-            );
-          });
-        });
+        );
+        await _loadBoardList(cafeteriaId!);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -237,21 +231,16 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
                   children: [
                     if (widget.isAdmin)
                       TextButton.icon(
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) =>
                                   WriteAnnounceScreen(cafeteriaId: cafeteriaId),
                             ),
-                          ).then((value) {
-                            if (value == true) {
-                              setState(() {
-                                _futureBoardList = _apiService
-                                    .fetchNoticeBoardList(cafeteriaId!, _page);
-                              });
-                            }
-                          });
+                          );
+                          await _loadBoardList(cafeteriaId!);
+                          setState(() {});
                         },
                         icon: Icon(
                           Icons.edit_square,

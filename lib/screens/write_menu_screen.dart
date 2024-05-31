@@ -33,13 +33,13 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
     try {
       await ApiService.createPost(boardType, title, content, cafeteriaId);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('게시물이 성공적으로 작성되었습니다.')),
+        const SnackBar(content: Text('게시글이 성공적으로 작성되었습니다.')),
       );
 
       Navigator.of(context).pop(true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('게시물 작성에 실패했습니다: $e')),
+        SnackBar(content: Text('게시글 작성에 실패했습니다: $e')),
       );
 
       Navigator.of(context).pop(true);

@@ -73,17 +73,18 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
 
   Future<void> _loadBoardList(int cafeteriaId) async {
     _isEmpty = false;
+    // boardList.clear();
     _futureBoardList =
         _apiService.fetchMenuBoardList(cafeteriaId, _boardPageNumber, "TIME");
 
-    if (boardList.isEmpty) {
-      boardList = await _futureBoardList;
-      boardLastPageNumber =
-          boardList.isNotEmpty ? boardList[0]['totalPages'] ?? 1 : 1;
-      print(boardList);
-      _isEmpty = boardList.isEmpty;
-      setState(() {});
-    }
+    // if (boardList.isEmpty) {
+    boardList = await _futureBoardList;
+    boardLastPageNumber =
+        boardList.isNotEmpty ? boardList[0]['totalPages'] ?? 1 : 1;
+    print(boardList);
+    _isEmpty = boardList.isEmpty;
+    setState(() {});
+    // }
     _futureHotBoardList =
         _apiService.fetchMenuBoardList(cafeteriaId, 1, "LIKE");
 
@@ -152,7 +153,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
       onTap: () async {
         final postDetail = await ApiService.fetchBoardDetail(id);
         // 'ViewMenuSuggestionScreen'으로 이동합니다. 이 때, 몇 가지 매개변수를 전달합니다.
-        Navigator.push(
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ViewMenuSuggestionScreen(
@@ -167,14 +168,11 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
               isAdmin: widget.isAdmin,
             ),
           ),
-        ).then((value) {
-          setState(() {
-            _futureBoardList =
-                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "TIME");
-            _futureHotBoardList =
-                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
-          });
-        });
+        );
+        _futureHotBoardList =
+            _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
+        await _loadBoardList(cafeteriaId!);
+        // setState(() {});
       },
       child: Container(
         height: 99,
@@ -284,7 +282,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
     return GestureDetector(
       onTap: () async {
         final postDetail = await ApiService.fetchBoardDetail(id);
-        Navigator.push(
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ViewMenuSuggestionScreen(
@@ -299,14 +297,11 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
               isAdmin: widget.isAdmin,
             ),
           ),
-        ).then((value) {
-          setState(() {
-            _futureBoardList =
-                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "TIME");
-            _futureHotBoardList =
-                _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
-          });
-        });
+        );
+        _futureHotBoardList =
+            _apiService.fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
+        await _loadBoardList(cafeteriaId!);
+        setState(() {});
       },
       child: Stack(
         children: [
@@ -466,23 +461,18 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextButton.icon(
-                    onPressed: () {
-                      Navigator.push(
+                    onPressed: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
                               WriteMenuScreen(cafeteriaId: cafeteriaId),
                         ),
-                      ).then((value) {
-                        if (value == true) {
-                          setState(() {
-                            _futureBoardList = _apiService.fetchMenuBoardList(
-                                cafeteriaId!, 1, "TIME");
-                            _futureHotBoardList = _apiService
-                                .fetchMenuBoardList(cafeteriaId!, 1, "LIKE");
-                          });
-                        }
-                      });
+                      );
+                      _futureHotBoardList = _apiService.fetchMenuBoardList(
+                          cafeteriaId!, 1, "LIKE");
+                      await _loadBoardList(cafeteriaId!);
+                      setState(() {});
                     },
                     icon: Icon(
                       Icons.edit_square,
@@ -512,7 +502,7 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                           height: 2,
                           color: Colors.black,
                         ), // 현재 선택된 항목
-                        onChanged: (String? newValue) {
+                        onChanged: (String? newValue) async {
                           setState(() {
                             widget.scrollVisible.value = true;
                             selectedItem = newValue;
@@ -527,8 +517,8 @@ class _MenuBoardScreenState extends State<MenuBoardScreen> {
                             boardList.clear();
                             _boardPageNumber = 1;
                             // cafeteriaId와 함께 게시글 목록 다시 불러오기
-                            _loadBoardList(cafeteriaId!);
                           });
+                          await _loadBoardList(cafeteriaId!);
                         },
                         items: <String>[
                           '명진당',

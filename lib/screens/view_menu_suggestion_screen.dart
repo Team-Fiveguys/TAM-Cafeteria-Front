@@ -176,7 +176,7 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         title: const Text('알림'),
-        content: const Text('이 게시물을 삭제하시겠습니까?'),
+        content: const Text('이 게시글을 삭제하시겠습니까?'),
         actions: <Widget>[
           TextButton(
             child: const Text('삭제'),
