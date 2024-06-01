@@ -8,6 +8,7 @@ class ViewAnnouncementScreen extends StatefulWidget {
   String content;
   final String publisherName;
   final String uploadTime;
+  final bool isAdmin;
 
   ViewAnnouncementScreen({
     Key? key,
@@ -16,6 +17,7 @@ class ViewAnnouncementScreen extends StatefulWidget {
     required this.content,
     required this.publisherName,
     required this.uploadTime,
+    required this.isAdmin,
   }) : super(key: key);
 
   @override
@@ -202,81 +204,82 @@ class _ViewAnnouncementScreenState extends State<ViewAnnouncementScreen> {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton.icon(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
-                          minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
-                        ),
-                        onPressed: _deletePost,
-                        icon: Icon(
-                          Icons.delete,
-                          color: Theme.of(context).primaryColorDark,
-                          size: 18,
-                        ),
-                        label: Text(
-                          '삭제',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
+                  if (widget.isAdmin)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton.icon(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
+                            minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
+                          ),
+                          onPressed: _deletePost,
+                          icon: Icon(
+                            Icons.delete,
                             color: Theme.of(context).primaryColorDark,
-                            fontSize: 12,
+                            size: 18,
+                          ),
+                          label: Text(
+                            '삭제',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColorDark,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                      ),
-                      TextButton.icon(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
-                          minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _isEditing = !_isEditing;
-                          });
-                        },
-                        icon: Icon(
-                          Icons.change_circle,
-                          color: Theme.of(context).primaryColorDark,
-                          size: 18,
-                        ),
-                        label: Text(
-                          _isEditing ? '취소' : '수정',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
+                        TextButton.icon(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
+                            minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isEditing = !_isEditing;
+                            });
+                          },
+                          icon: Icon(
+                            Icons.change_circle,
                             color: Theme.of(context).primaryColorDark,
-                            fontSize: 12,
+                            size: 18,
+                          ),
+                          label: Text(
+                            _isEditing ? '취소' : '수정',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColorDark,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                      ),
-                      TextButton.icon(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
-                          minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
-                        ),
-                        onPressed: _isEditing ? _updatePost : null,
-                        icon: Icon(
-                          Icons.save_alt_rounded,
-                          color: Theme.of(context).primaryColorDark,
-                          size: 18,
-                        ),
-                        label: Text(
-                          '저장',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
+                        TextButton.icon(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 8), // 버튼의 패딩을 조정합니다.
+                            minimumSize: const Size(5, 5), // 버튼의 최소 사이즈를 설정합니다.
+                          ),
+                          onPressed: _isEditing ? _updatePost : null,
+                          icon: Icon(
+                            Icons.save_alt_rounded,
                             color: Theme.of(context).primaryColorDark,
-                            fontSize: 12,
+                            size: 18,
+                          ),
+                          label: Text(
+                            '저장',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColorDark,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
                 ],
               ),
             ),

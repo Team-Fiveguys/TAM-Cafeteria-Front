@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/screens/view_announcement_screen.dart';
 import 'package:tam_cafeteria_front/screens/write_announce_screen.dart';
@@ -38,6 +39,13 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
     cafeteriaId = 1;
     // _futureBoardList = _apiService.fetchNoticeBoardList(1, _page);
     scrollController.addListener(() {
+      if (scrollController.position.userScrollDirection ==
+          ScrollDirection.reverse) {
+        widget.scrollVisible.value = false;
+      } else if (scrollController.position.userScrollDirection ==
+          ScrollDirection.forward) {
+        widget.scrollVisible.value = true;
+      }
       if (scrollController.position.pixels ==
               scrollController.position.maxScrollExtent &&
           !_isLoading) {
@@ -142,9 +150,11 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
               publisherName: publisherName,
               uploadTime: uploadTime,
               postId: id,
+              isAdmin: widget.isAdmin,
             ),
           ),
         );
+        widget.scrollVisible.value = true;
         await _loadBoardList(cafeteriaId!);
       },
       child: Padding(
@@ -239,6 +249,7 @@ class _AnnounceBoardScreenState extends State<AnnounceBoardScreen> {
                                   WriteAnnounceScreen(cafeteriaId: cafeteriaId),
                             ),
                           );
+                          widget.scrollVisible.value = true;
                           await _loadBoardList(cafeteriaId!);
                           setState(() {});
                         },

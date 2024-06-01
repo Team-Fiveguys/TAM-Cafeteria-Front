@@ -258,13 +258,11 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
   AnimationController? _controller;
   OverlayEntry? _overlayEntry;
 
+  GlobalKey<MenuBoardScreenState> menuBoardKey = GlobalKey();
+
   List<Widget> _widgetOptions = <Widget>[
     MainScreen(),
-    MenuBoardScreen(
-      userId: "",
-      isAdmin: false,
-      scrollVisible: ValueNotifier(true),
-    ),
+    MainScreen(),
     const MyPage(),
   ];
 
@@ -399,7 +397,6 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     var normalized = base64Url.normalize(payload);
     var decoded = utf8.decode(base64Url.decode(normalized));
     final payloadMap = json.decode(decoded);
-    print('main App : decodeJwt : payloadMap $payloadMap');
     setState(() {
       isRealAdmin = payloadMap['role'] == "ADMIN";
       isAdmin = payloadMap['role'] == "ADMIN";
@@ -425,6 +422,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
                   scrollVisible: _isVisible,
                 )
               : MenuBoardScreen(
+                  key: menuBoardKey,
                   userId: userId,
                   isAdmin: isRealAdmin,
                   scrollVisible: _isVisible,
@@ -453,6 +451,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
                   scrollVisible: _isVisible,
                 )
               : MenuBoardScreen(
+                  key: menuBoardKey,
                   userId: userId,
                   isAdmin: isRealAdmin,
                   scrollVisible: _isVisible,
@@ -507,6 +506,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
               scrollVisible: _isVisible,
             )
           : MenuBoardScreen(
+              key: menuBoardKey,
               userId: userId,
               isAdmin: isRealAdmin,
               scrollVisible: _isVisible,
@@ -793,6 +793,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
               scrollVisible: _isVisible,
             )
           : MenuBoardScreen(
+              key: menuBoardKey,
               userId: userId,
               isAdmin: isRealAdmin,
               scrollVisible: _isVisible,
@@ -949,9 +950,14 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
             child: RefreshIndicator(
               color: Colors.blue,
               onRefresh: () async {
-                setState(() {
-                  testValue = 2;
-                });
+                if (_selectedIndex == 1) {
+                  await menuBoardKey.currentState?.loadBoardList();
+                  //공지게시판도 해야하나
+                } else {
+                  setState(() {
+                    testValue = 2;
+                  });
+                }
               },
               child: _selectedIndex == 1
                   ? _widgetOptions.elementAt(_selectedIndex)
