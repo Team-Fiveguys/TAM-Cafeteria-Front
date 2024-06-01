@@ -33,13 +33,13 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
     try {
       await ApiService.createPost(boardType, title, content, cafeteriaId);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('게시물이 성공적으로 작성되었습니다.')),
+        const SnackBar(content: Text('게시글이 성공적으로 작성되었습니다.')),
       );
 
       Navigator.of(context).pop(true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('게시물 작성에 실패했습니다: $e')),
+        SnackBar(content: Text('게시글 작성에 실패했습니다: $e')),
       );
 
       Navigator.of(context).pop(true);
@@ -104,15 +104,25 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(19),
+                      borderRadius: BorderRadius.circular(15),
                       border: Border.all(color: Colors.grey),
                     ),
                     child: TextFormField(
                       controller: _titleController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '원하는 메뉴를 작성해주세요',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                        border: OutlineInputBorder(
+                          // 여기서 직접 정의
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none, // 테두리 없음 설정
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          // 포커스 시 테두리를 무시하고 싶다면 이와 같이 설정
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16.0),
                       ),
                       maxLength: titleMaxLength,
                     ),
@@ -126,10 +136,20 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                     ),
                     child: TextFormField(
                       controller: _contentController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: '글쓰기',
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                        border: OutlineInputBorder(
+                          // 여기서 직접 정의
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none, // 테두리 없음 설정
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          // 포커스 시 테두리를 무시하고 싶다면 이와 같이 설정
+                          borderRadius: BorderRadius.circular(15),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16.0),
                       ),
                       maxLength: contentMaxLength,
                       maxLines: null,

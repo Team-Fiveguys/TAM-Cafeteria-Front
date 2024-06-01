@@ -176,7 +176,7 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         title: const Text('알림'),
-        content: const Text('이 게시물을 삭제하시겠습니까?'),
+        content: const Text('이 게시글을 삭제하시겠습니까?'),
         actions: <Widget>[
           TextButton(
             child: const Text('삭제'),
@@ -236,11 +236,12 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
             children: [
               Container(
                 alignment: Alignment.center,
-                height: 56,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(41),
-                  color: const Color(0xff002967),
+                  borderRadius: BorderRadiusDirectional.circular(36),
+                  color: Theme.of(context).canvasColor,
                 ),
+                width: 350,
+                height: 60,
                 child: const Text(
                   '메뉴 건의 게시글(식당이름)',
                   style: TextStyle(
