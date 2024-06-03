@@ -13,6 +13,7 @@ class ViewMenuSuggestionScreen extends StatefulWidget {
   final String userId;
   final String publisherId;
   final bool isAdmin;
+  final String cafeteriaName;
 
   const ViewMenuSuggestionScreen({
     Key? key,
@@ -25,6 +26,7 @@ class ViewMenuSuggestionScreen extends StatefulWidget {
     required this.userId,
     required this.publisherId,
     required this.isAdmin,
+    required this.cafeteriaName,
   }) : super(key: key);
 
   @override
@@ -242,9 +244,9 @@ class _ViewMenuSuggestionScreenState extends State<ViewMenuSuggestionScreen> {
                 ),
                 width: 350,
                 height: 60,
-                child: const Text(
-                  '메뉴 건의 게시글(식당이름)',
-                  style: TextStyle(
+                child: Text(
+                  '메뉴 건의 게시글(${widget.cafeteriaName})',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20.0,
                     fontWeight: FontWeight.bold,

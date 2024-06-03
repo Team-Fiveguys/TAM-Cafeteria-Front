@@ -174,6 +174,7 @@ class MenuBoardScreenState extends State<MenuBoardScreen> {
               userId: widget.userId,
               publisherId: postDetail['userId'].toString(),
               isAdmin: widget.isAdmin,
+              cafeteriaName: selectedItem ?? "명진당",
             ),
           ),
         );
@@ -304,6 +305,7 @@ class MenuBoardScreenState extends State<MenuBoardScreen> {
               userId: widget.userId,
               publisherId: postDetail['userId'].toString(),
               isAdmin: widget.isAdmin,
+              cafeteriaName: selectedItem ?? "명진당",
             ),
           ),
         );
