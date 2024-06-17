@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
+import 'package:tam_cafeteria_front/main.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/screens/add_cafeteria_screen.dart';
 import 'package:tam_cafeteria_front/screens/cover_management_screen.dart';
@@ -252,6 +253,12 @@ class _AdminPageState extends State<AdminPage> {
                               ? "myeongDon"
                               : "";
                   try {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
                     if (cafeteriaId != null) {
                       if ((meals == "LUNCH" &&
                               lunchImageUrl != null &&
@@ -259,19 +266,20 @@ class _AdminPageState extends State<AdminPage> {
                           (meals == "BREAKFAST" &&
                               breakfastImageUrl != null &&
                               breakfastImageUrl != "사진이 등록되어있지 않습니다.")) {
-                        ApiService.putDietPhoto(_image!, dateFormat.format(now),
-                            meals, cafeteriaId!);
+                        await ApiService.putDietPhoto(_image!,
+                            dateFormat.format(now), meals, cafeteriaId!);
                       } else {
-                        ApiService.postDietPhoto(_image!,
+                        await ApiService.postDietPhoto(_image!,
                             dateFormat.format(now), meals, cafeteriaId!);
                       }
-                      ApiService.postNotificationToSubscriber(
+                      await ApiService.postNotificationToSubscriber(
                           "[$cafeteriaName] [$selectedMeals] 사진 등록",
                           "$cafeteriaName $selectedMeals 사진 등록되었어요. 확인해보세요!",
                           channel,
                           "dietPhotoEnroll");
 
                       Navigator.of(imagePickerContext).pop();
+                      Navigator.of(context).pop();
                     }
                   } on Exception catch (e) {
                     print('_showImagePicker $e');
@@ -520,7 +528,7 @@ class _AdminPageState extends State<AdminPage> {
                     cafeteriaName = selectedItem!;
                     saveMyCafeteria(newValue!);
                   });
-                  print('$selectedItem');
+                  // print('$selectedItem');
                 },
                 items: <String>[
                   '명진당',
@@ -862,7 +870,7 @@ class _AdminPageState extends State<AdminPage> {
                                     child: Text('Error: ${snapshot.error}'),
                                   );
                                 } else {
-                                  print(snapshot.data!.isNotEmpty);
+                                  // print(snapshot.data!.isNotEmpty);
                                   return SizedBox(
                                     width: 400,
                                     child: AbsorbPointer(
@@ -891,7 +899,7 @@ class _AdminPageState extends State<AdminPage> {
                                                       dateFormat.format(now),
                                                       "BREAKFAST");
                                               if (result) {
-                                                print(channel);
+                                                // print(channel);
                                                 await ApiService
                                                     .postNotificationToSubscriber(
                                                         "[$cafeteriaName] [조식]품절",
