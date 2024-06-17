@@ -337,6 +337,8 @@ class LoginScreen extends ConsumerWidget {
                           height: 55,
                           child: TextField(
                             controller: _idController,
+                            onTapOutside: (event) =>
+                                FocusManager.instance.primaryFocus?.unfocus(),
                             decoration: InputDecoration(
                               hintText: '이메일 입력',
                               border: OutlineInputBorder(
@@ -353,6 +355,8 @@ class LoginScreen extends ConsumerWidget {
                           height: 55,
                           child: TextField(
                             controller: _passwordController,
+                            onTapOutside: (event) =>
+                                FocusManager.instance.primaryFocus?.unfocus(),
                             decoration: InputDecoration(
                               hintText: '비밀번호 입력',
                               border: OutlineInputBorder(

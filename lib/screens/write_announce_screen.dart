@@ -100,6 +100,8 @@ class _WriteAnnounceScreenState extends State<WriteAnnounceScreen> {
                     ),
                     child: TextFormField(
                       controller: _titleController,
+                      onTapOutside: (event) =>
+                          FocusManager.instance.primaryFocus?.unfocus(),
                       decoration: InputDecoration(
                         hintText: '공지를 작성해주세요',
                         border: OutlineInputBorder(
@@ -126,6 +128,8 @@ class _WriteAnnounceScreenState extends State<WriteAnnounceScreen> {
                     ),
                     child: TextFormField(
                       controller: _contentController,
+                      onTapOutside: (event) =>
+                          FocusManager.instance.primaryFocus?.unfocus(),
                       decoration: InputDecoration(
                         hintText: '글쓰기',
                         border: OutlineInputBorder(

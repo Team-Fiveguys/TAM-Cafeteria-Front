@@ -109,6 +109,8 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                     ),
                     child: TextFormField(
                       controller: _titleController,
+                      onTapOutside: (event) =>
+                          FocusManager.instance.primaryFocus?.unfocus(),
                       decoration: InputDecoration(
                         hintText: '원하는 메뉴를 작성해주세요',
                         border: OutlineInputBorder(
@@ -136,6 +138,8 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
                     ),
                     child: TextFormField(
                       controller: _contentController,
+                      onTapOutside: (event) =>
+                          FocusManager.instance.primaryFocus?.unfocus(),
                       decoration: InputDecoration(
                         hintText: '글쓰기',
                         border: OutlineInputBorder(
