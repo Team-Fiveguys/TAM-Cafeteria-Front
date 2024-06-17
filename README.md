@@ -26,4 +26,4 @@
 
 탐식당 앱 관련 문의사항이 있으시면 언제든 연락주시기 바랍니다.
 
-- 이메일: [tamcafeteriaa@gmail.com](mailto:tamcafeteria@gmail.com)
+- 이메일: [tamcafeteria@gmail.com](mailto:tamcafeteria@gmail.com)
