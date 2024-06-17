@@ -2,6 +2,8 @@
 
 <img src="assets/images/app_bar_logo.png" alt="탐식당 로고" width="200" height="100">
 
+<img src="https://img.icons8.com/color/48/000000/flutter.png" width="48" height="48"><img src="https://img.icons8.com/color/48/000000/spring-logo.png" width="48" height="48"><img src="https://img.icons8.com/color/48/000000/redis.png" width="48" height="48"><img src="https://img.icons8.com/color/48/000000/mysql-logo.png" width="48" height="48">
+
 [![플레이스토어 다운로드](https://img.shields.io/badge/Google%20Play-다운로드-green?logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.tam_cafeteria.app)
 [![앱스토어 다운로드](https://img.shields.io/badge/App%20Store-다운로드-blue?logo=apple&logoColor=white)](https://apps.apple.com/kr/app/탐식당/id6502761205)
 
