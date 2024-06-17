@@ -210,7 +210,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
             child: FutureBuilder(
                 future: notificationList,
                 builder: (context, snapshot) {
-                  print(snapshot.data);
+                  // print(snapshot.data);
                   if (snapshot.data != null) {
                     if (snapshot.data!.isEmpty) {
                       return const Column(

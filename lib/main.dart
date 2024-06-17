@@ -151,77 +151,78 @@ void main() async {
         debugShowCheckedModeBanner: false,
         builder: (context, child) {
           return Theme(
-              data: ThemeData(
-                textTheme: GoogleFonts.robotoTextTheme(
-                  Theme.of(context).textTheme,
-                ),
-                checkboxTheme: CheckboxThemeData(
-                  side: const BorderSide(color: Colors.blue), // 테두리 색상 설정
-                  fillColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.selected)) {
-                      return Colors.blue; // 체크했을 때 색상 설정
-                    }
-                    return Colors.white; // 해제했을 때 색상 설정
-                  }),
-                  checkColor: MaterialStateProperty.all<Color>(Colors.white),
-                ),
-                dialogTheme: const DialogTheme(
-                  surfaceTintColor: Colors.white,
-                ),
-                textButtonTheme: const TextButtonThemeData(
-                    style: ButtonStyle(
-                        foregroundColor:
-                            MaterialStatePropertyAll(Colors.blue))),
-                switchTheme: SwitchThemeData(
-                  trackColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.selected)) {
-                      // 스위치가 켜져있을 때의 색상
-                      return Colors.blue;
-                    } else {
-                      // 스위치가 꺼져있을 때의 색상
-                      return Colors.grey;
-                    }
-                  }),
-                ),
-                inputDecorationTheme: InputDecorationTheme(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(15), // 눌렀을 때 테두리 색상
-                  ),
-                ),
-                textSelectionTheme: const TextSelectionThemeData(
-                  cursorColor: Color(0xFF515151), // 커서 색상
-                  selectionColor: Colors.lightBlueAccent, // 선택한 텍스트 배경 색상
-                  selectionHandleColor: Colors.blue, // 선택 핸들 색상
-                ),
-                scaffoldBackgroundColor: Colors.white,
-                primaryColor: const Color(0xFF3e3e3e),
-                primaryColorLight: const Color(0xFF97948f),
-                primaryColorDark: const Color(0xFF515151),
-                dividerColor: const Color(0xFFc6c6c6),
-                cardColor: const Color(0xFFFFDA7B),
-                canvasColor: const Color(0xFF002967),
-                appBarTheme: const AppBarTheme(
-                  // elevation: 5,
-                  scrolledUnderElevation: 3,
-                  backgroundColor: Colors.white,
-                  shadowColor: Colors.black,
-                  surfaceTintColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(10), // 하단 모서리의 반경을 30으로 설정
-                    ),
-                  ),
-                ),
-                indicatorColor: Colors.white,
-                progressIndicatorTheme: const ProgressIndicatorThemeData(
-                    color: Colors.blue,
-                    circularTrackColor: Colors.white,
-                    refreshBackgroundColor: Colors.white),
+            data: ThemeData(
+              textTheme: GoogleFonts.robotoTextTheme(
+                Theme.of(context).textTheme,
               ),
-              child: child!);
+              checkboxTheme: CheckboxThemeData(
+                side: const BorderSide(color: Colors.blue), // 테두리 색상 설정
+                fillColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return Colors.blue; // 체크했을 때 색상 설정
+                  }
+                  return Colors.white; // 해제했을 때 색상 설정
+                }),
+                checkColor: MaterialStateProperty.all<Color>(Colors.white),
+              ),
+              dialogTheme: const DialogTheme(
+                surfaceTintColor: Colors.white,
+              ),
+              textButtonTheme: const TextButtonThemeData(
+                  style: ButtonStyle(
+                      foregroundColor: MaterialStatePropertyAll(Colors.blue))),
+              switchTheme: SwitchThemeData(
+                trackColor: MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    // 스위치가 켜져있을 때의 색상
+                    return Colors.blue;
+                  } else {
+                    // 스위치가 꺼져있을 때의 색상
+                    return Colors.grey;
+                  }
+                }),
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.blue),
+                  borderRadius: BorderRadius.circular(15), // 눌렀을 때 테두리 색상
+                ),
+              ),
+              textSelectionTheme: const TextSelectionThemeData(
+                cursorColor: Color(0xFF515151), // 커서 색상
+                selectionColor: Colors.lightBlueAccent, // 선택한 텍스트 배경 색상
+                selectionHandleColor: Colors.blue, // 선택 핸들 색상
+              ),
+              scaffoldBackgroundColor: Colors.white,
+              primaryColor: const Color(0xFF3e3e3e),
+              primaryColorLight: const Color(0xFF97948f),
+              primaryColorDark: const Color(0xFF515151),
+              dividerColor: const Color(0xFFc6c6c6),
+              cardColor: const Color(0xFFFFDA7B),
+              canvasColor: const Color(0xFF002967),
+              appBarTheme: const AppBarTheme(
+                // elevation: 5,
+                scrolledUnderElevation: 3,
+                backgroundColor: Colors.white,
+                shadowColor: Colors.black,
+                surfaceTintColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(10), // 하단 모서리의 반경을 30으로 설정
+                  ),
+                ),
+              ),
+              indicatorColor: Colors.white,
+              progressIndicatorTheme: const ProgressIndicatorThemeData(
+                color: Colors.blue,
+                circularTrackColor: Colors.white,
+                refreshBackgroundColor: Colors.white,
+              ),
+            ),
+            child: child!,
+          );
         },
         home: const App(),
       ),
@@ -247,6 +248,8 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
   bool isNoti = false;
   String userId = "";
   DateTime? currentBackPressTime;
+  bool hasError = false;
+
   bool _showBackToTopButton = false;
 
   late ScrollController _scrollControllerUp;
@@ -774,6 +777,10 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     // SystemNavigator.pop();
   }
 
+  Future<void> getServerStatus() async {
+    await ApiService.getHealthy();
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -947,25 +954,57 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
           // ignore: deprecated_member_use
           body: WillPopScope(
             onWillPop: onWillPop,
-            child: RefreshIndicator(
-              color: Colors.blue,
-              onRefresh: () async {
-                if (_selectedIndex == 1) {
-                  await menuBoardKey.currentState?.loadBoardList();
-                  //공지게시판도 해야하나
-                } else {
-                  setState(() {
-                    testValue = 2;
-                  });
-                }
-              },
-              child: _selectedIndex == 1
-                  ? _widgetOptions.elementAt(_selectedIndex)
-                  : SingleChildScrollView(
-                      controller: _scrollController,
-                      child: _widgetOptions.elementAt(_selectedIndex),
-                    ),
-            ),
+            child: FutureBuilder(
+                future: getServerStatus(),
+                builder: (context, snapshot) {
+                  // print('getServerStatus build : ${snapshot.data}');
+                  if (snapshot.hasError) {
+                    if (!hasError) {
+                      hasError = true;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        // 팝업 표시
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('네트워크 에러'),
+                            content: const Text('원활한 인터넷 환경에서 다시 시도해주세요!'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  // 다이얼로그 닫기
+                                  Navigator.of(context).pop();
+                                  setState(() {
+                                    hasError = false;
+                                  });
+                                },
+                                child: const Text('재시도'),
+                              ),
+                            ],
+                          ),
+                        );
+                      });
+                    }
+                  }
+                  return RefreshIndicator(
+                    color: Colors.blue,
+                    onRefresh: () async {
+                      if (_selectedIndex == 1) {
+                        await menuBoardKey.currentState?.loadBoardList();
+                        //공지게시판도 해야하나
+                      } else {
+                        setState(() {
+                          testValue = 2;
+                        });
+                      }
+                    },
+                    child: _selectedIndex == 1
+                        ? _widgetOptions.elementAt(_selectedIndex)
+                        : SingleChildScrollView(
+                            controller: _scrollController,
+                            child: _widgetOptions.elementAt(_selectedIndex),
+                          ),
+                  );
+                }),
           ),
         ),
         isLoading ? buildLoadingScreenInMain() : Container(),

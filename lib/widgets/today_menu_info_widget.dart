@@ -40,6 +40,8 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
 
   String? selectedMeals = "중식";
 
+  bool hasError = false;
+
   ValueNotifier<int> refreshNotifier = ValueNotifier(0);
 
   List<String> myeongDonMenuList = [];
@@ -514,8 +516,22 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                           );
                         } else if (snapshot.hasError) {
                           // 에러 발생 시
-                          return Center(
-                              child: Text('Error: ${snapshot.error}'));
+
+                          // 로딩 인디케이터 표시
+                          return Container(
+                            padding: const EdgeInsets.all(8),
+                            height: 130,
+                            decoration: getBorderColor(
+                              context,
+                              widget.cafeteriaName == "학생회관"
+                                  ? widget.breakfastHour!
+                                  : widget.lunchHour,
+                              isDayOff,
+                              isSoldOut,
+                            ),
+                            child: const Center(
+                                child: CircularProgressIndicator()),
+                          );
                         } else {
                           return Container(
                             padding: const EdgeInsets.all(8),
@@ -637,8 +653,21 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                             );
                           } else if (snapshot.hasError) {
                             // 에러가 발생한 경우 에러 메시지를 표시합니다.
-                            return Center(
-                              child: Text('Error: ${snapshot.error}'),
+
+                            // 로딩 인디케이터 표시
+                            return Container(
+                              padding: const EdgeInsets.all(8),
+                              height: 130,
+                              decoration: getBorderColor(
+                                context,
+                                widget.cafeteriaName == "학생회관"
+                                    ? widget.breakfastHour!
+                                    : widget.lunchHour,
+                                isDayOff,
+                                isSoldOut,
+                              ),
+                              child: const Center(
+                                  child: CircularProgressIndicator()),
                             );
                           } else {
                             // 데이터 로딩이 완료된 경우
@@ -749,10 +778,16 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                               currentCongestionStatus] ==
                                           null) {
                                         // 에러 발생 시
-                                        return Text('Error: ${snapshot.error}');
+
+                                        // 로딩 인디케이터 표시
+                                        return const Center(
+                                            child: CircularProgressIndicator());
                                       } else if (snapshot.hasError) {
                                         // 에러 발생 시
-                                        return Text('Error: ${snapshot.error}');
+
+                                        // 로딩 인디케이터 표시
+                                        return const Center(
+                                            child: CircularProgressIndicator());
                                       } else {
                                         return Column(
                                           mainAxisAlignment:

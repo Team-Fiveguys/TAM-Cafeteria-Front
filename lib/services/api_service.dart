@@ -470,7 +470,7 @@ class ApiService {
 
       return jsonResponse['result']['accessToken'];
     } else {
-      print(jsonResponse);
+      // print(jsonResponse);
       // return jsonResponse['message'];
       throw Exception(jsonResponse['message']);
     }
@@ -498,11 +498,11 @@ class ApiService {
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      print(jsonResponse);
+      // print(jsonResponse);
 
       return 'true';
     } else {
-      print(jsonResponse);
+      // print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -531,10 +531,10 @@ class ApiService {
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
 
     if (response.statusCode == 200) {
-      print(jsonResponse);
+      // print(jsonResponse);
       return true;
     } else {
-      print(jsonResponse);
+      // print(jsonResponse);
       return false;
     }
   }
@@ -562,10 +562,8 @@ class ApiService {
     // 디코드된 문자열을 JSON으로 파싱합니다.
     final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
     if (response.statusCode == 200) {
-      print(jsonResponse);
       return true;
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -597,7 +595,6 @@ class ApiService {
 
       return jsonResponse['result']['accessToken'];
     } else {
-      print(jsonResponse);
       // return jsonResponse['message'];
       throw Exception(jsonResponse['message']);
     }
@@ -628,7 +625,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : postCongestionStatus : $jsonResponse');
     } else {
-      print(jsonResponse);
       // return jsonResponse['message'];
       throw Exception(jsonResponse['message']);
     }
@@ -656,9 +652,7 @@ class ApiService {
       if (jsonResponse['result']['congestion'] != null) {
         return jsonResponse['result']['congestion'];
       }
-    } else {
-      print(jsonResponse);
-    }
+    } else {}
     return "운영안함";
   }
 
@@ -694,7 +688,6 @@ class ApiService {
 
       return jsonResponse['result']['accessToken'];
     } else {
-      print(jsonResponse);
       // return jsonResponse['message'];
       throw Exception(jsonResponse['message']);
     }
@@ -731,7 +724,6 @@ class ApiService {
       print(
           'ApiService : pathDayOffStatus ${jsonResponse['result']['dayOff']}');
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -768,7 +760,6 @@ class ApiService {
           'ApiService : pathSoldOutStatus ${jsonResponse['result']['soldOut']}');
       return jsonResponse['result']['soldOut'];
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -821,9 +812,7 @@ class ApiService {
         responseData[date] = diet;
       }
       return responseData;
-    } else {
-      print(jsonResponse);
-    }
+    } else {}
     return {};
   }
 
@@ -855,7 +844,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : postNotificationToSubscriber : $jsonResponse');
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -980,7 +968,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : postNotificationToAllUser : $jsonResponse');
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -1019,7 +1006,6 @@ class ApiService {
       }
       return notificationList;
     } else {
-      print(jsonResponse);
       // return jsonResponse['message'];
     }
     return [];
@@ -1046,7 +1032,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : postNotificationToServer : $jsonResponse');
     } else {
-      print(jsonResponse);
       // throw Exception(jsonResponse['message']);
     }
   }
@@ -1072,7 +1057,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : postNotificationToServer : $jsonResponse');
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -1098,7 +1082,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : deleteAllNotification : $jsonResponse');
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -1123,9 +1106,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       print('ApiService : deleteAllNotification : $jsonResponse');
-    } else {
-      print(jsonResponse);
-    }
+    } else {}
   }
 
   ///admin user 조회 api 연동
@@ -1415,7 +1396,6 @@ class ApiService {
 
       if (response.statusCode == 200) {
         // 필요에 따라 JSON 응답을 처리합니다.
-        print(jsonResponse);
       } else {
         print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
         throw Exception(jsonResponse['message']);
@@ -1446,7 +1426,6 @@ class ApiService {
 
     if (response.statusCode == 200) {
       // 필요에 따라 JSON 응답을 처리합니다.
-      print(jsonResponse);
       return jsonResponse['result'];
     } else {
       print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
@@ -1474,7 +1453,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('deleteUser : $jsonResponse');
     } else {
-      print("$jsonResponse");
       throw Exception(jsonResponse['message']);
     }
   }
@@ -1499,7 +1477,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('logout : $jsonResponse');
     } else {
-      print("$jsonResponse");
       throw Exception(jsonResponse['message']);
     }
   }
@@ -1595,7 +1572,6 @@ class ApiService {
             'totalPages': lastPage,
           };
         }).toList();
-        print(jsonResponse);
         return boardList;
       } else {
         print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
@@ -1633,7 +1609,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : createPost : $jsonResponse');
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -1655,7 +1630,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : togglePostLike : $jsonResponse');
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -1762,7 +1736,6 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService: reportPost: $jsonResponse');
     } else {
-      print(jsonResponse);
       throw Exception(jsonResponse['message']);
     }
   }
@@ -1794,7 +1767,6 @@ class ApiService {
       print('ApiService : getSemesterStartDateAI : $jsonResponse');
       return jsonResponse['start_date'];
     } else {
-      print(jsonResponse);
       // throw Exception(jsonResponse['message']);
     }
     return null;
@@ -1837,9 +1809,7 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : postPredictCoversAI : $jsonResponse');
       return jsonResponse['predict_result'].toString();
-    } else {
-      print(jsonResponse);
-    }
+    } else {}
     throw Exception('예측 실패');
   }
 
@@ -1873,9 +1843,7 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : postPredict2CoversAI : $jsonResponse');
       return jsonResponse['predict_result'].toString();
-    } else {
-      print(jsonResponse);
-    }
+    } else {}
     throw Exception('예측 실패');
   }
 
@@ -1901,9 +1869,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       print('ApiService : postSemesterStartDate : $jsonResponse');
-    } else {
-      print(jsonResponse);
-    }
+    } else {}
     // throw Exception('예측 실패');
   }
 
@@ -1932,9 +1898,7 @@ class ApiService {
 
     if (response.statusCode == 200) {
       print('ApiService : postRealCovers : $jsonResponse');
-    } else {
-      print(jsonResponse);
-    }
+    } else {}
     // throw Exception('예측 실패');
   }
 
@@ -1961,9 +1925,7 @@ class ApiService {
     if (response.statusCode == 200) {
       print('ApiService : getRealCovers : $jsonResponse');
       return jsonResponse['headcount'].toString();
-    } else {
-      print(jsonResponse);
-    }
+    } else {}
     return null;
   }
 
@@ -1997,9 +1959,33 @@ class ApiService {
         predictResult: jsonResponse['predict_result'],
       );
       return result;
-    } else {
-      print(jsonResponse);
-    }
+    } else {}
     return null;
+  }
+
+  static Future<void> getHealthy() async {
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = "/health";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    // final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+    print('getHealthy : $decodedResponse');
+    if (response.statusCode == 200) {
+    } else {
+      // print('getHealthy : $jsonResponse');
+      // return jsonResponse['message'];
+      throw Exception();
+    }
   }
 }
