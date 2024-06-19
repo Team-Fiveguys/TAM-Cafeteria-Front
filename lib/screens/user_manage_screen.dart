@@ -189,6 +189,8 @@ class _UserManageScreenState extends State<UserManageScreen> {
           ),
           TextField(
             controller: _searchController,
+            onTapOutside: (event) =>
+                FocusManager.instance.primaryFocus?.unfocus(),
             onChanged: (value) {
               _refreshUserList();
             },

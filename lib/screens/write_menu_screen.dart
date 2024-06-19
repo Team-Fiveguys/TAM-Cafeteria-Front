@@ -62,104 +62,110 @@ class _WriteMenuScreenState extends State<WriteMenuScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              alignment: Alignment.center,
-              width: 900,
-              height: 56,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(41),
-                color: const Color(0xff002967),
-              ),
-              child: const Text(
-                '메뉴건의 글쓰기',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                alignment: Alignment.center,
+                width: 900,
+                height: 56,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(41),
+                  color: const Color(0xff002967),
+                ),
+                child: const Text(
+                  '메뉴건의 글쓰기',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 30),
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(19),
-                border: Border.all(
+              const SizedBox(height: 30),
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
                   color: Colors.white,
+                  borderRadius: BorderRadius.circular(19),
+                  border: Border.all(
+                    color: Colors.white,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.4),
+                      spreadRadius: 2.0,
+                      blurRadius: 1.0,
+                    ),
+                  ],
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.4),
-                    spreadRadius: 2.0,
-                    blurRadius: 1.0,
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: Colors.grey),
-                    ),
-                    child: TextFormField(
-                      controller: _titleController,
-                      decoration: InputDecoration(
-                        hintText: '원하는 메뉴를 작성해주세요',
-                        border: OutlineInputBorder(
-                          // 여기서 직접 정의
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none, // 테두리 없음 설정
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          // 포커스 시 테두리를 무시하고 싶다면 이와 같이 설정
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.grey),
                       ),
-                      maxLength: titleMaxLength,
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(19),
-                      border: Border.all(color: Colors.grey),
-                    ),
-                    child: TextFormField(
-                      controller: _contentController,
-                      decoration: InputDecoration(
-                        hintText: '글쓰기',
-                        border: OutlineInputBorder(
-                          // 여기서 직접 정의
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none, // 테두리 없음 설정
+                      child: TextFormField(
+                        controller: _titleController,
+                        onTapOutside: (event) =>
+                            FocusManager.instance.primaryFocus?.unfocus(),
+                        decoration: InputDecoration(
+                          hintText: '원하는 메뉴를 작성해주세요',
+                          border: OutlineInputBorder(
+                            // 여기서 직접 정의
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none, // 테두리 없음 설정
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            // 포커스 시 테두리를 무시하고 싶다면 이와 같이 설정
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 16.0),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          // 포커스 시 테두리를 무시하고 싶다면 이와 같이 설정
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 16.0),
+                        maxLength: titleMaxLength,
                       ),
-                      maxLength: contentMaxLength,
-                      maxLines: null,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16.0),
+                    Container(
+                      height: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(19),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: TextFormField(
+                        controller: _contentController,
+                        onTapOutside: (event) =>
+                            FocusManager.instance.primaryFocus?.unfocus(),
+                        decoration: InputDecoration(
+                          hintText: '글쓰기',
+                          border: OutlineInputBorder(
+                            // 여기서 직접 정의
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none, // 테두리 없음 설정
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            // 포커스 시 테두리를 무시하고 싶다면 이와 같이 설정
+                            borderRadius: BorderRadius.circular(15),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 16.0),
+                        ),
+                        maxLength: contentMaxLength,
+                        maxLines: null,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 16.0),
-          ],
+              const SizedBox(height: 16.0),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Container(

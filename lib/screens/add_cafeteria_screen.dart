@@ -207,6 +207,8 @@ class _AddCafeteriaState extends State<AddCafeteria> {
                             height: 50,
                             child: TextField(
                               controller: nameController,
+                              onTapOutside: (event) =>
+                                  FocusManager.instance.primaryFocus?.unfocus(),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15)),
@@ -235,6 +237,8 @@ class _AddCafeteriaState extends State<AddCafeteria> {
                           height: 50,
                           child: TextField(
                             controller: locationController,
+                            onTapOutside: (event) =>
+                                FocusManager.instance.primaryFocus?.unfocus(),
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15)),
@@ -276,6 +280,8 @@ class _AddCafeteriaState extends State<AddCafeteria> {
                           height: 50,
                           child: TextField(
                             controller: breakfastController,
+                            onTapOutside: (event) =>
+                                FocusManager.instance.primaryFocus?.unfocus(),
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15)),
@@ -317,6 +323,8 @@ class _AddCafeteriaState extends State<AddCafeteria> {
                             height: 50,
                             child: TextField(
                               controller: lunchController,
+                              onTapOutside: (event) =>
+                                  FocusManager.instance.primaryFocus?.unfocus(),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(15)),
