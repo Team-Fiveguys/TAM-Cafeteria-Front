@@ -301,6 +301,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   child: TextField(
                     controller: nameController,
+                    onTapOutside: (event) =>
+                        FocusManager.instance.primaryFocus?.unfocus(),
                     decoration: InputDecoration(
                       hintText: '이름',
                       border: OutlineInputBorder(
@@ -324,6 +326,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       Expanded(
                         child: TextField(
                           controller: emailController,
+                          onTapOutside: (event) =>
+                              FocusManager.instance.primaryFocus?.unfocus(),
                           decoration: InputDecoration(
                             hintText: '이메일',
                             border: OutlineInputBorder(
@@ -445,6 +449,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: TextFormField(
                           obscureText: !_passwordVisible,
                           controller: _passwordController,
+                          onTapOutside: (event) =>
+                              FocusManager.instance.primaryFocus?.unfocus(),
                           decoration: InputDecoration(
                             hintText: '비밀번호',
                             border: InputBorder.none,
@@ -497,6 +503,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             TextFormField(
                               obscureText: !_checkpasswordVisible,
                               controller: _checkPasswordController,
+                              onTapOutside: (event) =>
+                                  FocusManager.instance.primaryFocus?.unfocus(),
                               onChanged: (value) {
                                 setState(() {
                                   _passwordsMatch =

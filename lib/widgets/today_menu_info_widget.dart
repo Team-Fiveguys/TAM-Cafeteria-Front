@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:tam_cafeteria_front/widgets/time_indicator_widget.dart';
+import 'package:photo_view/photo_view.dart';
 
 class TodayMenuInfo extends StatefulWidget {
   const TodayMenuInfo({
@@ -164,39 +165,46 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                   SizedBox(
                     width: 270,
                     height: 210,
-                    child: Image.network(
-                      selectedMeals == "중식"
-                          ? lunchImageUrl ?? ""
-                          : breakfastImageUrl ?? "",
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent? loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                      errorBuilder: (BuildContext context, Object exception,
-                          StackTrace? stackTrace) {
-                        // 에러 발생 시 표시될 위젯
-                        return const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(Icons.hourglass_empty),
-                              SizedBox(
-                                height: 40,
-                              ),
-                              Text('식단 사진이 등록 전입니다.'),
-                            ],
-                          ),
-                        );
-                      },
+                    child: ClipRect(
+                      child: PhotoView(
+                        backgroundDecoration: const BoxDecoration(
+                          color: Colors.white,
+                        ),
+                        imageProvider: NetworkImage(
+                          selectedMeals == "중식"
+                              ? lunchImageUrl ?? ""
+                              : breakfastImageUrl ?? "",
+                        ),
+                        loadingBuilder: (context, event) {
+                          if (event == null) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          }
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: event.expectedTotalBytes != null
+                                  ? event.cumulativeBytesLoaded /
+                                      event.expectedTotalBytes!
+                                  : null,
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(Icons.hourglass_empty),
+                                SizedBox(
+                                  height: 40,
+                                ),
+                                Text('식단 사진이 등록 전입니다.'),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(
