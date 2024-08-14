@@ -251,6 +251,7 @@ class ApiService {
 
   static Future<Diet?> getDiets(
       String date, String meals, int cafeteriaId) async {
+    print("ApiServie : getDiets : 제가 몇번 호출되나요?");
     final accessToken = await TokenManagerWithSP.loadToken();
 
     const path = "/diets";
@@ -775,6 +776,7 @@ class ApiService {
 
   static Future<Map<String?, Diet>> getWeekDiets(
       int cafeteriaId, int year, int month, int weekNum, String meals) async {
+    print("ApiServie : getWeekDiets : 제가 몇번 호출되나요?");
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/diets/weeks";
     final Map<String, dynamic> queryParameters = {

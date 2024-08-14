@@ -384,6 +384,9 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
         lunchIsSoldOut = menus.soldOut;
         lunchIsDayOff = menus.dayOff;
       }
+
+      print(
+          'getDietsInMain ImageUrl : [lunch] : $lunchImageUrl, [breakfast] : $breakfastImageUrl');
       return menus.names;
     }
     return [];

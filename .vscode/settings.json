@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/Users/socoo/Documents/GitHub/TAM-Cafeteria-Front/linux"
+  "cmake.sourceDirectory": "C:/Users/socoo/Documents/GitHub/TAM-Cafeteria-Front/linux",
+  "cmake.ignoreCMakeListsMissing": true
 }
