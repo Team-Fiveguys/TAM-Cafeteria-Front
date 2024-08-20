@@ -55,6 +55,7 @@ dependencies:
   fluttertoast: ^8.2.5
   google_fonts: ^4.0.4
   photo_view: ^0.15.0
+  dio: ^5.6.0
 
 dev_dependencies:
   flutter_test:

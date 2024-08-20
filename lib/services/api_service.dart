@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
@@ -37,6 +38,15 @@ class User {
 class ApiService {
   static const String baseUrl = "dev.tam-cafeteria.site";
   static const String aiBaseUrl = "ai.tam-cafeteria.site";
+
+  static final Dio dio = Dio(BaseOptions(
+    baseUrl: 'https://$baseUrl',
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 10),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  ));
 
   static Future<void> postDietPhoto(
       XFile image, String date, String meals, int cafeteriaId) async {
@@ -768,6 +778,9 @@ class ApiService {
       int cafeteriaId, int year, int month, int weekNum, String meals) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/diets/weeks";
+
+    print("Api Service : getWeekDiets : Dio 호출");
+
     final Map<String, dynamic> queryParameters = {
       'cafeteriaId': cafeteriaId.toString(),
       'year': year.toString(),
@@ -776,43 +789,51 @@ class ApiService {
       'meals': meals,
     };
 
-    // Uri 생성 시 queryParameters를 전달합니다.
-    final url = Uri.https(baseUrl, path, queryParameters);
+    try {
+      final response = await dio.get(path,
+          queryParameters: queryParameters,
+          options: Options(
+            headers: {
+              'Authorization': 'Bearer $accessToken',
+            },
+          ));
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      // print('ApiService : getCongestionStatus : $jsonResponse');
-      Map<String?, Diet> responseData = {};
-      final instance = jsonResponse['result']['dietResponseDTOList'];
-      for (var resultInstance in instance) {
-        final date = resultInstance['date'];
-        final List<String> menuNames = List<String>.from(
-          resultInstance['menuResponseListDTO']['menuQueryDTOList']
-              .map((item) => item['name'] as String),
-        );
-        final List<int> menuIds = List<int>.from(
-          resultInstance['menuResponseListDTO']['menuQueryDTOList']
-              .map((item) => item['menuId'] as int),
-        );
-        final dayOff = resultInstance['dayOff'];
-        final soldOut = resultInstance['soldOut'];
-        Diet diet = Diet(
-            names: menuNames, ids: menuIds, dayOff: dayOff, soldOut: soldOut);
-        responseData[date] = diet;
+      if (response.statusCode == 200) {
+        Map<String?, Diet> responseData = {};
+        final instance = response.data['result']['dietResponseDTOList'];
+        for (var resultInstance in instance) {
+          final date = resultInstance['date'];
+          final List<String> menuNames = List<String>.from(
+            resultInstance['menuResponseListDTO']['menuQueryDTOList']
+                .map((item) => item['name'] as String),
+          );
+          final List<int> menuIds = List<int>.from(
+            resultInstance['menuResponseListDTO']['menuQueryDTOList']
+                .map((item) => item['menuId'] as int),
+          );
+          final dayOff = resultInstance['dayOff'];
+          final soldOut = resultInstance['soldOut'];
+          Diet diet = Diet(
+              names: menuNames, ids: menuIds, dayOff: dayOff, soldOut: soldOut);
+          responseData[date] = diet;
+        }
+        return responseData;
+      } else {
+        // 에러 처리
+        print("Request failed with status: ${response.statusCode}");
       }
-      return responseData;
-    } else {}
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout) {
+        print("Request to $path timed out.");
+      } else {
+        print("Request to $path failed: ${e.message}");
+      }
+    } catch (e) {
+      // 기타 예외 발생 시 처리 로직
+      print("Request to $path failed: $e");
+    }
+
     return {};
   }
 
