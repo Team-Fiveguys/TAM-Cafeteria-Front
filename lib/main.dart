@@ -157,26 +157,25 @@ void main() async {
                 ),
                 checkboxTheme: CheckboxThemeData(
                   side: const BorderSide(color: Colors.blue), // 테두리 색상 설정
-                  fillColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.selected)) {
+                  fillColor: WidgetStateProperty.resolveWith<Color>(
+                      (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.selected)) {
                       return Colors.blue; // 체크했을 때 색상 설정
                     }
                     return Colors.white; // 해제했을 때 색상 설정
                   }),
-                  checkColor: MaterialStateProperty.all<Color>(Colors.white),
+                  checkColor: WidgetStateProperty.all<Color>(Colors.white),
                 ),
                 dialogTheme: const DialogTheme(
                   surfaceTintColor: Colors.white,
                 ),
                 textButtonTheme: const TextButtonThemeData(
                     style: ButtonStyle(
-                        foregroundColor:
-                            MaterialStatePropertyAll(Colors.blue))),
+                        foregroundColor: WidgetStatePropertyAll(Colors.blue))),
                 switchTheme: SwitchThemeData(
-                  trackColor: MaterialStateProperty.resolveWith<Color>(
-                      (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.selected)) {
+                  trackColor: WidgetStateProperty.resolveWith<Color>(
+                      (Set<WidgetState> states) {
+                    if (states.contains(WidgetState.selected)) {
                       // 스위치가 켜져있을 때의 색상
                       return Colors.blue;
                     } else {
@@ -895,9 +894,9 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
 
                         // if (result == true) {
                         // 필요한 상태 업데이트나 리렌더링 로직
-                        setState(() {
-                          getNotificationLength();
-                        });
+                        // setState(() {
+                        getNotificationLength();
+                        // });
                       }
                       // }
                     },

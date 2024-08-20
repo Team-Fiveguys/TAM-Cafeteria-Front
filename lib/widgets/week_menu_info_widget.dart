@@ -82,6 +82,7 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
   }
 
   Future<void> getWeekDiets(String meals) async {
+    print("week_menu_info_widget : getWeekDiets : 난 몇번?");
     weekDietBreakfastList = {};
     weekDietLunchList = {};
     final today = DateTime.now();
