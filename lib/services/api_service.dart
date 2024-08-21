@@ -9,6 +9,7 @@ import 'package:tam_cafeteria_front/models/covers_model.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/models/cafeteria_model.dart';
 import 'package:tam_cafeteria_front/models/notification_model.dart';
+import 'package:tam_cafeteria_front/provider/token_interceptor.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
 // import 'package:tam_cafeteria_front/models/menu_model.dart';
 
@@ -46,261 +47,191 @@ class ApiService {
     headers: {
       'Content-Type': 'application/json',
     },
-  ));
+  ))
+    ..interceptors.add(TokenInterceptor());
 
   static Future<void> postDietPhoto(
       XFile image, String date, String meals, int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
-    const path = '/diets/dietPhoto';
-    final url = Uri.https(baseUrl, path);
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      const path = '/diets/dietPhoto';
 
-// 파일의 MIME 타입을 결정합니다.
-    String? mimeType = lookupMimeType(image.path);
-    var mimeeTypeSplit =
-        mimeType?.split('/') ?? ['application', 'json']; // 기본값을 제공합니다.
+      // 파일의 MIME 타입 결정
+      String? mimeType = lookupMimeType(image.path);
+      var mimeeTypeSplit = mimeType?.split('/') ?? ['application', 'json'];
 
-// 이미지 파일의 바이트 데이터를 읽습니다.
-    var imageBytes = await image.readAsBytes();
-
-// MultipartRequest 객체를 생성합니다.
-    // MultipartRequest 객체를 생성합니다.
-    var request = http.MultipartRequest('POST', url)
-      ..headers.addAll({
-        'Authorization': 'Bearer $accessToken', // accessToken을 헤더에 추가합니다.
-        'Content-Type': 'multipart/form-data',
+      // MultipartFormData 생성
+      FormData formData = FormData.fromMap({
+        'photo': await MultipartFile.fromFile(
+          image.path,
+          contentType: MediaType(mimeeTypeSplit[0], mimeeTypeSplit[1]),
+          filename: basename(image.path),
+        ),
+        'dietQuery': jsonEncode({
+          'cafeteriaId': cafeteriaId.toString(),
+          'meals': meals,
+          'localDate': date,
+        }),
       });
-    var dietQuery = {
-      'cafeteriaId': cafeteriaId.toString(),
-      'meals': meals,
-      'localDate': date,
-    };
-// 필요한 텍스트 필드를 추가합니다.
-    String dietQueryJson = jsonEncode(dietQuery);
 
-// JSON 문자열을 바이트로 변환합니다.
-    List<int> dietQueryBytes = utf8.encode(dietQueryJson);
+      // POST 요청 보내기
+      final response = await dio.post(
+        path,
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
 
-// dietQuery를 MultipartFile로 만듭니다.
-    http.MultipartFile dietQueryFile = http.MultipartFile.fromBytes(
-      'dietQuery', // 서버에서 기대하는 필드명을 사용해야 합니다.
-      dietQueryBytes,
-      contentType: MediaType('application', 'json'), // 올바른 MIME 타입 설정
-    );
-
-// 이미지 파일을 MultipartFile로 변환합니다.
-    var multipartFile = http.MultipartFile.fromBytes(
-      'photo',
-      imageBytes,
-      contentType: MediaType(mimeeTypeSplit[0], mimeeTypeSplit[1]),
-      filename: basename(image.path), // 파일 이름 설정
-    );
-
-// 변환된 파일을 요청에 추가합니다.
-    request.files.add(multipartFile);
-    request.files.add(dietQueryFile);
-// 요청을 전송하고 응답을 기다립니다.
-    var response = await request.send();
-
-// 응답을 처리합니다.
-    if (response.statusCode == 200) {
-      print('Upload successful');
-      // 응답 본문을 읽습니다.
-      String responseText = await response.stream.bytesToString();
-      print('Response body: $responseText');
-    } else {
-      print('Upload failed');
-      // 실패한 경우의 응답 본문을 읽습니다.
-      String responseText = await response.stream.bytesToString();
-      print(
-          'postDietPhoto: Response body: ${jsonDecode(responseText)['message']}');
-      throw Exception(jsonDecode(responseText)['message']);
+      if (response.statusCode == 200) {
+        print('Upload successful');
+        print('Response body: ${response.data}');
+      } else {
+        throw Exception('Upload failed');
+      }
+    } catch (e) {
+      print('postDietPhoto error: $e');
+      throw Exception('Failed to upload photo');
     }
   }
 
+  // PUT 요청을 Dio로 변경 (사진 수정)
   static Future<void> putDietPhoto(
       XFile image, String date, String meals, int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
-    const path = '/diets/dietPhoto';
-    final url = Uri.https(baseUrl, path);
+    try {
+      final accessToken = await TokenManagerWithSP.loadToken();
+      const path = '/diets/dietPhoto';
 
-// 파일의 MIME 타입을 결정합니다.
-    String? mimeType = lookupMimeType(image.path);
-    var mimeeTypeSplit =
-        mimeType?.split('/') ?? ['application', 'json']; // 기본값을 제공합니다.
+      // 파일의 MIME 타입 결정
+      String? mimeType = lookupMimeType(image.path);
+      var mimeeTypeSplit = mimeType?.split('/') ?? ['application', 'json'];
 
-// 이미지 파일의 바이트 데이터를 읽습니다.
-    var imageBytes = await image.readAsBytes();
-
-// MultipartRequest 객체를 생성합니다.
-    // MultipartRequest 객체를 생성합니다.
-    var request = http.MultipartRequest('PUT', url)
-      ..headers.addAll({
-        'Authorization': 'Bearer $accessToken', // accessToken을 헤더에 추가합니다.
-        'Content-Type': 'multipart/form-data',
+      // MultipartFormData 생성
+      FormData formData = FormData.fromMap({
+        'photo': await MultipartFile.fromFile(
+          image.path,
+          contentType: MediaType(mimeeTypeSplit[0], mimeeTypeSplit[1]),
+          filename: basename(image.path),
+        ),
+        'dietQuery': jsonEncode({
+          'cafeteriaId': cafeteriaId.toString(),
+          'meals': meals,
+          'localDate': date,
+        }),
       });
-    var dietQuery = {
-      'cafeteriaId': cafeteriaId.toString(),
-      'meals': meals,
-      'localDate': date,
-    };
-// 필요한 텍스트 필드를 추가합니다.
-    String dietQueryJson = jsonEncode(dietQuery);
 
-// JSON 문자열을 바이트로 변환합니다.
-    List<int> dietQueryBytes = utf8.encode(dietQueryJson);
+      // PUT 요청 보내기
+      final response = await dio.put(
+        path,
+        data: formData,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+            'Content-Type': 'multipart/form-data',
+          },
+        ),
+      );
 
-// dietQuery를 MultipartFile로 만듭니다.
-    http.MultipartFile dietQueryFile = http.MultipartFile.fromBytes(
-      'dietQuery', // 서버에서 기대하는 필드명을 사용해야 합니다.
-      dietQueryBytes,
-      contentType: MediaType('application', 'json'), // 올바른 MIME 타입 설정
-    );
-
-// 이미지 파일을 MultipartFile로 변환합니다.
-    var multipartFile = http.MultipartFile.fromBytes(
-      'photo',
-      imageBytes,
-      contentType: MediaType(mimeeTypeSplit[0], mimeeTypeSplit[1]),
-      filename: basename(image.path), // 파일 이름 설정
-    );
-
-// 변환된 파일을 요청에 추가합니다.
-    request.files.add(multipartFile);
-    request.files.add(dietQueryFile);
-// 요청을 전송하고 응답을 기다립니다.
-    var response = await request.send();
-
-// 응답을 처리합니다.
-    if (response.statusCode == 200) {
-      print('Upload successful');
-      // 응답 본문을 읽습니다.
-      String responseText = await response.stream.bytesToString();
-      print('Response body: $responseText');
-    } else {
-      print('Upload failed');
-      // 실패한 경우의 응답 본문을 읽습니다.
-      String responseText = await response.stream.bytesToString();
-      print(
-          'putDietPhoto : Response body: ${jsonDecode(responseText)['message']}');
-      throw Exception(jsonDecode(responseText)['message']);
+      if (response.statusCode == 200) {
+        print('Update successful');
+        print('Response body: ${response.data}');
+      } else {
+        throw Exception('Update failed');
+      }
+    } catch (e) {
+      print('putDietPhoto error: $e');
+      throw Exception('Failed to update photo');
     }
   }
 
   static Future<void> postMenu(String name, int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/menus";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken' // JSON 형식의 데이터를 전송한다고 명시합니다.
-        },
-        body: jsonEncode(
-          {
-            'menuName': name,
-            'cafeteriaId': cafeteriaId.toString(),
-          },
-        ));
-    final String decodedResponse = utf8.decode(response.bodyBytes);
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({
+          'menuName': name,
+          'cafeteriaId': cafeteriaId.toString(),
+        }),
+      );
 
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('postMenu : $jsonResponse');
-    } else {
-      print('postMenu : $jsonResponse');
-      throw Exception(jsonResponse['message']);
+      print('postMenu: ${response.data}');
+    } on DioException catch (e) {
+      print('postMenu: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<Diet> getMenu(int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/menus";
-    final url = Uri.https(baseUrl, path, {'cafeteriaId': '$cafeteriaId'});
 
-    final response = await http.get(url, headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $accessToken',
-    });
+    try {
+      final response = await dio.get(
+        path,
+        queryParameters: {'cafeteriaId': '$cafeteriaId'},
+      );
 
-    if (response.statusCode == 200) {
-      // UTF-8 인코딩을 사용하여 응답 본문을 디코드합니다.
-      final String decodedResponse = utf8.decode(response.bodyBytes);
+      print('getMenu: ${response.data}');
 
-      // 디코드된 문자열을 JSON으로 파싱합니다.
-      final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-      // TODO : null 왔을때 대처
-      // 'result' 키에 해당하는 부분을 추출하고, 'menuQueryDTOList' 내부를 순회하며 각 항목의 'name'을 추출하여 리스트를 생성합니다.
-      print('getMenu : $jsonResponse');
-      final List<String> menuNames =
-          jsonResponse['result']['menuQueryDTOList'] != null
-              ? List<String>.from(
-                  jsonResponse['result']['menuQueryDTOList']
-                      .map((item) => (item['name'] ?? "")),
-                )
-              : [];
+      // Parsing the response data
+      final List<String> menuNames = List<String>.from(
+        response.data['result']['menuQueryDTOList']
+            .map((item) => item['name'] ?? ""),
+      );
 
-      final List<int> menuIds =
-          jsonResponse['result']['menuQueryDTOList'] != null
-              ? List<int>.from(
-                  jsonResponse['result']['menuQueryDTOList']
-                      .map((item) => (item['menuId']) as int),
-                )
-              : [];
+      final List<int> menuIds = List<int>.from(
+        response.data['result']['menuQueryDTOList']
+            .map((item) => item['menuId']),
+      );
 
-      final bool dayOff = jsonResponse['result']['dayOff'] ?? false;
-      final bool soldOut = jsonResponse['result']['soldOut'] ?? false;
+      final bool dayOff = response.data['result']['dayOff'] ?? false;
+      final bool soldOut = response.data['result']['soldOut'] ?? false;
 
       return Diet(
-          ids: menuIds, names: menuNames, dayOff: dayOff, soldOut: soldOut);
+        ids: menuIds,
+        names: menuNames,
+        dayOff: dayOff,
+        soldOut: soldOut,
+      );
+    } on DioException catch (e) {
+      print('getMenu: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
-    throw Error();
   }
 
   static Future<Diet?> getDiets(
       String date, String meals, int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
-
     const path = "/diets";
-    final url = Uri.https(
-      baseUrl,
-      path,
-      {
-        'cafeteriaId': '$cafeteriaId',
-        'localDate': date,
-        'meals': meals,
-      },
-    );
 
-    final response = await http.get(url, headers: {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $accessToken',
-    });
-    final String decodedResponse = utf8.decode(response.bodyBytes);
+    try {
+      final response = await dio.get(
+        path,
+        queryParameters: {
+          'cafeteriaId': '$cafeteriaId',
+          'localDate': date,
+          'meals': meals,
+        },
+      );
 
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+      print('getDiets: ${response.data}');
 
-    if (response.statusCode == 200) {
-      // UTF-8 인코딩을 사용하여 응답 본문을 디코드합니다.
-      // print("ApiService : getDiets: response : $date $jsonResponse");
-      // 'result' 키에 해당하는 부분을 추출하고, 'menuQueryDTOList' 내부를 순회하며 각 항목의 'name'을 추출하여 리스트를 생성합니다.
       final List<String> menuNames = List<String>.from(
-        jsonResponse['result']['menuResponseListDTO']['menuQueryDTOList']
-            .map((item) => item['name'] as String),
+        response.data['result']['menuResponseListDTO']['menuQueryDTOList']
+            .map((item) => item['name']),
       );
 
       final List<int> menuIds = List<int>.from(
-        jsonResponse['result']['menuResponseListDTO']['menuQueryDTOList']
-            .map((item) => item['menuId'] as int),
+        response.data['result']['menuResponseListDTO']['menuQueryDTOList']
+            .map((item) => item['menuId']),
       );
 
-      final String? imageUrl = jsonResponse['result']['photoURI'];
-
-      final bool dayOff = jsonResponse['result']['dayOff'];
-      final bool soldOut = jsonResponse['result']['soldOut'];
+      final String? imageUrl = response.data['result']['photoURI'];
+      final bool dayOff = response.data['result']['dayOff'];
+      final bool soldOut = response.data['result']['soldOut'];
 
       return Diet(
         ids: menuIds,
@@ -309,109 +240,76 @@ class ApiService {
         soldOut: soldOut,
         imageUrl: imageUrl,
       );
+    } on DioException catch (e) {
+      print('getDiets: ${e.response?.data}');
+      return null;
     }
-    // print("ApiService : getDiets: response : $date $jsonResponse");
-    // throw Error();
-    return null;
   }
 
   static Future<void> postDiets(List<String> menuNameList, String date,
       String meals, int cafeteriaId, bool dayOff) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(
-          {
-            'menuNameList': menuNameList,
-            'date': date,
-            'meals': meals,
-            'cafeteriaId': '$cafeteriaId',
-            'dayOff': dayOff,
-          },
-        ));
-    final String decodedResponse = utf8.decode(response.bodyBytes);
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({
+          'menuNameList': menuNameList,
+          'date': date,
+          'meals': meals,
+          'cafeteriaId': '$cafeteriaId',
+          'dayOff': dayOff,
+        }),
+      );
 
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-    if (response.statusCode == 200) {
-      print('postDiets : $jsonResponse');
-    } else {
-      print('postDiets : $jsonResponse');
-      throw Exception(jsonResponse['message']);
+      print('postDiets: ${response.data}');
+    } on DioException catch (e) {
+      print('postDiets: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> putDiets(
       String menuName, String date, String meals, int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets/menus";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.put(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode(
-        {
+    try {
+      final response = await dio.put(
+        path,
+        data: jsonEncode({
           'menuName': menuName,
           'localDate': date,
           'meals': meals,
           'cafeteriaId': '$cafeteriaId',
-        },
-      ),
-    );
+        }),
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-    if (response.statusCode == 200) {
-      print('putDiets : $jsonResponse');
-    } else {
-      print('putDiets : $jsonResponse');
-      throw Exception(jsonResponse['message']);
+      print('putDiets: ${response.data}');
+    } on DioException catch (e) {
+      print('putDiets: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> deleteDiets(
       String menuName, String date, String meals, int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets/menus";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.delete(url,
-        headers: {
-          'Content-Type': 'application/json',
-          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(
-          {
-            'menuName': menuName,
-            'localDate': date,
-            'meals': meals,
-            'cafeteriaId': '$cafeteriaId',
-          },
-        ));
-    final String decodedResponse = utf8.decode(response.bodyBytes);
+    try {
+      final response = await dio.delete(
+        path,
+        data: jsonEncode({
+          'menuName': menuName,
+          'localDate': date,
+          'meals': meals,
+          'cafeteriaId': '$cafeteriaId',
+        }),
+      );
 
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-    if (response.statusCode == 200) {
-      print('deleteDiet : $jsonResponse');
-    } else {
-      print('putDiets : $jsonResponse');
-      throw Exception(jsonResponse['message']);
+      print('deleteDiets: ${response.data}');
+    } on DioException catch (e) {
+      print('deleteDiets: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
@@ -454,97 +352,57 @@ class ApiService {
   static Future<String?> postKakaoLogin(
       String idToken, String accessToken) async {
     const path = '/oauth2/kakao/token/validate';
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
-      },
-      body: jsonEncode(
-        {
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({
           'identityToken': idToken,
           'accessToken': accessToken,
-        },
-      ),
-    );
+        }),
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
       print(
-          'ApiService:postKakaoLogin :: ${jsonResponse['result']['accessToken']}');
-
-      return jsonResponse['result']['accessToken'];
-    } else {
-      // print(jsonResponse);
-      // return jsonResponse['message'];
-      throw Exception(jsonResponse['message']);
+          'ApiService:postKakaoLogin :: ${response.data['result']['accessToken']}');
+      return response.data['result']['accessToken'];
+    } on DioException catch (e) {
+      print('postKakaoLogin: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<String> postEmailAuthCode(String email) async {
     const path = '/auth/email';
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
-      },
-      body: jsonEncode(
-        {
-          'email': email,
-        },
-      ),
-    );
-
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      // print(jsonResponse);
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({'email': email}),
+      );
 
       return 'true';
-    } else {
-      // print(jsonResponse);
-      throw Exception(jsonResponse['message']);
+    } on DioException catch (e) {
+      print('postEmailAuthCode: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<bool> postEmailVerification(
       String email, String authCode) async {
     const path = '/auth/email/verification';
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
-      },
-      body: jsonEncode(
-        {
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({
           'email': email,
           'authCode': authCode,
-        },
-      ),
-    );
+        }),
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      // print(jsonResponse);
       return true;
-    } else {
-      // print(jsonResponse);
+    } on DioException catch (e) {
+      print('postEmailVerification: ${e.response?.data}');
       return false;
     }
   }
@@ -552,118 +410,80 @@ class ApiService {
   static Future<bool> postSignUp(
       String name, String password, String email, String authcode) async {
     const path = "/sign-up";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
-        },
-        body: jsonEncode(
-          {
-            'name': name,
-            'password': password,
-            'email': email,
-            'authCode': authcode,
-          },
-        ));
-    final String decodedResponse = utf8.decode(response.bodyBytes);
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({
+          'name': name,
+          'password': password,
+          'email': email,
+          'authCode': authcode,
+        }),
+      );
 
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-    if (response.statusCode == 200) {
       return true;
-    } else {
-      throw Exception(jsonResponse['message']);
+    } on DioException catch (e) {
+      print('postSignUp: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<String?> postSignIn(String email, String password) async {
     const path = "/auth/email/sign-in";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
-        },
-        body: jsonEncode(
-          {
-            'email': email,
-            'password': password,
-          },
-        ));
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
       print(
-          'ApiService:postKakaoLogin :: ${jsonResponse['result']['accessToken']}');
-
-      return jsonResponse['result']['accessToken'];
-    } else {
-      // return jsonResponse['message'];
-      throw Exception(jsonResponse['message']);
+          'ApiService:postSignIn :: ${response.data['result']['accessToken']}');
+      return response.data['result']['accessToken'];
+    } on DioException catch (e) {
+      print('postSignIn: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> postCongestionStatus(
       String? congestion, int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/admin/cafeterias/$cafeteriaId/congestion";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(
-          {
-            'congestion': congestion,
-          },
-        ));
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({
+          'congestion': congestion,
+        }),
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : postCongestionStatus : $jsonResponse');
-    } else {
-      // return jsonResponse['message'];
-      throw Exception(jsonResponse['message']);
+      print('ApiService : postCongestionStatus : ${response.data}');
+    } on DioException catch (e) {
+      print('postCongestionStatus: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<String> getCongestionStatus(int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/cafeterias/$cafeteriaId/congestion";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await dio.get(path);
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      if (jsonResponse['result']['congestion'] != null) {
-        return jsonResponse['result']['congestion'];
+      if (response.data['result']['congestion'] != null) {
+        return response.data['result']['congestion'];
+      } else {
+        return "운영안함";
       }
-    } else {}
-    return "운영안함";
+    } on DioException catch (e) {
+      print('getCongestionStatus: ${e.response?.data}');
+      return "운영안함";
+    }
   }
 
   //
@@ -671,106 +491,68 @@ class ApiService {
   static Future<String?> postAppleLogin(
       String? socialId, String? identityToken, String authorizationCode) async {
     const path = '/oauth2/apple/token/validate';
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json', // JSON 형식의 데이터를 전송한다고 명시합니다.
-      },
-      body: jsonEncode(
-        {
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({
           'socialId': socialId,
           'identityToken': identityToken,
           'authorizationCode': authorizationCode,
-        },
-      ),
-    );
+        }),
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
       print(
-          'ApiService:postAppleLogin :: ${jsonResponse['result']['accessToken']}');
-
-      return jsonResponse['result']['accessToken'];
-    } else {
-      // return jsonResponse['message'];
-      throw Exception(jsonResponse['message']);
+          'ApiService:postAppleLogin :: ${response.data['result']['accessToken']}');
+      return response.data['result']['accessToken'];
+    } on DioException catch (e) {
+      print('postAppleLogin: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> patchDayOffStatus(
       int cafeteriaId, String date, String meals) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets/dayOff";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.patch(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode(
-        {
+    try {
+      final response = await dio.patch(
+        path,
+        data: jsonEncode({
           'cafeteriaId': cafeteriaId.toString(),
           'localDate': date,
           'meals': meals,
-        },
-      ),
-    );
+        }),
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      // print('ApiService : getCongestionStatus : $jsonResponse');
       print(
-          'ApiService : pathDayOffStatus ${jsonResponse['result']['dayOff']}');
-    } else {
-      throw Exception(jsonResponse['message']);
+          'ApiService : patchDayOffStatus ${response.data['result']['dayOff']}');
+    } on DioException catch (e) {
+      print('patchDayOffStatus: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<bool> patchSoldOutStatus(
       int cafeteriaId, String date, String meals) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/diets/sold-out";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.patch(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode(
-        {
+    try {
+      final response = await dio.patch(
+        path,
+        data: jsonEncode({
           'cafeteriaId': cafeteriaId.toString(),
           'localDate': date,
           'meals': meals,
-        },
-      ),
-    );
+        }),
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      // print('ApiService : getCongestionStatus : $jsonResponse');
       print(
-          'ApiService : pathSoldOutStatus ${jsonResponse['result']['soldOut']}');
-      return jsonResponse['result']['soldOut'];
-    } else {
-      throw Exception(jsonResponse['message']);
+          'ApiService : patchSoldOutStatus ${response.data['result']['soldOut']}');
+      return response.data['result']['soldOut'];
+    } on DioException catch (e) {
+      print('patchSoldOutStatus: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
@@ -839,181 +621,100 @@ class ApiService {
 
   static Future<void> postNotificationToSubscriber(String title, String content,
       String cafeteriaName, String notificationType) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/notifications/topic/subscriber";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(
-          {
+    try {
+      final response = await dio.post(path,
+          data: jsonEncode({
             "title": title,
             "content": content,
             "cafeteriaName": cafeteriaName,
             "notificationType": notificationType,
-          },
-        ));
+          }));
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : postNotificationToSubscriber : $jsonResponse');
-    } else {
-      throw Exception(jsonResponse['message']);
+      print('ApiService : postNotificationToSubscriber : ${response.data}');
+    } on DioException catch (e) {
+      print('postNotificationToSubscriber: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> postNotificationSet(String registrationToken) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notificationSet";
-    final url = Uri.https(
-      baseUrl,
-      path,
-      {
-        "registrationToken": registrationToken,
-      },
-    );
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await dio.post(
+        path,
+        queryParameters: {
+          "registrationToken": registrationToken,
+        },
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : postNotificationSet : $jsonResponse');
-    } else {
-      print('ApiService : postNotificationSet : $jsonResponse');
-      throw Exception(jsonResponse['message']);
+      print('ApiService : postNotificationSet : ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : postNotificationSet : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> putRegistrationToken(String registrationToken) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notificationSet/registration-token";
-    final url = Uri.https(
-      baseUrl,
-      path,
-      {
-        "registrationToken": registrationToken,
-      },
-    );
 
-    final response = await http.put(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await dio.put(
+        path,
+        queryParameters: {
+          "registrationToken": registrationToken,
+        },
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
       print(
-          'ApiService : putRegistrationToken : $registrationToken, $jsonResponse');
-    } else {
-      print('ApiService : putRegistrationToken : $jsonResponse');
-      throw Exception(jsonResponse['message']);
+          'ApiService : putRegistrationToken : $registrationToken, ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : putRegistrationToken : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<String?> getRegistrationToken() async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notificationSet/registration-token";
-    final url = Uri.https(
-      baseUrl,
-      path,
-    );
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await dio.get(path);
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      return jsonResponse['result']['registrationToken'];
-    } else {
-      // print('ApiService : putRegistrationToken : $jsonResponse');
+      return response.data['result']['registrationToken'];
+    } on DioException catch (e) {
+      print('ApiService : getRegistrationToken : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
-    throw Exception(jsonResponse['message']);
   }
 
   static Future<void> postNotificationToAllUser(
       String title, String content) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/notifications/users";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(
-          {
-            "title": title,
-            "content": content,
-          },
-        ));
+    try {
+      final response = await dio.post(
+        path,
+        data: jsonEncode({
+          "title": title,
+          "content": content,
+        }),
+      );
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : postNotificationToAllUser : $jsonResponse');
-    } else {
-      throw Exception(jsonResponse['message']);
+      print('ApiService : postNotificationToAllUser : ${response.data}');
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<List<NotificationModel>> getNotifications() async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notifications";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await dio.get(path);
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      // print('ApiService : getNotifications : $jsonResponse');
-      List<dynamic> resultList = jsonResponse['result']['notificationList'];
+      List<dynamic> resultList = response.data['result']['notificationList'];
       List<NotificationModel> notificationList = [];
       for (var notification in resultList) {
         NotificationModel instance = NotificationModel(
@@ -1026,227 +727,120 @@ class ApiService {
         notificationList.add(instance);
       }
       return notificationList;
-    } else {
-      // return jsonResponse['message'];
+    } on DioException catch (e) {
+      print('ApiService : getNotifications : ${e.response?.data}');
+      return [];
     }
-    return [];
   }
 
   static Future<void> postNotificationToServer(String notificationId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/users/notifications/$notificationId";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await dio.post(path);
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : postNotificationToServer : $jsonResponse');
-    } else {
-      // throw Exception(jsonResponse['message']);
+      print('ApiService : postNotificationToServer : ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : postNotificationToServer : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> deleteOneNotification(String notificationId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/users/notifications/$notificationId";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.delete(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await dio.delete(path);
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : postNotificationToServer : $jsonResponse');
-    } else {
-      throw Exception(jsonResponse['message']);
+      print('ApiService : deleteOneNotification : ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : deleteOneNotification : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> deleteAllNotification() async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notifications";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.delete(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : deleteAllNotification : $jsonResponse');
-    } else {
-      throw Exception(jsonResponse['message']);
+    try {
+      final response = await dio.delete(path);
+      print('ApiService : deleteAllNotification : ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : deleteAllNotification : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> readOneNotification(String notificationId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/users/notifications/$notificationId/read";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.patch(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : deleteAllNotification : $jsonResponse');
-    } else {}
+    try {
+      final response = await dio.patch(path);
+      print('ApiService : readOneNotification : ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : readOneNotification : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
+    }
   }
 
-  ///admin user 조회 api 연동
-
   static Future<List<User>> getUsers(int page) async {
+    const path = '/admin';
+
     try {
-      final accessToken = await TokenManagerWithSP.loadToken();
-      if (accessToken == null) {
-        throw Exception('Access token is null');
-      }
-      final url = Uri.https(baseUrl, '/admin', {'page': page.toString()});
-
-      final response = await http.get(url, headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken', // 여기에서 중복된 'Bearer'를 제거했습니다.
-      });
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data =
-            jsonDecode(utf8.decode(response.bodyBytes));
-        List<User> users = List<User>.from(
-            data["result"]["userList"].map((x) => User.fromJson(x)));
-        return users;
-      } else {
-        print(
-            'API Service: getUsers: Error with status code: ${response.statusCode}');
-        throw Exception('Failed to load users');
-      }
-    } catch (e) {
-      print('API Service: getUsers: Exception caught: $e');
-      rethrow; // 예외를 다시 던지도록 변경
+      final response = await dio.get(path, queryParameters: {'page': page});
+      final Map<String, dynamic> data = response.data;
+      List<User> users = List<User>.from(
+          data["result"]["userList"].map((x) => User.fromJson(x)));
+      return users;
+    } on DioException catch (e) {
+      print(
+          'API Service: getUsers: Error with status code: ${e.response?.statusCode}');
+      throw Exception('Failed to load users');
     }
   }
 
   static Future<void> revokeAdminRole(int userId) async {
+    final path = '/admin/users/$userId/role/user';
+
     try {
-      final url = Uri.https(baseUrl, '/admin/users/$userId/role/user');
-      final accessToken =
-          await TokenManagerWithSP.loadToken(); // 토큰 로드 로직 구현 필요
-      if (accessToken == null) {
-        throw Exception('Access token is null');
-      }
-
-      final response = await http.patch(url, headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      });
-
-      if (response.statusCode == 200) {
-        print('관리자 권한 회수 성공: ${response.body}');
-      } else {
-        print('관리자 권한 회수 실패: ${response.statusCode}');
-        throw Exception('Failed to revoke admin role');
-      }
-    } catch (e) {
-      print('관리자 권한 회수 중 예외 발생: $e');
-      rethrow;
+      final response = await dio.patch(path);
+      print('관리자 권한 회수 성공: ${response.data}');
+    } on DioException catch (e) {
+      print('관리자 권한 회수 실패: ${e.response?.statusCode}');
+      throw Exception('Failed to revoke admin role');
     }
   }
 
   static Future<bool> grantAdminRole(int userId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
-    final url = Uri.https(baseUrl, '/admin/users/$userId/role/admin');
+    final path = '/admin/users/$userId/role/admin';
 
-    final response = await http.patch(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await dio.patch(path);
+      print('Status code: ${response.statusCode}');
+      print('Response body: ${response.data}');
 
-    // 응답 상태 코드와 응답 본문을 출력합니다.
-    // 응답 상태 코드와 응답 본문을 출력합니다.
-    print('Status code: ${response.statusCode}');
-    print('Response body: ${utf8.decode(response.bodyBytes)}');
-
-    if (response.statusCode == 200) {
-      final responseBody = json.decode(utf8.decode(response.bodyBytes));
-
-      // 'isSuccess' 키의 존재 여부와 값을 확인합니다.
-      if (responseBody.containsKey('isSuccess') && responseBody['isSuccess']) {
+      if (response.data['isSuccess'] == true) {
         return true;
       } else {
-        // 'isSuccess'가 false이거나 키가 없는 경우, 실패 사유를 로그로 남깁니다.
-        print(
-            'Failed to grant admin role. Response: ${utf8.decode(response.bodyBytes)}');
+        print('Failed to grant admin role. Response: ${response.data}');
         return false;
       }
-    } else {
-      // 오류 처리를 위한 예외를 던집니다. 응답 상태 코드를 포함시켜 구체적인 오류 사유를 알 수 있게 합니다.
-      throw Exception(
-          'Failed to grant admin role. Status code: ${response.statusCode}');
+    } on DioException catch (e) {
+      print(
+          'Failed to grant admin role. Status code: ${e.response?.statusCode}');
+      throw Exception('Failed to grant admin role');
     }
   }
 
   static Future<void> readAllNotification() async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/notifications/read";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.patch(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : readAllNotification : $jsonResponse');
-    } else {
-      print(jsonResponse);
-      throw Exception(jsonResponse['message']);
+    try {
+      final response = await dio.patch(path);
+      print('ApiService : readAllNotification : ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : readAllNotification : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
@@ -1257,40 +851,19 @@ class ApiService {
       bool runLunch,
       String? breakfastTime,
       String? lunchTime) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/admin/cafeterias";
-    final url = Uri.https(baseUrl, path);
-    String breakfastStart = "";
-    String breakfastEnd = "";
-    String lunchStart = "";
-    String lunchEnd = "";
-    if (runBreakfast) {
-      String start = breakfastTime!.split("~")[0];
 
-      breakfastStart = "$start:00"; // hour 변수의 값을 할당합니다.
+    String breakfastStart =
+        runBreakfast ? "${breakfastTime!.split('~')[0]}:00" : "";
+    String breakfastEnd =
+        runBreakfast ? "${breakfastTime!.split('~')[1]}:00" : "";
+    String lunchStart = runLunch ? "${lunchTime!.split('~')[0]}:00" : "";
+    String lunchEnd = runLunch ? "${lunchTime!.split('~')[1]}:00" : "";
 
-      String end = breakfastTime.split("~")[1];
-      // second는 0을 할당합니다.
-      breakfastEnd = "$end:00";
-    }
-    if (runLunch) {
-      String start = lunchTime!.split("~")[0];
-      // second는 0을 할당합니다.
-      lunchStart = "$start:00";
-
-      String end = lunchTime.split("~")[1];
-      // second는 0을 할당합니다.
-      lunchEnd = "$end:00";
-    }
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode(
-        {
+    try {
+      final response = await dio.post(
+        path,
+        data: {
           "name": name,
           "location": location,
           'runBreakfast': runBreakfast,
@@ -1300,205 +873,100 @@ class ApiService {
           "lunchStartTime": lunchStart,
           "lunchEndTime": lunchEnd,
         },
-      ),
-    );
-
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : postAddCafeteria : $jsonResponse');
-    } else {
-      print(jsonResponse);
-      throw Exception(jsonResponse['message']);
+      );
+      print('ApiService : postAddCafeteria : ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : postAddCafeteria : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
-  //1. 식당을 조회해서 이제 그 유저관리 페이지 다이얼로그에 띄운다.
-  Future<List<Cafeteria>> getCafeteriaList() async {
+  static Future<List<Cafeteria>> getCafeteriaList() async {
+    const path = '/admin/me/cafeterias';
+
     try {
-      final accessToken = await TokenManagerWithSP.loadToken(); // 토큰 관리 로직 추가
-      final Uri url = Uri.https(baseUrl, '/admin/me/cafeterias');
-
-      print('Fetching cafeteria list from: $url');
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-      print('Response status code: ${response.statusCode}'); // 응답 상태 코드 출력
-      print(
-          'Response body: ${utf8.decode(response.bodyBytes)}'); // UTF-8로 디코딩된 응답 본문 출력
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes))['result']
-            ['queryCafeteriaList'] as List<dynamic>;
-        return data.map((item) => Cafeteria.fromJson(item)).toList();
-      } else {
-        throw Exception('Failed to fetch cafeteria list');
-      }
-    } catch (e) {
-      print('Error fetching cafeteria list: $e'); // 오류 발생 시 출력
-      rethrow;
+      final response = await dio.get(path);
+      final List<dynamic> data = response.data['result']['queryCafeteriaList'];
+      return data.map((item) => Cafeteria.fromJson(item)).toList();
+    } on DioException catch (e) {
+      print('Error fetching cafeteria list: ${e.message}');
+      throw Exception('Failed to fetch cafeteria list');
     }
   }
 
 //알람 api
   static Future<Map<String, bool>> getNotificationSettings() async {
-    final accessToken = await TokenManagerWithSP.loadToken();
-
     const path = "/users/notificationSet";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    try {
+      final response = await dio.get(path);
+      final Map<String, dynamic> jsonResponse = response.data;
 
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      // 필요에 따라 JSON 응답을 처리합니다.
       if (jsonResponse['result'] != null && jsonResponse['result'] is Map) {
         final Map<String, dynamic> resultMap = jsonResponse['result'];
-
-        // resultMap의 모든 요소를 순회하며, bool 타입만을 포함하는 새로운 Map을 생성합니다.
         final Map<String, bool> result = {};
         resultMap.forEach((key, value) {
-          // 값이 bool 타입인지 확인합니다.
           if (value is bool) {
             result[key] = value;
           } else {
-            // bool 타입이 아닌 경우, 적절히 처리합니다. (예: 오류 로그를 남김)
             print("Warning: The value for '$key' is not a bool.");
           }
         });
         return result;
-        // 여기서 'result'는 Map<String, bool> 타입입니다.
-        // 필요에 따라 'result'를 사용합니다.
       }
-    } else {
-      print('getNotificationSetting : ${jsonResponse['message']}');
+      return {};
+    } on DioException catch (e) {
+      print('getNotificationSettings: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
-    return {};
   }
 
   static Future<void> updateNotificationSettings(
       Map<String, bool> newSettings) async {
+    const path = "/users/notificationSet";
+
     try {
-      final accessToken = await TokenManagerWithSP.loadToken();
-
-      const path = "/users/notificationSet";
-      final url = Uri.https(baseUrl, path);
-
-      final response = await http.put(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: jsonEncode(newSettings),
-      );
-
-      final String decodedResponse = utf8.decode(response.bodyBytes);
-
-      // 디코드된 문자열을 JSON으로 파싱합니다.
-      final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-      if (response.statusCode == 200) {
-        // 필요에 따라 JSON 응답을 처리합니다.
-      } else {
-        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
-        throw Exception(jsonResponse['message']);
-      }
-    } catch (error) {
-      print('오류 발생: $error');
+      final response = await dio.put(path, data: newSettings);
+      print('updateNotificationSettings: ${response.data}');
+    } on DioException catch (e) {
+      print('updateNotificationSettings: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<dynamic> getUserInfo() async {
-    final accessToken = await TokenManagerWithSP.loadToken();
-
     const path = "/users/me";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      // 필요에 따라 JSON 응답을 처리합니다.
-      return jsonResponse['result'];
-    } else {
-      print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
+    try {
+      final response = await dio.get(path);
+      return response.data['result'];
+    } on DioException catch (e) {
+      print('getUserInfo: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
-    return null;
   }
 
   static Future<void> deleteUser() async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/users/me";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.delete(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-    if (response.statusCode == 200) {
-      print('deleteUser : $jsonResponse');
-    } else {
-      throw Exception(jsonResponse['message']);
+    try {
+      final response = await dio.delete(path);
+      print('deleteUser: ${response.data}');
+    } on DioException catch (e) {
+      print('deleteUser: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> deleteLogOut() async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/logout";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.delete(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        // accessToken을 Authorization 헤더에 Bearer 토큰으로 추가
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    // 디코드된 문자열을 JSON으로 파싱합니다.
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-    if (response.statusCode == 200) {
-      print('logout : $jsonResponse');
-    } else {
-      throw Exception(jsonResponse['message']);
+    try {
+      final response = await dio.delete(path);
+      print('logout: ${response.data}');
+    } on DioException catch (e) {
+      print('logout: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
@@ -1507,31 +975,19 @@ class ApiService {
     int page,
     String orderType,
   ) async {
+    const path = "/posts/menu-request";
+
     try {
-      final accessToken = await TokenManagerWithSP.loadToken();
-      const path = "/posts/menu-request";
-      // cafeteriaId를 쿼리 파라미터에 추가
-      final url = Uri.https(baseUrl, path, {
+      final response = await dio.get(path, queryParameters: {
         'cafeteriaId': '$cafeteriaId',
         'page': '$page',
         'orderType': orderType,
       });
 
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-
       if (response.statusCode == 200) {
-        // UTF-8로 디코딩
-        final String responseUtf8 = utf8.decode(response.bodyBytes);
-        final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
         final List<dynamic> resultList =
-            jsonResponse['result']['postPreviewDTOList'];
-        final int lastPage = jsonResponse['result']['totalPages'];
+            response.data['result']['postPreviewDTOList'];
+        final int lastPage = response.data['result']['totalPages'];
         final List<Map<String, dynamic>> boardList = resultList.map((item) {
           return {
             'id': item['id'],
@@ -1548,8 +1004,8 @@ class ApiService {
         print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
         return [];
       }
-    } catch (e) {
-      print('오류 발생: $e');
+    } on DioException catch (e) {
+      print('오류 발생: ${e.message}');
       return [];
     }
   }
@@ -1558,30 +1014,18 @@ class ApiService {
     int cafeteriaId,
     int page,
   ) async {
+    const path = "/posts/notice";
+
     try {
-      final accessToken = await TokenManagerWithSP.loadToken();
-      const path = "/posts/notice";
-      // cafeteriaId를 쿼리 파라미터에 추가
-      final url = Uri.https(baseUrl, path, {
+      final response = await dio.get(path, queryParameters: {
         'cafeteriaId': '$cafeteriaId',
         'page': '$page',
       });
 
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-
       if (response.statusCode == 200) {
-        // UTF-8로 디코딩
-        final String responseUtf8 = utf8.decode(response.bodyBytes);
-        final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
         final List<dynamic> resultList =
-            jsonResponse['result']['postPreviewDTOList'];
-        final int lastPage = jsonResponse['result']['totalPages'];
+            response.data['result']['postPreviewDTOList'];
+        final int lastPage = response.data['result']['totalPages'];
         final List<Map<String, dynamic>> boardList = resultList.map((item) {
           return {
             'id': item['id'],
@@ -1598,166 +1042,97 @@ class ApiService {
         print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
         return [];
       }
-    } catch (e) {
-      print('오류 발생: $e');
+    } on DioException catch (e) {
+      print('오류 발생: ${e.message}');
       return [];
     }
   }
 
   static Future<void> createPost(
       String boardType, String title, String content, int cafeteriaId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/posts";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
+    try {
+      final response = await dio.post(
+        path,
+        data: {
+          "boardType": boardType,
+          "title": title,
+          "content": content,
+          "cafeteriaId": cafeteriaId,
         },
-        body: jsonEncode(
-          {
-            "boardType": boardType,
-            "title": title,
-            "content": content,
-            "cafeteriaId": cafeteriaId,
-          },
-        ));
-
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : createPost : $jsonResponse');
-    } else {
-      throw Exception(jsonResponse['message']);
+      );
+      print('ApiService : createPost : ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : createPost : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> togglePostLike(int postId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/posts/$postId/like";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.post(url, headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $accessToken',
-    });
-
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService : togglePostLike : $jsonResponse');
-    } else {
-      throw Exception(jsonResponse['message']);
+    try {
+      final response = await dio.post(path);
+      print('ApiService : togglePostLike : ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService : togglePostLike : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<Map<String, dynamic>> fetchBoardDetail(int id) async {
+    final path = "/posts/$id";
+
     try {
-      final accessToken = await TokenManagerWithSP.loadToken();
-      final path = "/posts/$id";
-      final url = Uri.https(baseUrl, path);
-
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final String responseUtf8 = utf8.decode(response.bodyBytes);
-        final Map<String, dynamic> jsonResponse = jsonDecode(responseUtf8);
-        return jsonResponse['result'];
-      } else {
-        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
-        return {};
-      }
-    } catch (e) {
-      print('오류 발생: $e');
+      final response = await dio.get(path);
+      return response.data['result'];
+    } on DioException catch (e) {
+      print('상태 코드: ${e.response?.statusCode}로 요청이 실패했습니다.');
       return {};
     }
   }
 
   static Future<void> deletePost(int postId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
     final path = "/posts/$postId";
-    final url = Uri.https(baseUrl, path);
 
-    final response = await http.delete(url, headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $accessToken',
-    });
-
-    final String decodedResponse = utf8.decode(response.bodyBytes);
-    final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('deletePost : $jsonResponse');
-    } else {
-      print('Error in deletePost : $jsonResponse');
-      throw Exception(jsonResponse['message']);
+    try {
+      final response = await dio.delete(path);
+      print('deletePost : ${response.data}');
+    } on DioException catch (e) {
+      print('Error in deletePost : ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> updatePost(
       int postId, String newTitle, String newContent) async {
-    try {
-      final accessToken = await TokenManagerWithSP.loadToken();
-      final String path = "/posts/$postId";
-      final Uri url = Uri.https(baseUrl, path);
+    final path = "/posts/$postId";
 
-      final Map<String, String> requestBody = {
-        'title': newTitle,
-        'content': newContent,
-      };
-      final response = await http.put(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
+    try {
+      final response = await dio.put(
+        path,
+        data: {
+          'title': newTitle,
+          'content': newContent,
         },
-        body: jsonEncode(requestBody),
       );
-      final String decodedResponse = utf8.decode(response.bodyBytes);
-      final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
-      if (response.statusCode == 200) {
-        print('게시글이 성공적으로 수정되었습니다: $jsonResponse');
-      } else {
-        print('상태 코드: ${response.statusCode}로 요청이 실패했습니다.');
-        throw Exception(jsonResponse['message']);
-      }
-    } catch (error) {
-      print('오류 발생: $error');
+      print('게시글이 성공적으로 수정되었습니다: ${response.data}');
+    } on DioException catch (e) {
+      print('상태 코드: ${e.response?.statusCode}로 요청이 실패했습니다.');
+      throw Exception(e.response?.data['message']);
     }
   }
 
   static Future<void> reportPost(int postId) async {
-    final accessToken = await TokenManagerWithSP.loadToken();
-    final url = Uri.https(baseUrl, '/posts/$postId/report');
+    final path = "/posts/$postId/report";
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode({
-        'id': postId,
-      }),
-    );
-
-    final decodedResponse = utf8.decode(response.bodyBytes);
-    final jsonResponse = jsonDecode(decodedResponse);
-
-    if (response.statusCode == 200) {
-      print('ApiService: reportPost: $jsonResponse');
-    } else {
-      throw Exception(jsonResponse['message']);
+    try {
+      final response = await dio.post(path, data: {'id': postId});
+      print('ApiService: reportPost: ${response.data}');
+    } on DioException catch (e) {
+      print('ApiService: reportPost: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
     }
   }
 

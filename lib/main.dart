@@ -157,25 +157,25 @@ void main() async {
               ),
               checkboxTheme: CheckboxThemeData(
                 side: const BorderSide(color: Colors.blue), // 테두리 색상 설정
-                fillColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.selected)) {
+                fillColor: WidgetStateProperty.resolveWith<Color>(
+                    (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.selected)) {
                     return Colors.blue; // 체크했을 때 색상 설정
                   }
                   return Colors.white; // 해제했을 때 색상 설정
                 }),
-                checkColor: MaterialStateProperty.all<Color>(Colors.white),
+                checkColor: WidgetStateProperty.all<Color>(Colors.white),
               ),
               dialogTheme: const DialogTheme(
                 surfaceTintColor: Colors.white,
               ),
               textButtonTheme: const TextButtonThemeData(
                   style: ButtonStyle(
-                      foregroundColor: MaterialStatePropertyAll(Colors.blue))),
+                      foregroundColor: WidgetStatePropertyAll(Colors.blue))),
               switchTheme: SwitchThemeData(
-                trackColor: MaterialStateProperty.resolveWith<Color>(
-                    (Set<MaterialState> states) {
-                  if (states.contains(MaterialState.selected)) {
+                trackColor: WidgetStateProperty.resolveWith<Color>(
+                    (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.selected)) {
                     // 스위치가 켜져있을 때의 색상
                     return Colors.blue;
                   } else {
@@ -400,6 +400,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     var normalized = base64Url.normalize(payload);
     var decoded = utf8.decode(base64Url.decode(normalized));
     final payloadMap = json.decode(decoded);
+    print(payloadMap);
     setState(() {
       isRealAdmin = payloadMap['role'] == "ADMIN";
       isAdmin = payloadMap['role'] == "ADMIN";
