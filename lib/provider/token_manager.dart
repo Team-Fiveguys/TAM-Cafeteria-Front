@@ -18,7 +18,8 @@ class TokenManagerWithSP {
     await prefs.clear();
   }
 
-  static Future<bool> isExpiredToken(String token) async {
+  static bool isExpiredToken(String token) {
+    // if (token == null) return true;
     final parts = token.split('.');
 
     if (parts.length != 3) {
@@ -30,11 +31,13 @@ class TokenManagerWithSP {
     var decoded = utf8.decode(base64Url.decode(normalized));
     final payloadMap = json.decode(decoded);
     int currentUnixTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    // payloadMap['exp'] = currentUnixTimestamp;
 
-    if (payloadMap['exp'] - 300 < currentUnixTimestamp) {
-      return false;
+    if (payloadMap['exp'] < currentUnixTimestamp) {
+      // print("여기까지 오나?");
+      return true;
     }
 
-    return true;
+    return false;
   }
 }

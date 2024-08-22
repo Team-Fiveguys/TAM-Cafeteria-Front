@@ -349,6 +349,48 @@ class ApiService {
   //   }
   // }
 
+  static Future<void> postRefreshToken(String? accessToken) async {
+    const path = '/token/access-token';
+    print("api_service : postRefresh");
+    if (accessToken == null) {
+      throw Exception();
+    }
+    // 새로운 Dio 인스턴스 생성 (Interceptor를 추가하지 않음)
+    Dio dioWithoutInterceptor = Dio(BaseOptions(
+      baseUrl: 'https://$baseUrl',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    ));
+
+    try {
+      final response = await dioWithoutInterceptor.post(
+        path,
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $accessToken',
+          },
+        ),
+      );
+      print("------------------$response");
+      if (response.statusCode != 200) {
+        throw Exception();
+      }
+
+      print(
+          'ApiService:postRefreshToken :: ${response.headers.value('accessToken')}');
+      if (response.headers.value('accessToken') == null)
+        throw Exception(response.data['message']);
+      await TokenManagerWithSP.saveToken(
+          response.headers.value('accessToken')!);
+    } on DioException catch (e) {
+      print('postRefreshToken: ${e.response?.data}');
+      throw Exception(e.response?.data['message']);
+    }
+  }
+
   static Future<String?> postKakaoLogin(
       String idToken, String accessToken) async {
     const path = '/oauth2/kakao/token/validate';

@@ -7,10 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 // import 'package:path/path.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:tam_cafeteria_front/main.dart';
 // import 'package:tam_cafeteria_front/main.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
 import 'package:tam_cafeteria_front/provider/token_manager.dart';
+import 'package:tam_cafeteria_front/screens/main_screen.dart';
 import 'package:tam_cafeteria_front/screens/sign_up_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 
@@ -70,7 +72,11 @@ class LoginScreen extends ConsumerWidget {
           loginProvier.login();
           Navigator.pop(context, "login success");
           if (!isClosed) {
-            Navigator.pop(context, "login success");
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const App()), // MainScreen으로 이동
+            );
           }
           //  ref.read(loginStateProvider.state).state = true;
         }
@@ -195,9 +201,14 @@ class LoginScreen extends ConsumerWidget {
       } else {
         throw Exception("로그인 실패");
       }
-      Navigator.pop(context, "login success");
+      Navigator.of(context).pop();
+
       if (!isClosed) {
-        Navigator.pop(context, "login success");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const App()), // MainScreen으로 이동
+        );
       }
     } on Exception catch (error) {
       print(error);
@@ -282,7 +293,10 @@ class LoginScreen extends ConsumerWidget {
     // 로그인 성공 시 화면 닫기
     if (success) {
       Navigator.pop(context);
-      Navigator.pop(context, "login success");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const App()), // MainScreen으로 이동
+      );
     }
   }
 
@@ -290,15 +304,24 @@ class LoginScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios_new,
-            size: 20,
-          ),
-        ),
+        automaticallyImplyLeading: false,
+        // leading: IconButton(
+        //   onPressed: () {
+        //     if (Navigator.canPop(context)) {
+        //       Navigator.of(context).pop(); // 이전 화면으로 이동
+        //     } else {
+        //       Navigator.pushReplacement(
+        //         context,
+        //         MaterialPageRoute(
+        //             builder: (context) => const App()), // MainScreen으로 이동
+        //       );
+        //     }
+        //   },
+        //   icon: const Icon(
+        //     Icons.arrow_back_ios_new,
+        //     size: 20,
+        //   ),
+        // ),
       ),
       //여기 수직 center 가능?
       body: Padding(
@@ -389,7 +412,7 @@ class LoginScreen extends ConsumerWidget {
                         const SizedBox(height: 10.0),
                         ElevatedButton(
                           style: ButtonStyle(
-                            minimumSize: MaterialStateProperty.all<Size>(
+                            minimumSize: WidgetStateProperty.all<Size>(
                                 const Size(200, 58)),
                           ),
                           onPressed: () => loginWithEmail(context, ref),

@@ -123,6 +123,8 @@ Future<String?> getToken() async {
   return token;
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final String? initialToken =
@@ -148,6 +150,12 @@ void main() async {
         ),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey, // GlobalKey 설정
+
+        routes: {
+          '/login': (context) => LoginScreen(), // 로그인 화면
+          // 필요한 다른 라우트를 추가
+        },
         debugShowCheckedModeBanner: false,
         builder: (context, child) {
           return Theme(
@@ -865,16 +873,8 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
                 builder: (context) {
                   return IconButton(
                     icon: const Icon(Icons.menu),
-                    onPressed: () {
-                      // FirebaseMessaging.instance.subscribeToTopic('1');
-                      // FirebaseMessaging.instance.subscribeToTopic('today_diet');
-                      // ref.read(loginStateProvider.notifier).logout();
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => LoginScreen(), //알람 버튼
-                      //   ),
-                      // );
+                    onPressed: () async {
+                      await ApiService.postRefreshToken(accessToken!);
                     }, // 아무것도 하지 않음
                   );
                 },
