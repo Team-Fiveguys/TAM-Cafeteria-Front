@@ -17,6 +17,7 @@ class AccessTokenNotifier extends StateNotifier<String?> {
     if (token == null) {
       await TokenManagerWithSP.removeToken();
     } else {
+      // await TokenManagerWithSP.removeToken();
       await TokenManagerWithSP.saveToken(token);
     }
   }
