@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -141,6 +142,9 @@ void main() async {
   initializeNotification();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
   runApp(
     ProviderScope(
       overrides: [
@@ -151,7 +155,7 @@ void main() async {
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey, // GlobalKey 설정
-
+        navigatorObservers: <NavigatorObserver>[observer],
         routes: {
           '/login': (context) => LoginScreen(), // 로그인 화면
           // 필요한 다른 라우트를 추가
