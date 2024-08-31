@@ -81,44 +81,14 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
     return formattedDate;
   }
 
-  Future<void> getWeekDiets(String meals) async {
+  Future<void> getWeekDiets() async {
+    print('이제 몇번인가요?');
     weekDietBreakfastList = {};
     weekDietLunchList = {};
-    final today = DateTime.now();
-    final todayAfterSevenDays = today.add(const Duration(days: 7));
-    final todayBeforeSevenDays = today.subtract(const Duration(days: 7));
 
-    var thisWeekMap = getWeekOfMonth(today);
-    var nextWeekMap = getWeekOfMonth(todayAfterSevenDays);
-    var lastWeekMap = getWeekOfMonth(todayBeforeSevenDays);
     Map<String?, Diet> totalWeek = {};
     try {
-      final thisWeek = await ApiService.getWeekDiets(
-        widget.cafeteria.id,
-        today.year,
-        thisWeekMap["month"]!,
-        thisWeekMap["weekOfMonth"]!,
-        meals,
-      );
-
-      final nextWeek = await ApiService.getWeekDiets(
-        widget.cafeteria.id,
-        todayAfterSevenDays.year,
-        nextWeekMap["month"]!,
-        nextWeekMap["weekOfMonth"]!,
-        meals,
-      );
-
-      final lastWeek = await ApiService.getWeekDiets(
-        widget.cafeteria.id,
-        todayBeforeSevenDays.year,
-        lastWeekMap["month"]!,
-        lastWeekMap["weekOfMonth"]!,
-        meals,
-      );
-      totalWeek.addAll(lastWeek);
-      totalWeek.addAll(thisWeek);
-      totalWeek.addAll(nextWeek);
+      totalWeek = await ApiService.getDietsInMain(widget.cafeteria.id);
     } catch (e) {
       print(e);
     }
@@ -132,18 +102,17 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
 
     while (currentDate.isBefore(nextSunday.add(const Duration(days: 1)))) {
       final formatDate = dateFormat.format(currentDate);
-      if (meals == "LUNCH") {
-        if (totalWeek.containsKey(formatDate)) {
-          weekDietLunchList[formatDate] = totalWeek[formatDate];
-        } else {
-          weekDietLunchList[formatDate] = null;
-        }
+      if (totalWeek.containsKey(formatDate) &&
+          totalWeek[formatDate]!.meals == "LUNCH") {
+        weekDietLunchList[formatDate] = totalWeek[formatDate];
       } else {
-        if (totalWeek.containsKey(formatDate)) {
-          weekDietBreakfastList[formatDate] = totalWeek[formatDate];
-        } else {
-          weekDietBreakfastList[formatDate] = null;
-        }
+        weekDietLunchList[formatDate] = null;
+      }
+      if (totalWeek.containsKey(formatDate) &&
+          totalWeek[formatDate]!.meals == "BREAKFAST") {
+        weekDietBreakfastList[formatDate] = totalWeek[formatDate];
+      } else {
+        weekDietBreakfastList[formatDate] = null;
       }
       currentDate = currentDate.add(const Duration(days: 1));
     }
@@ -176,273 +145,254 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
         const SizedBox(
           height: 20,
         ),
-        if (widget.cafeteria.name == "학생회관")
-          Column(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 10,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      '조식',
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Text(
-                      widget.cafeteria.breakfastHour!,
-                      style: TextStyle(
-                        color: Theme.of(context).primaryColorLight,
-                        fontSize: 8,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
-                child: FutureBuilder(
-                  future: getWeekDiets("BREAKFAST"),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else if (snapshot.hasError) {
-                      // 에러 발생 시
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      List<String> dateList =
-                          weekDietBreakfastList.keys.toList();
-                      int initialIndex = dateList.indexOf(formatToday);
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (initialIndex != -1) {
-                          // 오늘 날짜가 리스트에 있으면
-                          _controller.jumpTo(
-                              initialIndex * 130.0); // 각 아이템의 너비가 130.0이라고 가정
-                        }
-                      });
-                      return SizedBox(
-                        height: 177, // ListView의 높이를 설정합니다.
-                        child: ListView.separated(
-                          controller: _controller,
-                          scrollDirection:
-                              Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
-                          itemCount: dateList.length,
-                          separatorBuilder: (context, index) {
-                            return const SizedBox(
-                              width: 5,
-                            );
-                          },
-                          itemBuilder: (context, index) {
-                            final date = dateList[index];
-                            DateTime dateTime = DateTime.parse(date);
+        FutureBuilder(
+          future: getWeekDiets(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (snapshot.hasError) {
+              // 에러 발생 시
+              return Text('Error: ${snapshot.error}');
+            } else {
+              List<String> dateList = weekDietLunchList.keys.toList();
+              int initialIndex = dateList.indexOf(formatToday);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (initialIndex != -1) {
+                  // 오늘 날짜가 리스트에 있으면
+                  _controller
+                      .jumpTo(initialIndex * 130.0); // 각 아이템의 너비가 130.0이라고 가정
+                }
+              });
+              List<String> breakfastDateList =
+                  weekDietBreakfastList.keys.toList();
 
-                            return Container(
-                              decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 0, // spreadRadius를 줄입니다.
-                                    blurRadius:
-                                        3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
-                                    offset: const Offset(0, 0), // 그림자 위치 조정
-                                  ),
-                                ],
-                                borderRadius: BorderRadius.circular(15),
-                                color: Colors.white,
-                              ),
-                              width: 130,
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                                vertical: 5,
-                              ),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
+              return Column(
+                children: [
+                  if (widget.cafeteria.name == "학생회관")
+                    Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 30,
+                            vertical: 10,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                '조식',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
                                 ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: Border.all(
-                                    width: 3,
-                                    color: getBorderColor(
-                                        date), // 인덱스에 따라 경계선 색상 결정
-                                  ),
-                                  color: Colors.white, // 안쪽 Container의 배경색
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              Text(
+                                widget.cafeteria.breakfastHour!,
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColorLight,
+                                  fontSize: 8,
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                          ),
+                          child: SizedBox(
+                            height: 177, // ListView의 높이를 설정합니다.
+                            child: ListView.separated(
+                              controller: _controller,
+                              scrollDirection:
+                                  Axis.horizontal, // 가로 방향으로 스크롤되도록 설정합니다.
+                              itemCount: breakfastDateList.length,
+                              separatorBuilder: (context, index) {
+                                return const SizedBox(
+                                  width: 5,
+                                );
+                              },
+                              itemBuilder: (context, index) {
+                                final date = breakfastDateList[index];
+                                DateTime dateTime = DateTime.parse(date);
+
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 0, // spreadRadius를 줄입니다.
+                                        blurRadius:
+                                            3, // blurRadius를 줄여 그림자의 크기를 작게 합니다.
+                                        offset: const Offset(0, 0), // 그림자 위치 조정
+                                      ),
+                                    ],
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: Colors.white,
+                                  ),
+                                  width: 130,
+                                  margin: const EdgeInsets.symmetric(
+                                    horizontal: 5,
+                                    vertical: 5,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(
+                                        width: 3,
+                                        color: getBorderColor(
+                                            date), // 인덱스에 따라 경계선 색상 결정
+                                      ),
+                                      color: Colors.white, // 안쪽 Container의 배경색
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          days[dateTime.weekday - 1],
-                                          style: TextStyle(
-                                              color: getTextColor(date)),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              days[dateTime.weekday - 1],
+                                              style: TextStyle(
+                                                  color: getTextColor(date)),
+                                            ),
+                                            Text(
+                                              formatDateString(date),
+                                              style: TextStyle(
+                                                  color: getTextColor(date)),
+                                            ),
+                                          ],
                                         ),
-                                        Text(
-                                          formatDateString(date),
-                                          style: TextStyle(
-                                              color: getTextColor(date)),
+                                        const SizedBox(
+                                          height: 5,
                                         ),
+                                        if (weekDietBreakfastList[date] == null)
+                                          const Center(
+                                            child: Text(
+                                              "미등록",
+                                              style: TextStyle(
+                                                color: Color(0xFF5A5A5A),
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          )
+                                        else if (weekDietBreakfastList[date]!
+                                            .dayOff)
+                                          const Center(
+                                            child: Text(
+                                              "미운영",
+                                              style: TextStyle(
+                                                color: Color(0xFF5A5A5A),
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          )
+                                        else if (weekDietBreakfastList[date]!
+                                            .names
+                                            .isEmpty)
+                                          const Center(
+                                            child: Text(
+                                              "미등록",
+                                              style: TextStyle(
+                                                color: Color(0xFF5A5A5A),
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          )
+                                        else
+                                          Expanded(
+                                            child: SingleChildScrollView(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  for (var menu
+                                                      in weekDietBreakfastList[
+                                                              date]!
+                                                          .names)
+                                                    Text(
+                                                      "• $menu",
+                                                      style: const TextStyle(
+                                                        color:
+                                                            Color(0xFF5A5A5A),
+                                                        fontSize: 12,
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                       ],
                                     ),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
-                                    if (weekDietBreakfastList[date] == null)
-                                      const Center(
-                                        child: Text(
-                                          "미등록",
-                                          style: TextStyle(
-                                            color: Color(0xFF5A5A5A),
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      )
-                                    else if (weekDietBreakfastList[date]!
-                                        .dayOff)
-                                      const Center(
-                                        child: Text(
-                                          "미운영",
-                                          style: TextStyle(
-                                            color: Color(0xFF5A5A5A),
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      )
-                                    else if (weekDietBreakfastList[date]!
-                                        .names
-                                        .isEmpty)
-                                      const Center(
-                                        child: Text(
-                                          "미등록",
-                                          style: TextStyle(
-                                            color: Color(0xFF5A5A5A),
-                                            fontSize: 15,
-                                          ),
-                                        ),
-                                      )
-                                    else
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              for (var menu
-                                                  in weekDietBreakfastList[
-                                                          date]!
-                                                      .names)
-                                                Text(
-                                                  "• $menu",
-                                                  style: const TextStyle(
-                                                    color: Color(0xFF5A5A5A),
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                         ),
-                      );
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-            ],
-          ),
-        Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 30,
-                vertical: 10,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    '중식',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+                        const SizedBox(
+                          height: 30,
+                        ),
+                      ],
+                    ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 30,
+                      vertical: 10,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '중식',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 8,
+                        ),
+                        Text(
+                          widget.cafeteria.lunchHour,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColorLight,
+                            fontSize: 8,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(
-                    width: 8,
+                    height: 20,
                   ),
-                  Text(
-                    widget.cafeteria.lunchHour,
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColorLight,
-                      fontSize: 8,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-              ),
-              child: FutureBuilder(
-                future: getWeekDiets("LUNCH"),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    // 에러 발생 시
-                    return Text('Error: ${snapshot.error}');
-                  } else {
-                    List<String> dateList = weekDietLunchList.keys.toList();
-                    int initialIndex = dateList.indexOf(formatToday);
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (initialIndex != -1) {
-                        // 오늘 날짜가 리스트에 있으면
-                        _controller.jumpTo(
-                            initialIndex * 130.0); // 각 아이템의 너비가 130.0이라고 가정
-                      }
-                    });
-                    return SizedBox(
+                    child: SizedBox(
                       height: 177, // ListView의 높이를 설정합니다.
                       child: ListView.separated(
                         controller: _controller,
@@ -572,15 +522,15 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
                           );
                         },
                       ),
-                    );
-                  }
-                },
-              ),
-            ),
-            const SizedBox(
-              height: 30,
-            ),
-          ],
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
+        ),
+        const SizedBox(
+          height: 30,
         ),
       ],
     );

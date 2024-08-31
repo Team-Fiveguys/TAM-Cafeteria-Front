@@ -62,12 +62,13 @@ class _WeekDietState extends State<WeekDiet> {
     super.initState();
     menuList = ApiService.getMenu(widget.cafeteriaId);
     _selectedDay = now;
-    firstDay = now.subtract(const Duration(days: 7));
-    lastDay = firstDay.add(const Duration(days: 21));
+    firstDay = now.subtract(Duration(days: now.weekday + 6));
+    lastDay = now.add(Duration(days: 14 - now.weekday));
 
     menuNameController.addListener(filteringMenus);
     selectedDay = dateFormat.format(now);
-    initDietList();
+    // initDietList();
+    loadDiets();
   }
 
   Future<void> initDietList() async {
@@ -712,7 +713,7 @@ class _WeekDietState extends State<WeekDiet> {
                     selectedMeals = "BREAKFAST";
                   }
                   selectedItem = newValue; // 선택된 항목을 상태로 저장
-                  await initDietList();
+                  // await initDietList();
                   await loadDiets();
                   setState(() {});
                 },
