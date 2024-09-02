@@ -482,6 +482,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
             ),
             Row(
               children: [
+                //학생회관이면 조식, 명진당이면 중식
                 Expanded(
                   flex: 1,
                   child: Column(children: [
@@ -611,8 +612,8 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                 const SizedBox(
                   width: 8,
                 ),
+                //학생회관이면 중식, 명진당이면 명돈이네
                 Expanded(
-                  //TODO : 명분이네 작업하기
                   flex: 1,
                   child: Column(
                     children: [

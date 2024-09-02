@@ -39,111 +39,146 @@ class User {
 class ApiService {
   static const String baseUrl = "dev.tam-cafeteria.site";
   static const String aiBaseUrl = "ai.tam-cafeteria.site";
-
   static final Dio dio = Dio(BaseOptions(
     baseUrl: 'https://$baseUrl',
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  ))
-    ..interceptors.add(TokenInterceptor());
-
+  ));
   static Future<void> postDietPhoto(
       XFile image, String date, String meals, int cafeteriaId) async {
-    try {
-      final accessToken = await TokenManagerWithSP.loadToken();
-      const path = '/diets/dietPhoto';
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = '/diets/dietPhoto';
+    final url = Uri.https(baseUrl, path);
 
-      // 파일의 MIME 타입 결정
-      String? mimeType = lookupMimeType(image.path);
-      var mimeeTypeSplit = mimeType?.split('/') ?? ['application', 'json'];
+// 파일의 MIME 타입을 결정합니다.
+    String? mimeType = lookupMimeType(image.path);
+    var mimeeTypeSplit =
+        mimeType?.split('/') ?? ['application', 'json']; // 기본값을 제공합니다.
 
-      // MultipartFormData 생성
-      FormData formData = FormData.fromMap({
-        'photo': await MultipartFile.fromFile(
-          image.path,
-          contentType: MediaType(mimeeTypeSplit[0], mimeeTypeSplit[1]),
-          filename: basename(image.path),
-        ),
-        'dietQuery': jsonEncode({
-          'cafeteriaId': cafeteriaId.toString(),
-          'meals': meals,
-          'localDate': date,
-        }),
+// 이미지 파일의 바이트 데이터를 읽습니다.
+    var imageBytes = await image.readAsBytes();
+
+// MultipartRequest 객체를 생성합니다.
+    // MultipartRequest 객체를 생성합니다.
+    var request = http.MultipartRequest('POST', url)
+      ..headers.addAll({
+        'Authorization': 'Bearer $accessToken', // accessToken을 헤더에 추가합니다.
+        'Content-Type': 'multipart/form-data',
       });
+    var dietQuery = {
+      'cafeteriaId': cafeteriaId.toString(),
+      'meals': meals,
+      'localDate': date,
+    };
+// 필요한 텍스트 필드를 추가합니다.
+    String dietQueryJson = jsonEncode(dietQuery);
 
-      // POST 요청 보내기
-      final response = await dio.post(
-        path,
-        data: formData,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
-      );
+// JSON 문자열을 바이트로 변환합니다.
+    List<int> dietQueryBytes = utf8.encode(dietQueryJson);
 
-      if (response.statusCode == 200) {
-        print('Upload successful');
-        print('Response body: ${response.data}');
-      } else {
-        throw Exception('Upload failed');
-      }
-    } catch (e) {
-      print('postDietPhoto error: $e');
-      throw Exception('Failed to upload photo');
+// dietQuery를 MultipartFile로 만듭니다.
+    http.MultipartFile dietQueryFile = http.MultipartFile.fromBytes(
+      'dietQuery', // 서버에서 기대하는 필드명을 사용해야 합니다.
+      dietQueryBytes,
+      contentType: MediaType('application', 'json'), // 올바른 MIME 타입 설정
+    );
+
+// 이미지 파일을 MultipartFile로 변환합니다.
+    var multipartFile = http.MultipartFile.fromBytes(
+      'photo',
+      imageBytes,
+      contentType: MediaType(mimeeTypeSplit[0], mimeeTypeSplit[1]),
+      filename: basename(image.path), // 파일 이름 설정
+    );
+
+// 변환된 파일을 요청에 추가합니다.
+    request.files.add(multipartFile);
+    request.files.add(dietQueryFile);
+// 요청을 전송하고 응답을 기다립니다.
+    var response = await request.send();
+
+// 응답을 처리합니다.
+    if (response.statusCode == 200) {
+      print('Upload successful');
+      // 응답 본문을 읽습니다.
+      String responseText = await response.stream.bytesToString();
+      print('Response body: $responseText');
+    } else {
+      print('Upload failed');
+      // 실패한 경우의 응답 본문을 읽습니다.
+      String responseText = await response.stream.bytesToString();
+      print(
+          'postDietPhoto: Response body: ${jsonDecode(responseText)['message']}');
+      throw Exception(jsonDecode(responseText)['message']);
     }
   }
 
-  // PUT 요청을 Dio로 변경 (사진 수정)
   static Future<void> putDietPhoto(
       XFile image, String date, String meals, int cafeteriaId) async {
-    try {
-      final accessToken = await TokenManagerWithSP.loadToken();
-      const path = '/diets/dietPhoto';
+    final accessToken = await TokenManagerWithSP.loadToken();
+    const path = '/diets/dietPhoto';
+    final url = Uri.https(baseUrl, path);
 
-      // 파일의 MIME 타입 결정
-      String? mimeType = lookupMimeType(image.path);
-      var mimeeTypeSplit = mimeType?.split('/') ?? ['application', 'json'];
+// 파일의 MIME 타입을 결정합니다.
+    String? mimeType = lookupMimeType(image.path);
+    var mimeeTypeSplit =
+        mimeType?.split('/') ?? ['application', 'json']; // 기본값을 제공합니다.
 
-      // MultipartFormData 생성
-      FormData formData = FormData.fromMap({
-        'photo': await MultipartFile.fromFile(
-          image.path,
-          contentType: MediaType(mimeeTypeSplit[0], mimeeTypeSplit[1]),
-          filename: basename(image.path),
-        ),
-        'dietQuery': jsonEncode({
-          'cafeteriaId': cafeteriaId.toString(),
-          'meals': meals,
-          'localDate': date,
-        }),
+// 이미지 파일의 바이트 데이터를 읽습니다.
+    var imageBytes = await image.readAsBytes();
+
+// MultipartRequest 객체를 생성합니다.
+    // MultipartRequest 객체를 생성합니다.
+    var request = http.MultipartRequest('PUT', url)
+      ..headers.addAll({
+        'Authorization': 'Bearer $accessToken', // accessToken을 헤더에 추가합니다.
+        'Content-Type': 'multipart/form-data',
       });
+    var dietQuery = {
+      'cafeteriaId': cafeteriaId.toString(),
+      'meals': meals,
+      'localDate': date,
+    };
+// 필요한 텍스트 필드를 추가합니다.
+    String dietQueryJson = jsonEncode(dietQuery);
 
-      // PUT 요청 보내기
-      final response = await dio.put(
-        path,
-        data: formData,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
-      );
+// JSON 문자열을 바이트로 변환합니다.
+    List<int> dietQueryBytes = utf8.encode(dietQueryJson);
 
-      if (response.statusCode == 200) {
-        print('Update successful');
-        print('Response body: ${response.data}');
-      } else {
-        throw Exception('Update failed');
-      }
-    } catch (e) {
-      print('putDietPhoto error: $e');
-      throw Exception('Failed to update photo');
+// dietQuery를 MultipartFile로 만듭니다.
+    http.MultipartFile dietQueryFile = http.MultipartFile.fromBytes(
+      'dietQuery', // 서버에서 기대하는 필드명을 사용해야 합니다.
+      dietQueryBytes,
+      contentType: MediaType('application', 'json'), // 올바른 MIME 타입 설정
+    );
+
+// 이미지 파일을 MultipartFile로 변환합니다.
+    var multipartFile = http.MultipartFile.fromBytes(
+      'photo',
+      imageBytes,
+      contentType: MediaType(mimeeTypeSplit[0], mimeeTypeSplit[1]),
+      filename: basename(image.path), // 파일 이름 설정
+    );
+
+// 변환된 파일을 요청에 추가합니다.
+    request.files.add(multipartFile);
+    request.files.add(dietQueryFile);
+// 요청을 전송하고 응답을 기다립니다.
+    var response = await request.send();
+
+// 응답을 처리합니다.
+    if (response.statusCode == 200) {
+      print('Upload successful');
+      // 응답 본문을 읽습니다.
+      String responseText = await response.stream.bytesToString();
+      print('Response body: $responseText');
+    } else {
+      print('Upload failed');
+      // 실패한 경우의 응답 본문을 읽습니다.
+      String responseText = await response.stream.bytesToString();
+      print(
+          'putDietPhoto : Response body: ${jsonDecode(responseText)['message']}');
+      throw Exception(jsonDecode(responseText)['message']);
     }
   }
 
