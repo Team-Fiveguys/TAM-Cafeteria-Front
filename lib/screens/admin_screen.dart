@@ -902,7 +902,7 @@ class _AdminPageState extends State<AdminPage> {
                                                 // print(channel);
                                                 await ApiService
                                                     .postNotificationToSubscriber(
-                                                        "[$cafeteriaName] [조식]품절",
+                                                        "[$cafeteriaName] [조식] 품절",
                                                         "금일 $cafeteriaName 조식 품절되었습니다. 다음에 또 봐요!",
                                                         channel,
                                                         "dietSoldOut");
@@ -1091,7 +1091,7 @@ class _AdminPageState extends State<AdminPage> {
                                         if (result) {
                                           await ApiService
                                               .postNotificationToSubscriber(
-                                                  "[$cafeteriaName] [중식]품절",
+                                                  "[$cafeteriaName] [중식] 품절",
                                                   "금일 $cafeteriaName 중식 품절되었습니다. 다음에 또 봐요!",
                                                   channel,
                                                   "dietSoldOut");

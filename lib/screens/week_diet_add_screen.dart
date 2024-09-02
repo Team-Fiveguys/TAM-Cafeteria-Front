@@ -71,33 +71,33 @@ class _WeekDietState extends State<WeekDiet> {
     loadDiets();
   }
 
-  Future<void> initDietList() async {
-    setState(() {
-      isLoading = true;
-    });
-    DateTime currentDate = firstDay;
-    while (currentDate.isBefore(lastDay.add(const Duration(days: 1)))) {
-      // lastDay를 포함하기 위해 1일 추가
-      String formattedDate = dateFormat.format(currentDate);
-      Diet? todayDiets = await ApiService.getDiets(
-          formattedDate, selectedMeals, widget.cafeteriaId);
-      if (todayDiets != null) {
-        weekMenus[formattedDate] = todayDiets.names;
-        operationalDays[formattedDate] = todayDiets.dayOff;
-      } else {
-        weekMenus[formattedDate] = [];
-        operationalDays[formattedDate] = false;
-      }
-      // weekMenus[formattedDate] = []; // formattedDate를 key로 하여 비어 있는 리스트 할당
-      // 기본적으로 모든 날짜를 운영으로 설정
+  // Future<void> initDietList() async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+  //   DateTime currentDate = firstDay;
+  //   while (currentDate.isBefore(lastDay.add(const Duration(days: 1)))) {
+  //     // lastDay를 포함하기 위해 1일 추가
+  //     String formattedDate = dateFormat.format(currentDate);
+  //     Diet? todayDiets = await ApiService.getDiets(
+  //         formattedDate, selectedMeals, widget.cafeteriaId);
+  //     if (todayDiets != null) {
+  //       weekMenus[formattedDate] = todayDiets.names;
+  //       operationalDays[formattedDate] = todayDiets.dayOff;
+  //     } else {
+  //       weekMenus[formattedDate] = [];
+  //       operationalDays[formattedDate] = false;
+  //     }
+  //     // weekMenus[formattedDate] = []; // formattedDate를 key로 하여 비어 있는 리스트 할당
+  //     // 기본적으로 모든 날짜를 운영으로 설정
 
-      currentDate =
-          currentDate.add(const Duration(days: 1)); // currentDate를 다음 날짜로 업데이트
-    }
-    setState(() {
-      isLoading = false;
-    });
-  }
+  //     currentDate =
+  //         currentDate.add(const Duration(days: 1)); // currentDate를 다음 날짜로 업데이트
+  //   }
+  //   setState(() {
+  //     isLoading = false;
+  //   });
+  // }
 
   Future<void> filteringMenus() async {
     // 비동기 함수로 변경
@@ -108,7 +108,7 @@ class _WeekDietState extends State<WeekDiet> {
     setState(() {
       filteredMenus = menuListResult
           .where((menu) => menu.toLowerCase().contains(query.toLowerCase()))
-          .where((menu) => !selectedDayMenus.contains(menu))
+          // .where((menu) => !selectedDayMenus.contains(menu))
           .toList();
     });
   }
@@ -137,45 +137,45 @@ class _WeekDietState extends State<WeekDiet> {
     }
   }
 
-  void registerMenusForSelectedDates() async {
-    for (DateTime selectedDate in selectedDates) {
-      String selectedDayFormat = dateFormat.format(selectedDate);
+  // void registerMenusForSelectedDates() async {
+  //   for (DateTime selectedDate in selectedDates) {
+  //     String selectedDayFormat = dateFormat.format(selectedDate);
 
-      for (String menu in selectedMenusForBulk) {
-        await registerMenuForADate(menu, selectedDayFormat);
-      }
-    }
+  //     for (String menu in selectedMenusForBulk) {
+  //       await registerMenuForADate(menu, selectedDayFormat);
+  //     }
+  //   }
 
-    // 모든 메뉴가 등록된 후 UI 업데이트
-    setState(() {});
-  }
+  //   // 모든 메뉴가 등록된 후 UI 업데이트
+  //   setState(() {});
+  // }
 
-  Future<void> registerMenuForADate(String menuName, String date) async {
-    try {
-      await ApiService.putDiets(
-        menuName,
-        date,
-        selectedMeals,
-        widget.cafeteriaId,
-      );
-    } on Exception catch (e) {
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('에러'),
-          content: Text(e.toString()),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('확인'),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-            ),
-          ],
-        ),
-      );
-    }
-  }
+  // Future<void> registerMenuForADate(String menuName, String date) async {
+  //   try {
+  //     await ApiService.putDiets(
+  //       menuName,
+  //       date,
+  //       selectedMeals,
+  //       widget.cafeteriaId,
+  //     );
+  //   } on Exception catch (e) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (ctx) => AlertDialog(
+  //         title: const Text('에러'),
+  //         content: Text(e.toString()),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: const Text('확인'),
+  //             onPressed: () {
+  //               Navigator.of(ctx).pop();
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   }
+  // }
 
   void registerMultiMenuInDiets() async {
     try {
@@ -183,33 +183,34 @@ class _WeekDietState extends State<WeekDiet> {
         String selectedDay = dateFormat.format(selectedDate);
 
         // 기존 메뉴를 API에서 가져옵니다.
-        Diet? existingDiets = await ApiService.getDiets(
-            selectedDay, selectedMeals, widget.cafeteriaId);
-        List<String> existingMenus = existingDiets?.names ?? [];
+        // Diet? existingDiets = await ApiService.getDiets(
+        //     selectedDay, selectedMeals, widget.cafeteriaId);
+        // List<String> existingMenus = existingDiets?.names ?? [];
 
-        if (existingMenus.isEmpty) {
-          // 기존 메뉴가 없으면 postDiets를 사용하여 새로운 메뉴를 추가합니다.
-          await ApiService.postDiets(
-            selectedMenusForBulk,
-            selectedDay,
-            selectedMeals,
-            widget.cafeteriaId,
-            false,
-          );
-        } else {
-          // 기존 메뉴가 있는 경우
-          for (var menu in selectedMenusForBulk) {
-            if (!existingMenus.contains(menu)) {
-              // 선택된 메뉴가 이미 존재하지 않으면 putDiets를 사용하여 추가합니다.
-              await ApiService.putDiets(
-                menu,
-                selectedDay,
-                selectedMeals,
-                widget.cafeteriaId,
-              );
-            } else {}
-          }
-        }
+        // if (existingMenus.isEmpty) {
+        // 기존 메뉴가 없으면 postDiets를 사용하여 새로운 메뉴를 추가합니다.
+        await ApiService.postDiets(
+          selectedMenusForBulk,
+          selectedDay,
+          selectedMeals,
+          widget.cafeteriaId,
+          false,
+        );
+        // }
+        // else {
+        //   // 기존 메뉴가 있는 경우
+        //   for (var menu in selectedMenusForBulk) {
+        //     if (!existingMenus.contains(menu)) {
+        //       // 선택된 메뉴가 이미 존재하지 않으면 putDiets를 사용하여 추가합니다.
+        //       await ApiService.putDiets(
+        //         menu,
+        //         selectedDay,
+        //         selectedMeals,
+        //         widget.cafeteriaId,
+        //       );
+        //     } else {}
+        //   }
+        // }
       }
       setState(() {});
     } on Exception catch (e) {
@@ -231,33 +232,33 @@ class _WeekDietState extends State<WeekDiet> {
     }
   }
 
-  void registeringOneMenuInDiets(String menuName) async {
-    try {
-      await ApiService.putDiets(
-        menuName,
-        selectedDay,
-        selectedMeals,
-        widget.cafeteriaId,
-      );
-      setState(() {});
-    } on Exception catch (e) {
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('에러'),
-          content: Text(e.toString()),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('확인'),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-            ),
-          ],
-        ),
-      );
-    }
-  }
+  // void registeringOneMenuInDiets(String menuName) async {
+  //   try {
+  //     await ApiService.putDiets(
+  //       menuName,
+  //       selectedDay,
+  //       selectedMeals,
+  //       widget.cafeteriaId,
+  //     );
+  //     setState(() {});
+  //   } on Exception catch (e) {
+  //     showDialog(
+  //       context: context,
+  //       builder: (ctx) => AlertDialog(
+  //         title: const Text('에러'),
+  //         content: Text(e.toString()),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             child: const Text('확인'),
+  //             onPressed: () {
+  //               Navigator.of(ctx).pop();
+  //             },
+  //           ),
+  //         ],
+  //       ),
+  //     );
+  //   }
+  // }
 
   void removeOneMenuInDiets(String menuName) async {
     try {
@@ -327,10 +328,21 @@ class _WeekDietState extends State<WeekDiet> {
                         onChanged: (value) {
                           setState(() {});
                         },
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: "메뉴 명",
+                          suffixIcon: menuNameController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    setState(() {
+                                      menuNameController.clear();
+                                    });
+                                  },
+                                )
+                              : null,
                         ),
                       ),
+
                       Expanded(
                         child: FutureBuilder(
                           future: menuList,
@@ -338,10 +350,10 @@ class _WeekDietState extends State<WeekDiet> {
                             if (snapshot.hasData) {
                               var data = snapshot.data!.names;
 
-                              final currentMenus = weekMenus[selectedDay] ?? [];
-                              data = data
-                                  .where((menu) => !currentMenus.contains(menu))
-                                  .toList();
+                              // final currentMenus = weekMenus[selectedDay] ?? [];
+                              // data = data
+                              //     .where((menu) => !currentMenus.contains(menu))
+                              //     .toList();
                               if (data.isEmpty) {
                                 return const Center(
                                   child: Padding(
@@ -366,7 +378,30 @@ class _WeekDietState extends State<WeekDiet> {
                                   final item = menuNameController.text.isEmpty
                                       ? data[index]
                                       : filteredMenus[index];
+                                  bool isChecked =
+                                      weekMenus[selectedDay]?.contains(item) ??
+                                          false;
                                   return ListTile(
+                                    leading: Checkbox(
+                                      value: isChecked,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          if (value != null && value) {
+                                            print(weekMenus[selectedDay]);
+                                            if (weekMenus[selectedDay] ==
+                                                null) {
+                                              weekMenus[selectedDay] = [];
+                                            }
+
+                                            weekMenus[selectedDay]?.add(item);
+                                          } else {
+                                            weekMenus[selectedDay]
+                                                ?.remove(item);
+                                            menuNameController.clear();
+                                          }
+                                        });
+                                      },
+                                    ),
                                     title: Text(item),
                                     onTap: () {
                                       setState(() {
@@ -434,24 +469,7 @@ class _WeekDietState extends State<WeekDiet> {
                 ),
                 TextButton(
                   onPressed: () {
-                    if (filteredMenus.isEmpty) {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('에러'),
-                          content:
-                              const Text('없는 메뉴입니다. 아래 메뉴 등록하기를 눌러 메뉴를 등록해주세요'),
-                          actions: <Widget>[
-                            TextButton(
-                              child: const Text('확인'),
-                              onPressed: () {
-                                Navigator.of(ctx).pop();
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    } else if (menuNameController.text.isEmpty) {
+                    if (weekMenus[selectedDay]?.isEmpty ?? true) {
                       showDialog(
                         context: context,
                         builder: (ctx) => AlertDialog(
@@ -472,12 +490,15 @@ class _WeekDietState extends State<WeekDiet> {
                       print(
                           "$selectedCategory 카테고리, 메뉴명: ${menuNameController.text}");
 
-                      if (weekMenus[selectedDay]!.isNotEmpty) {
-                        registeringOneMenuInDiets(menuNameController.text);
-                      } else {
-                        registeringDiets();
+                      // if (weekMenus[selectedDay]!.isNotEmpty) {
+                      //   registeringOneMenuInDiets(menuNameController.text);
+                      // } else {
+                      if (operationalDays[selectedDay] == null) {
+                        operationalDays[selectedDay] = false;
                       }
-                      weekMenus[selectedDay]!.add(menuNameController.text);
+                      registeringDiets();
+                      // }
+                      // weekMenus[selectedDay]!.add(menuNameController.text);
                       selectedCategory = null;
                       menuNameController.clear();
                       Navigator.of(context).pop();
