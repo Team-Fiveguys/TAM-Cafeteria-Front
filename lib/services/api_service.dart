@@ -598,19 +598,12 @@ class ApiService {
     }
   }
 
-  static Future<Map<String?, Diet>> getWeekDiets(
-      int cafeteriaId, int year, int month, int weekNum, String meals) async {
+  static Future<Map<String?, Diet>> getDietsInMain(int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
-    const path = "/diets/weeks";
-
-    print("Api Service : getWeekDiets : Dio 호출");
+    const path = "/diets/main";
 
     final Map<String, dynamic> queryParameters = {
-      'cafeteriaId': cafeteriaId.toString(),
-      'year': year.toString(),
-      'month': month.toString(),
-      'weekNum': weekNum.toString(),
-      'meals': meals,
+      'cafeteriaId': cafeteriaId,
     };
 
     try {
@@ -624,7 +617,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         Map<String?, Diet> responseData = {};
-        final instance = response.data['result']['dietResponseDTOList'];
+        final instance = response.data['result'];
         for (var resultInstance in instance) {
           final date = resultInstance['date'];
           final List<String> menuNames = List<String>.from(
@@ -637,11 +630,18 @@ class ApiService {
           );
           final dayOff = resultInstance['dayOff'];
           final soldOut = resultInstance['soldOut'];
+          final meals = resultInstance['meals'];
           Diet diet = Diet(
-              names: menuNames, ids: menuIds, dayOff: dayOff, soldOut: soldOut);
+            names: menuNames,
+            ids: menuIds,
+            dayOff: dayOff,
+            soldOut: soldOut,
+            meals: meals,
+          );
           responseData[date] = diet;
         }
         return responseData;
+        // return response.data['result']['threeWeeksDietsResponseDTOS'];
       } else {
         // 에러 처리
         print("Request failed with status: ${response.statusCode}");

@@ -4,6 +4,7 @@ class Diet {
   final String? imageUrl;
   final bool dayOff;
   final bool soldOut;
+  final String? meals;
 
   Diet({
     required this.names,
@@ -11,5 +12,6 @@ class Diet {
     required this.dayOff,
     required this.soldOut,
     this.imageUrl,
+    this.meals,
   });
 }
