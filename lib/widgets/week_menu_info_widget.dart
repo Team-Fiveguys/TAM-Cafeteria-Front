@@ -82,7 +82,7 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
   }
 
   Future<void> getWeekDiets() async {
-    print('이제 몇번인가요?');
+    // print('이제 몇번인가요?');
     weekDietBreakfastList = {};
     weekDietLunchList = {};
 
@@ -92,7 +92,6 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
     } catch (e) {
       print(e);
     }
-
     final now = DateTime.now();
 
     final lastMonday = now.subtract(Duration(days: now.weekday + 6));

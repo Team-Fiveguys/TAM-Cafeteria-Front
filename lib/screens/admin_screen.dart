@@ -520,8 +520,10 @@ class _AdminPageState extends State<AdminPage> {
                     selectedItem = newValue;
                     if (newValue == "명진당") {
                       cafeteriaId = 1;
+                      mealList = ['중식'];
                     } else if (newValue == "학생회관") {
                       cafeteriaId = 2;
+                      mealList = ['중식', '조식'];
                     } else {
                       cafeteriaId = 3;
                     }
