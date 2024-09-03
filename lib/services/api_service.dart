@@ -43,7 +43,11 @@ class ApiService {
     baseUrl: 'https://$baseUrl',
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
-  ));
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  ))
+    ..interceptors.add(TokenInterceptor());
   static Future<void> postDietPhoto(
       XFile image, String date, String meals, int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
