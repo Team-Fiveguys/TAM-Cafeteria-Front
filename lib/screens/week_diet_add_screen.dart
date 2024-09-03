@@ -522,6 +522,9 @@ class _WeekDietState extends State<WeekDiet> {
     if (todayDiets != null) {
       weekMenus[selectedDay] = todayDiets.names;
       operationalDays[selectedDay] = todayDiets.dayOff;
+    } else {
+      weekMenus[selectedDay] = [];
+      operationalDays[selectedDay] = false;
     }
     // print('weekDiets : loadMenus : $selectedDay $weekMenus');
   }
@@ -735,8 +738,8 @@ class _WeekDietState extends State<WeekDiet> {
                   }
                   selectedItem = newValue; // 선택된 항목을 상태로 저장
                   // await initDietList();
-                  await loadDiets();
-                  setState(() {});
+                  await loadDiets().then((_) => setState(() {}));
+                  // setState(() {});
                 },
                 items: widget.mealList // 선택 가능한 항목 리스트
                     .map<DropdownMenuItem<String>>((String value) {
