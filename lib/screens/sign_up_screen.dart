@@ -446,27 +446,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                           color: Colors.white,
                         ),
-                        child: TextFormField(
-                          obscureText: !_passwordVisible,
-                          controller: _passwordController,
-                          onTapOutside: (event) =>
-                              FocusManager.instance.primaryFocus?.unfocus(),
-                          decoration: InputDecoration(
-                            hintText: '비밀번호',
-                            border: InputBorder.none,
-                            contentPadding: const EdgeInsets.all(12),
-                            filled: false,
-                            suffixIcon: IconButton(
-                              icon: Icon(_passwordVisible
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
-                              onPressed: () {
-                                setState(
-                                  () {
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            inputDecorationTheme: const InputDecorationTheme(
+                              // 기본 테마를 무시하고 InputBorder를 없앰
+                              border: InputBorder.none,
+                              filled: false,
+                            ),
+                          ),
+                          child: TextFormField(
+                            obscureText: !_passwordVisible,
+                            controller: _passwordController,
+                            onTapOutside: (event) =>
+                                FocusManager.instance.primaryFocus?.unfocus(),
+                            decoration: InputDecoration(
+                              hintText: '비밀번호',
+                              contentPadding: const EdgeInsets.all(12),
+                              suffixIcon: IconButton(
+                                icon: Icon(_passwordVisible
+                                    ? Icons.visibility_off
+                                    : Icons.visibility),
+                                onPressed: () {
+                                  setState(() {
                                     _passwordVisible = !_passwordVisible;
-                                  },
-                                );
-                              },
+                                  });
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -500,34 +505,45 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         child: Column(
                           children: [
-                            TextFormField(
-                              obscureText: !_checkpasswordVisible,
-                              controller: _checkPasswordController,
-                              onTapOutside: (event) =>
-                                  FocusManager.instance.primaryFocus?.unfocus(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _passwordsMatch =
-                                      _passwordController.text == value;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                hintText: '비밀번호 확인',
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.all(12),
-                                filled: false,
-                                suffixIcon: IconButton(
-                                  icon: Icon(_checkpasswordVisible
-                                      ? Icons.visibility_off
-                                      : Icons.visibility),
-                                  onPressed: () {
-                                    setState(
-                                      () {
-                                        _checkpasswordVisible =
-                                            !_checkpasswordVisible;
-                                      },
-                                    );
-                                  },
+                            Theme(
+                              data: Theme.of(context).copyWith(
+                                inputDecorationTheme:
+                                    const InputDecorationTheme(
+                                  // 기본 테마를 무시하고 InputBorder를 없앰
+                                  border: InputBorder.none,
+                                  filled: false,
+                                ),
+                              ),
+                              child: TextFormField(
+                                obscureText: !_checkpasswordVisible,
+                                controller: _checkPasswordController,
+                                onTapOutside: (event) => FocusManager
+                                    .instance.primaryFocus
+                                    ?.unfocus(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _passwordsMatch =
+                                        _passwordController.text == value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: '비밀번호 확인',
+                                  border: InputBorder.none,
+                                  contentPadding: const EdgeInsets.all(12),
+                                  filled: false,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(_checkpasswordVisible
+                                        ? Icons.visibility_off
+                                        : Icons.visibility),
+                                    onPressed: () {
+                                      setState(
+                                        () {
+                                          _checkpasswordVisible =
+                                              !_checkpasswordVisible;
+                                        },
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                             ),
