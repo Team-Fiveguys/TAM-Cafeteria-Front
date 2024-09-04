@@ -359,6 +359,8 @@ class LoginScreen extends ConsumerWidget {
                         SizedBox(
                           height: 55,
                           child: TextField(
+                            keyboardType: TextInputType.emailAddress,
+                            // autofillHints: const [AutofillHints.email],
                             controller: _idController,
                             onTapOutside: (event) =>
                                 FocusManager.instance.primaryFocus?.unfocus(),
@@ -377,6 +379,7 @@ class LoginScreen extends ConsumerWidget {
                         SizedBox(
                           height: 55,
                           child: TextField(
+                            // autofillHints: const [AutofillHints.password],
                             controller: _passwordController,
                             onTapOutside: (event) =>
                                 FocusManager.instance.primaryFocus?.unfocus(),
@@ -415,7 +418,10 @@ class LoginScreen extends ConsumerWidget {
                             minimumSize: WidgetStateProperty.all<Size>(
                                 const Size(200, 58)),
                           ),
-                          onPressed: () => loginWithEmail(context, ref),
+                          onPressed: () {
+                            // TextInput.finishAutofillContext();
+                            loginWithEmail(context, ref);
+                          },
                           child: const Text(
                             '로그인',
                             style: TextStyle(color: Colors.black),
