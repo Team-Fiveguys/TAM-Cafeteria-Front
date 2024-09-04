@@ -222,16 +222,16 @@ class ApiService {
             .map((item) => item['name'] ?? ""),
       );
 
-      final List<int> menuIds = List<int>.from(
-        response.data['result']['menuQueryDTOList']
-            .map((item) => item['menuId']),
-      );
+      // final List<int> menuIds = List<int>.from(
+      //   response.data['result']['menuQueryDTOList']
+      //       .map((item) => item['menuId']),
+      // );
 
       final bool dayOff = response.data['result']['dayOff'] ?? false;
       final bool soldOut = response.data['result']['soldOut'] ?? false;
 
       return Diet(
-        ids: menuIds,
+        // ids: menuIds,
         names: menuNames,
         dayOff: dayOff,
         soldOut: soldOut,
@@ -263,17 +263,16 @@ class ApiService {
             .map((item) => item['name']),
       );
 
-      final List<int> menuIds = List<int>.from(
-        response.data['result']['menuResponseListDTO']['menuQueryDTOList']
-            .map((item) => item['menuId']),
-      );
+      // final List<int> menuIds = List<int>.from(
+      //   response.data['result']['menuResponseListDTO']['menuQueryDTOList']
+      //       .map((item) => item['menuId']),
+      // );
 
       final String? imageUrl = response.data['result']['photoURI'];
       final bool dayOff = response.data['result']['dayOff'];
       final bool soldOut = response.data['result']['soldOut'];
 
       return Diet(
-        ids: menuIds,
         names: menuNames,
         dayOff: dayOff,
         soldOut: soldOut,
@@ -637,7 +636,7 @@ class ApiService {
     }
   }
 
-  static Future<Map<String?, Diet>> getDietsInMain(int cafeteriaId) async {
+  static Future<List<Diet>> getDietsInMain(int cafeteriaId) async {
     final accessToken = await TokenManagerWithSP.loadToken();
     const path = "/diets/main";
 
@@ -655,7 +654,7 @@ class ApiService {
           ));
 
       if (response.statusCode == 200) {
-        Map<String?, Diet> responseData = {};
+        List<Diet> responseData = [];
         final instance = response.data['result'];
         for (var resultInstance in instance) {
           final date = resultInstance['date'];
@@ -663,21 +662,21 @@ class ApiService {
             resultInstance['menuResponseListDTO']['menuQueryDTOList']
                 .map((item) => item['name'] as String),
           );
-          final List<int> menuIds = List<int>.from(
-            resultInstance['menuResponseListDTO']['menuQueryDTOList']
-                .map((item) => item['menuId'] as int),
-          );
+          // final List<int> menuIds = List<int>.from(
+          //   resultInstance['menuResponseListDTO']['menuQueryDTOList']
+          //       .map((item) => item['menuId'] as int),
+          // );
           final dayOff = resultInstance['dayOff'];
           final soldOut = resultInstance['soldOut'];
           final meals = resultInstance['meals'];
           Diet diet = Diet(
             names: menuNames,
-            ids: menuIds,
             dayOff: dayOff,
             soldOut: soldOut,
             meals: meals,
+            date: date,
           );
-          responseData[date] = diet;
+          responseData.add(diet);
         }
         return responseData;
         // return response.data['result']['threeWeeksDietsResponseDTOS'];
@@ -697,7 +696,7 @@ class ApiService {
       print("Request to $path failed: $e");
     }
 
-    return {};
+    return [];
   }
 
   static Future<void> postNotificationToSubscriber(String title, String content,

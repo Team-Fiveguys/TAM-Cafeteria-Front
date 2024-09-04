@@ -82,37 +82,69 @@ class _WeekMenuInfoState extends State<WeekMenuInfo> {
   }
 
   Future<void> getWeekDiets() async {
-    // print('이제 몇번인가요?');
-    weekDietBreakfastList = {};
-    weekDietLunchList = {};
+    weekDietBreakfastList = {}; // 날짜별 조식 리스트
+    weekDietLunchList = {}; // 날짜별 중식 리스트
 
-    Map<String?, Diet> totalWeek = {};
+    List<Diet> totalWeek = [];
     try {
       totalWeek = await ApiService.getDietsInMain(widget.cafeteria.id);
     } catch (e) {
       print(e);
     }
+
+    // 현재 날짜로부터 지난주 월요일과 다음주 일요일 계산
     final now = DateTime.now();
+    final lastMonday = now.subtract(Duration(days: now.weekday + 6)); // 지난주 월요일
+    final nextSunday = now.add(Duration(days: 7 - now.weekday + 7)); // 다음주 일요일
 
-    final lastMonday = now.subtract(Duration(days: now.weekday + 6));
-
-    final nextSunday = now.add(Duration(days: 14 - now.weekday));
     DateTime currentDate = lastMonday;
 
-    while (currentDate.isBefore(nextSunday.add(const Duration(days: 1)))) {
+    // 날짜를 키로 하고, List<Diet>를 값으로 하는 Map을 생성
+    Map<String, List<Diet>> dateToDietMap = {
+      for (var diet in totalWeek) diet.date!: []
+    };
+
+    // 같은 날짜에 여러 식단이 있는 경우를 처리하기 위해, List에 추가
+    for (var diet in totalWeek) {
+      dateToDietMap[diet.date]!.add(diet);
+    }
+
+    // 주간의 모든 날짜를 반복
+    while (!currentDate.isAfter(nextSunday)) {
       final formatDate = dateFormat.format(currentDate);
-      if (totalWeek.containsKey(formatDate) &&
-          totalWeek[formatDate]!.meals == "LUNCH") {
-        weekDietLunchList[formatDate] = totalWeek[formatDate];
+
+      // 해당 날짜에 식단 정보가 있는 경우
+      if (dateToDietMap.containsKey(formatDate)) {
+        bool hasLunch = false;
+        bool hasBreakfast = false;
+
+        // 해당 날짜의 모든 식단을 반복 처리
+        for (var diet in dateToDietMap[formatDate]!) {
+          if (diet.meals == "LUNCH") {
+            weekDietLunchList[formatDate] = diet;
+            hasLunch = true;
+          } else if (diet.meals == "BREAKFAST") {
+            weekDietBreakfastList[formatDate] = diet;
+            hasBreakfast = true;
+          }
+        }
+
+        // 만약 중식이 없으면 null로 설정
+        if (!hasLunch) {
+          weekDietLunchList[formatDate] = null;
+        }
+
+        // 만약 조식이 없으면 null로 설정
+        if (!hasBreakfast) {
+          weekDietBreakfastList[formatDate] = null;
+        }
       } else {
+        // 해당 날짜에 식단 정보가 없을 경우
         weekDietLunchList[formatDate] = null;
-      }
-      if (totalWeek.containsKey(formatDate) &&
-          totalWeek[formatDate]!.meals == "BREAKFAST") {
-        weekDietBreakfastList[formatDate] = totalWeek[formatDate];
-      } else {
         weekDietBreakfastList[formatDate] = null;
       }
+
+      // 다음 날짜로 이동
       currentDate = currentDate.add(const Duration(days: 1));
     }
   }
