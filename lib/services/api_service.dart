@@ -1464,4 +1464,29 @@ class ApiService {
       throw Exception();
     }
   }
+
+  static Future<String> getVersion() async {
+    const path = "/version";
+    final url = Uri.https(baseUrl, path);
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    final String decodedResponse = utf8.decode(response.bodyBytes);
+
+    // 디코드된 문자열을 JSON으로 파싱합니다.
+    // final Map<String, dynamic> jsonResponse = jsonDecode(decodedResponse);
+    print('getVersion : $decodedResponse');
+    if (response.statusCode == 200) {
+      return decodedResponse;
+    } else {
+      // print('getHealthy : $jsonResponse');
+      // return jsonResponse['message'];
+      throw Exception();
+    }
+  }
 }

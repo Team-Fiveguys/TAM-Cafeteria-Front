@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
@@ -28,6 +30,7 @@ import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -250,7 +253,8 @@ class App extends ConsumerStatefulWidget {
   _AppState createState() => _AppState();
 }
 
-class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
+class _AppState extends ConsumerState<App>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   bool isAdmin = false;
   bool isRealAdmin = false;
   int _selectedIndex = 0; // 현재 선택된 탭의 인덱스
@@ -486,11 +490,90 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     }
   }
 
+  Future<String> getCurrentVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String version = packageInfo.version;
+    return version;
+  }
+
+  void checkForUpdate(BuildContext context) async {
+    String currentVersion = await getCurrentVersion();
+    String latestVersion = await ApiService.getVersion();
+
+    if (isNewVersionAvailable(currentVersion, latestVersion)) {
+      showUpdateDialog(context);
+    }
+  }
+
+// 버전 비교 함수
+  bool isNewVersionAvailable(String currentVersion, String latestVersion) {
+    // 단순한 문자열 비교가 아닌, 버전 문자열을 숫자로 분리하여 비교
+    List<int> currentVersionParts =
+        currentVersion.split('.').map(int.parse).toList();
+    List<int> latestVersionParts =
+        latestVersion.split('.').map(int.parse).toList();
+
+    for (int i = 0; i < latestVersionParts.length; i++) {
+      if (currentVersionParts[i] < latestVersionParts[i]) {
+        return true;
+      } else if (currentVersionParts[i] > latestVersionParts[i]) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+// 업데이트 알림 다이얼로그
+  void showUpdateDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+          title: const Text('업데이트 필요'),
+          content: const Text('탐식당의 새로운 버전이 있습니다. 서비스를 이용하려면 업데이트를 진행해 주세요!'),
+          actions: [
+            TextButton(
+              child: const Text('업데이트'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                openStore(); // 스토어로 이동
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void openStore() async {
+    Uri url;
+
+    if (Platform.isAndroid) {
+      // 안드로이드일 경우 구글 플레이 스토어로 이동
+      url = Uri.parse(
+          'https://play.google.com/store/apps/details?id=com.tam_cafeteria.app');
+    } else if (Platform.isIOS) {
+      // iOS일 경우 애플 앱스토어로 이동
+      url = Uri.parse(
+          'https://apps.apple.com/kr/app/%ED%83%90%EC%8B%9D%EB%8B%B9/id6502761205');
+    } else {
+      throw UnsupportedError('지원되지 않는 플랫폼입니다.');
+    }
+
+    // URL 열기
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw '스토어 링크를 열 수 없습니다: $url';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // _permissionWithNotification();
-
+    checkForUpdate(context);
     _controller = AnimationController(
       duration: const Duration(
         milliseconds: 300,
@@ -551,10 +634,19 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _isVisible.dispose();
     _controller?.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // 사용자가 앱으로 돌아왔을 때 업데이트 체크
+      checkForUpdate(context);
+    }
   }
 
   // 사용자가 탭을 선택했을 때 호출되는 함수
