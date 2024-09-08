@@ -114,7 +114,7 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
         return Dialog(
           child: SizedBox(
             width: 350, // 팝업창의 너비
-            height: 450, // 팝업창의 높이
+            height: 460, // 팝업창의 높이
             child: Padding(
               padding: EdgeInsets.all(allPading),
               child: Column(
@@ -286,13 +286,12 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
                                           ]
                                         : [
                                             for (var menu in menuList)
-                                              AutoSizeText(
+                                              Text(
                                                 "• $menu",
                                                 style: const TextStyle(
                                                   color: Colors.white,
-                                                  fontSize: 11,
+                                                  fontSize: 10,
                                                 ),
-                                                minFontSize: 10,
                                               )
                                           ],
                                   )
@@ -395,6 +394,9 @@ class _TodayMenuInfoState extends State<TodayMenuInfo> {
         lunchIsSoldOut = menus.soldOut;
         lunchIsDayOff = menus.dayOff;
       }
+
+      print(
+          'getDietsInMain ImageUrl : [lunch] : $lunchImageUrl, [breakfast] : $breakfastImageUrl');
       return menus.names;
     }
     return [];
