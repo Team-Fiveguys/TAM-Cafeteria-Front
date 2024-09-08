@@ -63,7 +63,6 @@ class _MultiSelectCalendarWidgetState extends State<MultiSelectCalendarWidget> {
         ElevatedButton(
           onPressed: () {
             // 여기서 _selectedDays.value로 선택된 날짜들을 사용할 수 있습니다.
-            print(_selectedDays.value);
           },
           child: const Text('선택된 날짜 출력'),
         ),

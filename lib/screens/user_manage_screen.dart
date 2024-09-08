@@ -107,7 +107,7 @@ class _UserManageScreenState extends State<UserManageScreen> {
 
   void showCafeteriaListDialog(BuildContext context) async {
     // Cafe List를 가져오는 비동기 함수를 호출
-    final List<Cafeteria> cafeteriaList = await ApiService().getCafeteriaList();
+    final List<Cafeteria> cafeteriaList = await ApiService.getCafeteriaList();
 
     // 다이얼로그를 표시
     showDialog(
@@ -189,6 +189,8 @@ class _UserManageScreenState extends State<UserManageScreen> {
           ),
           TextField(
             controller: _searchController,
+            onTapOutside: (event) =>
+                FocusManager.instance.primaryFocus?.unfocus(),
             onChanged: (value) {
               _refreshUserList();
             },

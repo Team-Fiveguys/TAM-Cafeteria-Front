@@ -26,7 +26,7 @@ class _NotificationSendPageState extends State<NotificationSendPage> {
                   ? "myeongDon"
                   : "";
       await ApiService.postNotificationToSubscriber(
-          "[${widget.cafeteriaName}] 주간 식당 등록",
+          "[${widget.cafeteriaName}] 주간 식단 등록",
           "${widget.cafeteriaName} 주간 식단표가 등록되었어요. 확인해보세요!",
           channel,
           "weekDietEnroll");

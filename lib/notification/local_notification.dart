@@ -36,7 +36,7 @@ Future<void> initializeNotifications() async {
     initializationSettings,
     onDidReceiveNotificationResponse: (NotificationResponse details) {
       if (details.payload != null) {
-        print(details.payload);
+        // print(details.payload);
       }
     },
   );

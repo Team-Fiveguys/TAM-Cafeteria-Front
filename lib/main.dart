@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,6 +12,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/provider/access_token_provider.dart';
 import 'package:tam_cafeteria_front/provider/login_state_provider.dart';
@@ -27,6 +30,7 @@ import 'package:tam_cafeteria_front/screens/notification_screen.dart';
 import 'package:tam_cafeteria_front/services/api_service.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -123,6 +127,8 @@ Future<String?> getToken() async {
   return token;
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final String? initialToken =
@@ -139,6 +145,9 @@ void main() async {
   initializeNotification();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  FirebaseAnalyticsObserver observer =
+      FirebaseAnalyticsObserver(analytics: analytics);
   runApp(
     ProviderScope(
       overrides: [
@@ -148,79 +157,87 @@ void main() async {
         ),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey, // GlobalKey 설정
+        navigatorObservers: <NavigatorObserver>[observer],
+        routes: {
+          '/login': (context) => LoginScreen(), // 로그인 화면
+          // 필요한 다른 라우트를 추가
+        },
         debugShowCheckedModeBanner: false,
         builder: (context, child) {
           return Theme(
-              data: ThemeData(
-                textTheme: GoogleFonts.robotoTextTheme(
-                  Theme.of(context).textTheme,
-                ),
-                checkboxTheme: CheckboxThemeData(
-                  side: const BorderSide(color: Colors.blue), // 테두리 색상 설정
-                  fillColor: WidgetStateProperty.resolveWith<Color>(
-                      (Set<WidgetState> states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return Colors.blue; // 체크했을 때 색상 설정
-                    }
-                    return Colors.white; // 해제했을 때 색상 설정
-                  }),
-                  checkColor: WidgetStateProperty.all<Color>(Colors.white),
-                ),
-                dialogTheme: const DialogTheme(
-                  surfaceTintColor: Colors.white,
-                ),
-                textButtonTheme: const TextButtonThemeData(
-                    style: ButtonStyle(
-                        foregroundColor: WidgetStatePropertyAll(Colors.blue))),
-                switchTheme: SwitchThemeData(
-                  trackColor: WidgetStateProperty.resolveWith<Color>(
-                      (Set<WidgetState> states) {
-                    if (states.contains(WidgetState.selected)) {
-                      // 스위치가 켜져있을 때의 색상
-                      return Colors.blue;
-                    } else {
-                      // 스위치가 꺼져있을 때의 색상
-                      return Colors.grey;
-                    }
-                  }),
-                ),
-                inputDecorationTheme: InputDecorationTheme(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: const BorderSide(color: Colors.blue),
-                    borderRadius: BorderRadius.circular(15), // 눌렀을 때 테두리 색상
-                  ),
-                ),
-                textSelectionTheme: const TextSelectionThemeData(
-                  cursorColor: Color(0xFF515151), // 커서 색상
-                  selectionColor: Colors.lightBlueAccent, // 선택한 텍스트 배경 색상
-                  selectionHandleColor: Colors.blue, // 선택 핸들 색상
-                ),
-                scaffoldBackgroundColor: Colors.white,
-                primaryColor: const Color(0xFF3e3e3e),
-                primaryColorLight: const Color(0xFF97948f),
-                primaryColorDark: const Color(0xFF515151),
-                dividerColor: const Color(0xFFc6c6c6),
-                cardColor: const Color(0xFFFFDA7B),
-                canvasColor: const Color(0xFF002967),
-                appBarTheme: const AppBarTheme(
-                  // elevation: 5,
-                  scrolledUnderElevation: 3,
-                  backgroundColor: Colors.white,
-                  shadowColor: Colors.black,
-                  surfaceTintColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(10), // 하단 모서리의 반경을 30으로 설정
-                    ),
-                  ),
-                ),
-                indicatorColor: Colors.white,
-                progressIndicatorTheme: const ProgressIndicatorThemeData(
-                    color: Colors.blue,
-                    circularTrackColor: Colors.white,
-                    refreshBackgroundColor: Colors.white),
+            data: ThemeData(
+              textTheme: GoogleFonts.robotoTextTheme(
+                Theme.of(context).textTheme,
               ),
-              child: child!);
+              checkboxTheme: CheckboxThemeData(
+                side: const BorderSide(color: Colors.blue), // 테두리 색상 설정
+                fillColor: WidgetStateProperty.resolveWith<Color>(
+                    (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.selected)) {
+                    return Colors.blue; // 체크했을 때 색상 설정
+                  }
+                  return Colors.white; // 해제했을 때 색상 설정
+                }),
+                checkColor: WidgetStateProperty.all<Color>(Colors.white),
+              ),
+              dialogTheme: const DialogTheme(
+                surfaceTintColor: Colors.white,
+              ),
+              textButtonTheme: const TextButtonThemeData(
+                  style: ButtonStyle(
+                      foregroundColor: WidgetStatePropertyAll(Colors.blue))),
+              switchTheme: SwitchThemeData(
+                trackColor: WidgetStateProperty.resolveWith<Color>(
+                    (Set<WidgetState> states) {
+                  if (states.contains(WidgetState.selected)) {
+                    // 스위치가 켜져있을 때의 색상
+                    return Colors.blue;
+                  } else {
+                    // 스위치가 꺼져있을 때의 색상
+                    return Colors.grey;
+                  }
+                }),
+              ),
+              inputDecorationTheme: InputDecorationTheme(
+                focusedBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(color: Colors.blue),
+                  borderRadius: BorderRadius.circular(15), // 눌렀을 때 테두리 색상
+                ),
+              ),
+              textSelectionTheme: const TextSelectionThemeData(
+                cursorColor: Color(0xFF515151), // 커서 색상
+                selectionColor: Colors.lightBlueAccent, // 선택한 텍스트 배경 색상
+                selectionHandleColor: Colors.blue, // 선택 핸들 색상
+              ),
+              scaffoldBackgroundColor: Colors.white,
+              primaryColor: const Color(0xFF3e3e3e),
+              primaryColorLight: const Color(0xFF97948f),
+              primaryColorDark: const Color(0xFF515151),
+              dividerColor: const Color(0xFFc6c6c6),
+              cardColor: const Color(0xFFFFDA7B),
+              canvasColor: const Color(0xFF002967),
+              appBarTheme: const AppBarTheme(
+                // elevation: 5,
+                scrolledUnderElevation: 3,
+                backgroundColor: Colors.white,
+                shadowColor: Colors.black,
+                surfaceTintColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(10), // 하단 모서리의 반경을 30으로 설정
+                  ),
+                ),
+              ),
+              indicatorColor: Colors.white,
+              progressIndicatorTheme: const ProgressIndicatorThemeData(
+                color: Colors.blue,
+                circularTrackColor: Colors.white,
+                refreshBackgroundColor: Colors.white,
+              ),
+            ),
+            child: child!,
+          );
         },
         home: const App(),
       ),
@@ -236,7 +253,8 @@ class App extends ConsumerStatefulWidget {
   _AppState createState() => _AppState();
 }
 
-class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
+class _AppState extends ConsumerState<App>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   bool isAdmin = false;
   bool isRealAdmin = false;
   int _selectedIndex = 0; // 현재 선택된 탭의 인덱스
@@ -246,6 +264,8 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
   bool isNoti = false;
   String userId = "";
   DateTime? currentBackPressTime;
+  bool hasError = false;
+
   bool _showBackToTopButton = false;
 
   late ScrollController _scrollControllerUp;
@@ -257,13 +277,11 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
   AnimationController? _controller;
   OverlayEntry? _overlayEntry;
 
+  GlobalKey<MenuBoardScreenState> menuBoardKey = GlobalKey();
+
   List<Widget> _widgetOptions = <Widget>[
     MainScreen(),
-    // MenuBoardScreen(
-    //   userId: "",
-    //   isAdmin: false,
-    //   scrollVisible: ValueNotifier(true),
-    // ),
+    MainScreen(),
     const MyPage(),
   ];
 
@@ -360,11 +378,11 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     });
   }
 
-  @override
-  void disposeUp() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void disposeUp() {
+  //   _scrollController.dispose();
+  //   super.dispose();
+  // }
 
   void _scrollToTop() {
     _scrollController.animateTo(0,
@@ -398,7 +416,7 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     var normalized = base64Url.normalize(payload);
     var decoded = utf8.decode(base64Url.decode(normalized));
     final payloadMap = json.decode(decoded);
-    print('main App : decodeJwt : payloadMap $payloadMap');
+    print(payloadMap);
     setState(() {
       isRealAdmin = payloadMap['role'] == "ADMIN";
       isAdmin = payloadMap['role'] == "ADMIN";
@@ -415,19 +433,20 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
       setState(() {
         print('autoLoginCheck :: $token');
 
-        _selectedIndex = isAdmin ? 1 : 0; //TODO : 게시판 완성되면 2로 고치기
+        _selectedIndex = isAdmin ? 2 : 0; //TODO : 게시판 완성되면 2로 고치기
         _widgetOptions = <Widget>[
           MainScreen(),
-          // isNoti
-          //     ? AnnounceBoardScreen(
-          //         isAdmin: isRealAdmin,
-          //         scrollVisible: _isVisible,
-          //       )
-          //     : MenuBoardScreen(
-          //         userId: userId,
-          //         isAdmin: isRealAdmin,
-          //         scrollVisible: _isVisible,
-          //       ),
+          isNoti
+              ? AnnounceBoardScreen(
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                )
+              : MenuBoardScreen(
+                  key: menuBoardKey,
+                  userId: userId,
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                ),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -443,19 +462,20 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
       setState(() {
         isRealAdmin = false;
         isAdmin = false;
-        _selectedIndex = isAdmin ? 1 : 0;
+        _selectedIndex = isAdmin ? 2 : 0;
         _widgetOptions = <Widget>[
           MainScreen(),
-          // isNoti
-          //     ? AnnounceBoardScreen(
-          //         isAdmin: isRealAdmin,
-          //         scrollVisible: _isVisible,
-          //       )
-          //     : MenuBoardScreen(
-          //         userId: userId,
-          //         isAdmin: isRealAdmin,
-          //         scrollVisible: _isVisible,
-          //       ),
+          isNoti
+              ? AnnounceBoardScreen(
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                )
+              : MenuBoardScreen(
+                  key: menuBoardKey,
+                  userId: userId,
+                  isAdmin: isRealAdmin,
+                  scrollVisible: _isVisible,
+                ),
           isAdmin
               ? AdminPage(
                   testValue: testValue,
@@ -470,11 +490,90 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     }
   }
 
+  Future<String> getCurrentVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String version = packageInfo.version;
+    return version;
+  }
+
+  void checkForUpdate(BuildContext context) async {
+    String currentVersion = await getCurrentVersion();
+    String latestVersion = await ApiService.getVersion();
+
+    if (isNewVersionAvailable(currentVersion, latestVersion)) {
+      showUpdateDialog(context);
+    }
+  }
+
+// 버전 비교 함수
+  bool isNewVersionAvailable(String currentVersion, String latestVersion) {
+    // 단순한 문자열 비교가 아닌, 버전 문자열을 숫자로 분리하여 비교
+    List<int> currentVersionParts =
+        currentVersion.split('.').map(int.parse).toList();
+    List<int> latestVersionParts =
+        latestVersion.split('.').map(int.parse).toList();
+
+    for (int i = 0; i < latestVersionParts.length; i++) {
+      if (currentVersionParts[i] < latestVersionParts[i]) {
+        return true;
+      } else if (currentVersionParts[i] > latestVersionParts[i]) {
+        return false;
+      }
+    }
+    return false;
+  }
+
+// 업데이트 알림 다이얼로그
+  void showUpdateDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+          title: const Text('업데이트 필요'),
+          content: const Text('탐식당의 새로운 버전이 있습니다. 서비스를 이용하려면 업데이트를 진행해 주세요!'),
+          actions: [
+            TextButton(
+              child: const Text('업데이트'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                openStore(); // 스토어로 이동
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void openStore() async {
+    Uri url;
+
+    if (Platform.isAndroid) {
+      // 안드로이드일 경우 구글 플레이 스토어로 이동
+      url = Uri.parse(
+          'https://play.google.com/store/apps/details?id=com.tam_cafeteria.app');
+    } else if (Platform.isIOS) {
+      // iOS일 경우 애플 앱스토어로 이동
+      url = Uri.parse(
+          'https://apps.apple.com/kr/app/%ED%83%90%EC%8B%9D%EB%8B%B9/id6502761205');
+    } else {
+      throw UnsupportedError('지원되지 않는 플랫폼입니다.');
+    }
+
+    // URL 열기
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw '스토어 링크를 열 수 없습니다: $url';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // _permissionWithNotification();
-
+    checkForUpdate(context);
     _controller = AnimationController(
       duration: const Duration(
         milliseconds: 300,
@@ -497,19 +596,20 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
         await initiallizingFCM();
       }
     });
-    _selectedIndex = isAdmin ? 1 : 0;
+    _selectedIndex = isAdmin ? 2 : 0;
     _widgetOptions = <Widget>[
       MainScreen(),
-      // isNoti
-      //     ? AnnounceBoardScreen(
-      //         isAdmin: isRealAdmin,
-      //         scrollVisible: _isVisible,
-      //       )
-      //     : MenuBoardScreen(
-      //         userId: userId,
-      //         isAdmin: isRealAdmin,
-      //         scrollVisible: _isVisible,
-      //       ),
+      isNoti
+          ? AnnounceBoardScreen(
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            )
+          : MenuBoardScreen(
+              key: menuBoardKey,
+              userId: userId,
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            ),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -534,10 +634,19 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _isVisible.dispose();
     _controller?.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // 사용자가 앱으로 돌아왔을 때 업데이트 체크
+      checkForUpdate(context);
+    }
   }
 
   // 사용자가 탭을 선택했을 때 호출되는 함수
@@ -552,8 +661,8 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     if (index != 0 && !isLoggedIn) {
       // 홈이 아닌 다른 탭을 선택하고, isToken이 false라면
       navigateToLoginScreen(context);
-      // } else if (index == 1) {
-      //   _showFanMenu();
+    } else if (index == 1) {
+      _showFanMenu();
     } else {
       setState(() {
         _selectedIndex = index; // 선택된 탭의 인덱스를 업데이트
@@ -773,6 +882,10 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     // SystemNavigator.pop();
   }
 
+  Future<void> getServerStatus() async {
+    await ApiService.getHealthy();
+  }
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -786,16 +899,17 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
     // print("main App :: build: isAdmin $isAdmin");
     _widgetOptions = <Widget>[
       MainScreen(),
-      // isNoti
-      //     ? AnnounceBoardScreen(
-      //         isAdmin: isRealAdmin,
-      //         scrollVisible: _isVisible,
-      //       )
-      //     : MenuBoardScreen(
-      //         userId: userId,
-      //         isAdmin: isRealAdmin,
-      //         scrollVisible: _isVisible,
-      //       ),
+      isNoti
+          ? AnnounceBoardScreen(
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            )
+          : MenuBoardScreen(
+              key: menuBoardKey,
+              userId: userId,
+              isAdmin: isRealAdmin,
+              scrollVisible: _isVisible,
+            ),
       isAdmin
           ? AdminPage(
               testValue: testValue,
@@ -825,10 +939,10 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
                           icon: Icon(Icons.home),
                           label: '홈',
                         ),
-                        // const BottomNavigationBarItem(
-                        //   icon: Icon(Icons.forum),
-                        //   label: '게시판',
-                        // ),
+                        const BottomNavigationBarItem(
+                          icon: Icon(Icons.forum),
+                          label: '게시판',
+                        ),
                         BottomNavigationBarItem(
                           icon: const Icon(Icons.person),
                           label: isAdmin ? '관리자페이지' : '마이페이지',
@@ -855,16 +969,8 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
                 builder: (context) {
                   return IconButton(
                     icon: const Icon(Icons.menu),
-                    onPressed: () {
-                      // FirebaseMessaging.instance.subscribeToTopic('1');
-                      // FirebaseMessaging.instance.subscribeToTopic('today_diet');
-                      // ref.read(loginStateProvider.notifier).logout();
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => LoginScreen(), //알람 버튼
-                      //   ),
-                      // );
+                    onPressed: () async {
+                      // await ApiService.postRefreshToken(accessToken!);
                     }, // 아무것도 하지 않음
                   );
                 },
@@ -894,9 +1000,9 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
 
                         // if (result == true) {
                         // 필요한 상태 업데이트나 리렌더링 로직
-                        // setState(() {
-                        getNotificationLength();
-                        // });
+                        setState(() {
+                          getNotificationLength();
+                        });
                       }
                       // }
                     },
@@ -945,18 +1051,57 @@ class _AppState extends ConsumerState<App> with SingleTickerProviderStateMixin {
           // ignore: deprecated_member_use
           body: WillPopScope(
             onWillPop: onWillPop,
-            child: RefreshIndicator(
-              color: Colors.blue,
-              onRefresh: () async {
-                setState(() {
-                  testValue = 2;
-                });
-              },
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: _widgetOptions.elementAt(_selectedIndex),
-              ),
-            ),
+            child: FutureBuilder(
+                future: getServerStatus(),
+                builder: (context, snapshot) {
+                  // print('getServerStatus build : ${snapshot.data}');
+                  if (snapshot.hasError) {
+                    if (!hasError) {
+                      hasError = true;
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        // 팝업 표시
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('네트워크 에러'),
+                            content: const Text('원활한 인터넷 환경에서 다시 시도해주세요!'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  // 다이얼로그 닫기
+                                  Navigator.of(context).pop();
+                                  setState(() {
+                                    hasError = false;
+                                  });
+                                },
+                                child: const Text('재시도'),
+                              ),
+                            ],
+                          ),
+                        );
+                      });
+                    }
+                  }
+                  return RefreshIndicator(
+                    color: Colors.blue,
+                    onRefresh: () async {
+                      if (_selectedIndex == 1) {
+                        await menuBoardKey.currentState?.loadBoardList();
+                        //공지게시판도 해야하나
+                      } else {
+                        setState(() {
+                          testValue = 2;
+                        });
+                      }
+                    },
+                    child: _selectedIndex == 1
+                        ? _widgetOptions.elementAt(_selectedIndex)
+                        : SingleChildScrollView(
+                            controller: _scrollController,
+                            child: _widgetOptions.elementAt(_selectedIndex),
+                          ),
+                  );
+                }),
           ),
         ),
         isLoading ? buildLoadingScreenInMain() : Container(),

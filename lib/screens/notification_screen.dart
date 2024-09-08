@@ -210,7 +210,7 @@ class _NotificationCenterState extends State<NotificationCenter> {
             child: FutureBuilder(
                 future: notificationList,
                 builder: (context, snapshot) {
-                  print(snapshot.data);
+                  // print(snapshot.data);
                   if (snapshot.data != null) {
                     if (snapshot.data!.isEmpty) {
                       return const Column(
@@ -222,7 +222,8 @@ class _NotificationCenterState extends State<NotificationCenter> {
                         ],
                       );
                     }
-                    List<NotificationModel> data = snapshot.data!;
+                    List<NotificationModel> data =
+                        snapshot.data!.reversed.toList();
                     return ListView.builder(
                       itemCount: data.length, // 알림의 개수
                       itemBuilder: (BuildContext context, int index) {

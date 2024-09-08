@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tam_cafeteria_front/functions/menu_add_function.dart';
+import 'package:tam_cafeteria_front/main.dart';
 import 'package:tam_cafeteria_front/models/diet_model.dart';
 import 'package:tam_cafeteria_front/screens/add_cafeteria_screen.dart';
 import 'package:tam_cafeteria_front/screens/cover_management_screen.dart';
@@ -252,6 +253,12 @@ class _AdminPageState extends State<AdminPage> {
                               ? "myeongDon"
                               : "";
                   try {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
                     if (cafeteriaId != null) {
                       if ((meals == "LUNCH" &&
                               lunchImageUrl != null &&
@@ -259,19 +266,20 @@ class _AdminPageState extends State<AdminPage> {
                           (meals == "BREAKFAST" &&
                               breakfastImageUrl != null &&
                               breakfastImageUrl != "사진이 등록되어있지 않습니다.")) {
-                        ApiService.putDietPhoto(_image!, dateFormat.format(now),
-                            meals, cafeteriaId!);
+                        await ApiService.putDietPhoto(_image!,
+                            dateFormat.format(now), meals, cafeteriaId!);
                       } else {
-                        ApiService.postDietPhoto(_image!,
+                        await ApiService.postDietPhoto(_image!,
                             dateFormat.format(now), meals, cafeteriaId!);
                       }
-                      ApiService.postNotificationToSubscriber(
+                      await ApiService.postNotificationToSubscriber(
                           "[$cafeteriaName] [$selectedMeals] 사진 등록",
                           "$cafeteriaName $selectedMeals 사진 등록되었어요. 확인해보세요!",
                           channel,
                           "dietPhotoEnroll");
 
                       Navigator.of(imagePickerContext).pop();
+                      Navigator.of(context).pop();
                     }
                   } on Exception catch (e) {
                     print('_showImagePicker $e');
@@ -512,15 +520,17 @@ class _AdminPageState extends State<AdminPage> {
                     selectedItem = newValue;
                     if (newValue == "명진당") {
                       cafeteriaId = 1;
+                      mealList = ['중식'];
                     } else if (newValue == "학생회관") {
                       cafeteriaId = 2;
+                      mealList = ['중식', '조식'];
                     } else {
                       cafeteriaId = 3;
                     }
                     cafeteriaName = selectedItem!;
                     saveMyCafeteria(newValue!);
                   });
-                  print('$selectedItem');
+                  // print('$selectedItem');
                 },
                 items: <String>[
                   '명진당',
@@ -862,7 +872,7 @@ class _AdminPageState extends State<AdminPage> {
                                     child: Text('Error: ${snapshot.error}'),
                                   );
                                 } else {
-                                  print(snapshot.data!.isNotEmpty);
+                                  // print(snapshot.data!.isNotEmpty);
                                   return SizedBox(
                                     width: 400,
                                     child: AbsorbPointer(
@@ -891,10 +901,10 @@ class _AdminPageState extends State<AdminPage> {
                                                       dateFormat.format(now),
                                                       "BREAKFAST");
                                               if (result) {
-                                                print(channel);
+                                                // print(channel);
                                                 await ApiService
                                                     .postNotificationToSubscriber(
-                                                        "[$cafeteriaName] [조식]품절",
+                                                        "[$cafeteriaName] [조식] 품절",
                                                         "금일 $cafeteriaName 조식 품절되었습니다. 다음에 또 봐요!",
                                                         channel,
                                                         "dietSoldOut");
@@ -1083,7 +1093,7 @@ class _AdminPageState extends State<AdminPage> {
                                         if (result) {
                                           await ApiService
                                               .postNotificationToSubscriber(
-                                                  "[$cafeteriaName] [중식]품절",
+                                                  "[$cafeteriaName] [중식] 품절",
                                                   "금일 $cafeteriaName 중식 품절되었습니다. 다음에 또 봐요!",
                                                   channel,
                                                   "dietSoldOut");
@@ -1132,176 +1142,176 @@ class _AdminPageState extends State<AdminPage> {
                 height: 30,
               ),
               //식수 관리
-              // Container(
-              //   decoration: BoxDecoration(
-              //     borderRadius: BorderRadiusDirectional.circular(20),
-              //     color: Colors.white,
-              //     boxShadow: [
-              //       BoxShadow(
-              //         color: Colors.grey.withOpacity(0.5),
-              //         spreadRadius: 1,
-              //         blurRadius: 5,
-              //         offset: const Offset(0, 3), // 그림자 위치 조정
-              //       ),
-              //     ],
-              //   ),
-              //   child: Padding(
-              //     padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-              //     child: Column(
-              //       children: [
-              //         Row(
-              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //           children: [
-              //             const Text(
-              //               '식수 관리',
-              //               style: TextStyle(
-              //                 color: Color(0xFF282828),
-              //                 fontSize: 20,
-              //                 fontWeight: FontWeight.bold,
-              //               ),
-              //             ),
-              //             TextButton(
-              //               onPressed: () async {
-              //                 if (cafeteriaId == 3) {
-              //                   showDialog(
-              //                     context: context,
-              //                     builder: (ctx) => AlertDialog(
-              //                       title: const Text('에러'),
-              //                       content:
-              //                           const Text("이 식당은 식수 관리를 지원하지 않습니다."),
-              //                       actions: <Widget>[
-              //                         TextButton(
-              //                           child: const Text('확인'),
-              //                           onPressed: () {
-              //                             Navigator.of(ctx).pop();
-              //                           },
-              //                         ),
-              //                       ],
-              //                     ),
-              //                   );
-              //                   return;
-              //                 }
-              //                 await Navigator.push(
-              //                   context,
-              //                   MaterialPageRoute(
-              //                     builder: (context) => CoverManagement(
-              //                       cafeteriaId: cafeteriaId ?? 1,
-              //                       cafeteriaName: cafeteriaName ?? "명진당",
-              //                     ),
-              //                   ),
-              //                 );
-              //                 setState(() {});
-              //               },
-              //               child: const Row(
-              //                 mainAxisSize: MainAxisSize.min,
-              //                 children: [
-              //                   Text("설정하러가기"),
-              //                   Icon(
-              //                     Icons.arrow_forward_ios_rounded,
-              //                     size: 18,
-              //                   ),
-              //                 ],
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //         const SizedBox(
-              //           height: 15,
-              //         ),
-              //         Row(
-              //           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              //           children: [
-              //             Expanded(
-              //               child: Container(
-              //                 padding: const EdgeInsets.all(10),
-              //                 decoration: BoxDecoration(
-              //                   border: Border.all(
-              //                     color: const Color(0xFF999999),
-              //                     width: 1,
-              //                   ),
-              //                   borderRadius: BorderRadius.circular(20),
-              //                 ),
-              //                 height: 130,
-              //                 child: FutureBuilder(
-              //                     future: getCovers(),
-              //                     builder: (context, snapshot) {
-              //                       return Column(
-              //                         children: [
-              //                           const Text(
-              //                             '예상 식수',
-              //                             style: TextStyle(
-              //                               color: Color(0xFF999999),
-              //                               fontSize: 20,
-              //                               fontWeight: FontWeight.bold,
-              //                             ),
-              //                           ),
-              //                           const SizedBox(
-              //                             height: 15,
-              //                           ),
-              //                           Text(
-              //                             predictCovers,
-              //                             style: const TextStyle(
-              //                               fontSize: 25,
-              //                               fontWeight: FontWeight.bold,
-              //                             ),
-              //                           ),
-              //                         ],
-              //                       );
-              //                     }),
-              //               ),
-              //             ),
-              //             const SizedBox(
-              //               width: 10,
-              //             ),
-              //             Expanded(
-              //               child: Container(
-              //                 padding: const EdgeInsets.all(10),
-              //                 decoration: BoxDecoration(
-              //                   border: Border.all(
-              //                     color: const Color(0xFF999999),
-              //                     width: 1,
-              //                   ),
-              //                   borderRadius: BorderRadius.circular(20),
-              //                 ),
-              //                 height: 130,
-              //                 child: FutureBuilder(
-              //                     future: getCovers(),
-              //                     builder: (context, snapshot) {
-              //                       return Column(
-              //                         children: [
-              //                           const Text(
-              //                             '실제 식수',
-              //                             style: TextStyle(
-              //                               color: Color(0xFF999999),
-              //                               fontSize: 20,
-              //                               fontWeight: FontWeight.bold,
-              //                             ),
-              //                           ),
-              //                           const SizedBox(
-              //                             height: 15,
-              //                           ),
-              //                           Text(
-              //                             realCovers,
-              //                             style: const TextStyle(
-              //                               fontSize: 25,
-              //                               fontWeight: FontWeight.bold,
-              //                             ),
-              //                           ),
-              //                         ],
-              //                       );
-              //                     }),
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadiusDirectional.circular(20),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3), // 그림자 위치 조정
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            '식수 관리',
+                            style: TextStyle(
+                              color: Color(0xFF282828),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              if (cafeteriaId == 3) {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('에러'),
+                                    content:
+                                        const Text("이 식당은 식수 관리를 지원하지 않습니다."),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        child: const Text('확인'),
+                                        onPressed: () {
+                                          Navigator.of(ctx).pop();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                return;
+                              }
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CoverManagement(
+                                    cafeteriaId: cafeteriaId ?? 1,
+                                    cafeteriaName: cafeteriaName ?? "명진당",
+                                  ),
+                                ),
+                              );
+                              setState(() {});
+                            },
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("설정하러가기"),
+                                Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFF999999),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              height: 130,
+                              child: FutureBuilder(
+                                  future: getCovers(),
+                                  builder: (context, snapshot) {
+                                    return Column(
+                                      children: [
+                                        const Text(
+                                          '예상 식수',
+                                          style: TextStyle(
+                                            color: Color(0xFF999999),
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 15,
+                                        ),
+                                        Text(
+                                          predictCovers,
+                                          style: const TextStyle(
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }),
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 10,
+                          ),
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFF999999),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              height: 130,
+                              child: FutureBuilder(
+                                  future: getCovers(),
+                                  builder: (context, snapshot) {
+                                    return Column(
+                                      children: [
+                                        const Text(
+                                          '실제 식수',
+                                          style: TextStyle(
+                                            color: Color(0xFF999999),
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 15,
+                                        ),
+                                        Text(
+                                          realCovers,
+                                          style: const TextStyle(
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
-              // const SizedBox(
-              //   height: 30,
-              // ),
+              const SizedBox(
+                height: 30,
+              ),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
