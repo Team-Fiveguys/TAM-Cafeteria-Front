@@ -37,7 +37,7 @@ class User {
 }
 
 class ApiService {
-  static const String baseUrl = "release.tam-cafeteria.site";
+  static const String baseUrl = "product.tam-cafeteria.site";
   static const String aiBaseUrl = "ai.tam-cafeteria.site";
   static final Dio dio = Dio(BaseOptions(
     baseUrl: 'https://$baseUrl',
