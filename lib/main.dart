@@ -970,7 +970,7 @@ class _AppState extends ConsumerState<App>
                   return IconButton(
                     icon: const Icon(Icons.menu),
                     onPressed: () async {
-                      await ApiService.postRefreshToken(accessToken!);
+                      // await ApiService.postRefreshToken(accessToken!);
                     }, // 아무것도 하지 않음
                   );
                 },
